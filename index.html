@@ -99,44 +99,6 @@
       letter-spacing: 0.01em;
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .pill-btn,
-    .ghost-btn {
-      font: inherit;
-      font-weight: 500;
-      color: var(--white);
-      padding: 0.65rem 1.6rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border 0.2s ease;
-    }
-
-    .pill-btn {
-      background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
-      box-shadow: 0 10px 25px rgba(127, 93, 255, 0.45);
-    }
-
-    .pill-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 35px rgba(127, 93, 255, 0.55);
-    }
-
-    .ghost-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-
-    .ghost-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
-    }
-
     main {
       display: grid;
       gap: clamp(3rem, 5vw, 4rem);
@@ -553,10 +515,6 @@
   <div class="page-shell">
     <header class="navbar">
       <div class="brand">MyAiBank</div>
-      <div class="nav-actions">
-        <button class="pill-btn" type="button">Connect bank</button>
-        <button class="ghost-btn" type="button">Logout</button>
-      </div>
     </header>
 
     <main>
@@ -588,7 +546,7 @@
               </div>
             </div>
             <form class="newsletter" action="#" method="post">
-              <label for="email">Join the waitlist newsletter to get early access:</label>
+              <label for="email">Receive a free budgeting template and stay up to date with news</label>
               <div class="newsletter__control">
                 <input id="email" name="email" type="email" placeholder="Enter your email" required>
                 <button type="submit">Join the newsletter</button>
