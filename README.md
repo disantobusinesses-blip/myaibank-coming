@@ -1,2 +1,2 @@
 # ComingSoonPage
-ComingSoon
+ComingSoon!
