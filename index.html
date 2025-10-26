@@ -131,22 +131,20 @@
     .brand__logo {
       width: clamp(68px, 12vw, 88px);
       height: clamp(68px, 12vw, 88px);
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 22px;
+      background: #1b0b4b;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: grid;
       place-items: center;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 45px rgba(7, 0, 32, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
     }
 
     .brand__logo svg {
-      width: 62%;
+      width: 72%;
       height: auto;
-      fill: none;
-      stroke: var(--text-primary);
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      display: block;
+      fill: currentColor;
     }
 
     .brand__text {
@@ -570,12 +568,11 @@
       <div class="hero__top">
         <div class="brand">
           <div class="brand__logo" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="img" aria-labelledby="logoTitle logoDesc">
+            <svg viewBox="0 0 640 512" role="img" aria-labelledby="logoTitle logoDesc">
               <title id="logoTitle">MyAiBank Monogram</title>
-              <desc id="logoDesc">Interlocking letterforms M, A, and B to create a futuristic financial mark.</desc>
-              <path d="M10 47L21.6 18.8a2 2 0 0 1 3.7-.1l11.3 20.9" />
-              <path d="M30 18l10 24c.7 1.7 1.9 2.5 3.6 2.5H53" />
-              <path d="M44 18h9v24c0 2.2-1.8 4-4 4h-9" />
+              <desc id="logoDesc">Bold MB monogram with angular strokes and twin bowls, matching the official MyAiBank launch mark.</desc>
+              <path d="M96 388V124h64l72 136 72-136h64v264h-60V272l-72 116h-12l-72-116v116H96z" />
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M368 124h104c58 0 104 46 104 104 0 34-16 63-44 82 31 19 52 51 52 88 0 64-52 116-116 116H368V124Zm60 32v144h44c39.8 0 72-32.2 72-72s-32.2-72-72-72h-44Zm0 152v180h60c41.1 0 74.5-33.4 74.5-74.5S529.1 339 488 339h-60Z" />
             </svg>
           </div>
           <div class="brand__text">
