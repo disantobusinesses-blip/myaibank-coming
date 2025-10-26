@@ -3,20 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyAiBank — Coming Soon</title>
+  <title>MyAiBank — Coming December 1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient-start: #1f0036;
-      --bg-gradient-end: #3a0ca3;
-      --accent: #ffd166;
-      --text-primary: #f8f6ff;
-      --text-secondary: rgba(248, 246, 255, 0.72);
-      --card-bg: rgba(28, 8, 54, 0.72);
-      --glass-border: rgba(255, 255, 255, 0.18);
-      --shadow: rgba(10, 0, 30, 0.35);
+      --violet-900: #090019;
+      --violet-800: #120130;
+      --violet-700: #1f0445;
+      --violet-600: #3a0ca3;
+      --violet-500: #5f3dc4;
+      --violet-400: #7050d6;
+      --lavender: rgba(255, 255, 255, 0.72);
+      --white: #f5f1ff;
+      --accent: #7f5dff;
+      --accent-strong: #4b26f9;
+      --card: rgba(17, 10, 40, 0.72);
+      --card-solid: #17112f;
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --shadow: 0 25px 60px rgba(6, 0, 35, 0.6);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --radius-sm: 16px;
+      --radius-xs: 12px;
     }
 
     * {
@@ -26,721 +37,794 @@
     }
 
     body {
-      font-family: "Poppins", sans-serif;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at 20% -10%, rgba(127, 93, 255, 0.4), transparent 45%),
+                  radial-gradient(circle at 80% 120%, rgba(127, 93, 255, 0.35), transparent 45%),
+                  linear-gradient(160deg, var(--violet-900), var(--violet-700) 55%, var(--violet-800));
+      color: var(--white);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-primary);
-      background: radial-gradient(circle at top left, rgba(255, 215, 0, 0.1), transparent 45%),
-                  radial-gradient(circle at bottom right, rgba(255, 0, 247, 0.12), transparent 45%),
-                  linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-      overflow: hidden;
-      padding: clamp(1.5rem, 4vw, 3rem) 1rem;
-    }
-
-    .stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.6), transparent),
-                        radial-gradient(1px 1px at 150px 80px, rgba(255, 255, 255, 0.4), transparent),
-                        radial-gradient(1.5px 1.5px at 90% 20%, rgba(255, 255, 255, 0.7), transparent),
-                        radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.4), transparent),
-                        radial-gradient(1.5px 1.5px at 80% 80%, rgba(255, 255, 255, 0.5), transparent);
-      animation: twinkle 8s linear infinite;
-      opacity: 0.6;
-      z-index: 0;
-    }
-
-    @keyframes twinkle {
-      0%, 100% {
-        transform: translateY(0);
-        opacity: 0.6;
-      }
-      50% {
-        transform: translateY(-12px);
-        opacity: 0.9;
-      }
-    }
-
-    main {
+      padding: clamp(1.5rem, 3vw, 2.5rem);
       position: relative;
-      z-index: 1;
-      width: min(1080px, 92vw);
-      padding: clamp(2.4rem, 5vw, 4rem);
-      border-radius: 32px;
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(24px);
-      box-shadow: 0 25px 80px var(--shadow);
-      display: grid;
-      gap: clamp(2rem, 4vw, 3rem);
+      overflow-x: hidden;
     }
 
-    .orbit {
+    body::before,
+    body::after {
+      content: '';
       position: absolute;
-      width: 520px;
-      height: 520px;
+      width: 420px;
+      height: 420px;
+      filter: blur(140px);
+      z-index: 0;
+      opacity: 0.55;
       border-radius: 50%;
-      border: 1px dashed rgba(255, 255, 255, 0.12);
-      top: -120px;
-      right: -160px;
-      animation: orbit 18s linear infinite;
-      pointer-events: none;
-      opacity: 0.5;
-      z-index: 0;
     }
 
-    .planet {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 15px rgba(255, 209, 102, 0.7);
-      top: -9px;
-      left: 50%;
-      transform: translateX(-50%);
+    body::before {
+      background: #5425ff;
+      top: -140px;
+      left: -120px;
     }
 
-    @keyframes orbit {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    body::after {
+      background: #2b1e8c;
+      bottom: -160px;
+      right: -120px;
     }
 
-    .hero {
-      display: grid;
-      gap: clamp(1.8rem, 4vw, 2.75rem);
-    }
-
-    .hero__top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1.75rem;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-    }
-
-    .brand__logo {
-      width: clamp(68px, 12vw, 88px);
-      height: clamp(68px, 12vw, 88px);
-      border-radius: 22px;
-      background: #1b0b4b;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 18px 45px rgba(7, 0, 32, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-      color: var(--text-primary);
-    }
-
-    .brand__logo svg {
-      width: 72%;
-      height: auto;
-      display: block;
-      fill: currentColor;
-    }
-
-    .brand__text {
-      display: grid;
-      gap: 0.25rem;
-    }
-
-    .brand__name {
-      font-size: clamp(1.6rem, 3vw, 2rem);
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .brand__tagline {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-    }
-
-    .hero__badge {
-      padding: 0.6rem 1.35rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.08);
-      font-size: 0.9rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-    }
-
-    .hero__content {
-      display: grid;
-      gap: clamp(1.5rem, 4vw, 2.5rem);
-    }
-
-    h1 {
-      font-size: clamp(2.75rem, 6vw, 4rem);
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    h1 span { color: var(--accent); }
-
-    p {
-      font-size: clamp(1rem, 2.1vw, 1.25rem);
-      color: var(--text-secondary);
-      max-width: 52ch;
-      line-height: 1.7;
-    }
-
-    .countdown {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .time-box {
-      position: relative;
-      padding: 1.5rem 1.25rem;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-      backdrop-filter: blur(15px);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 10px 35px rgba(0, 0, 0, 0.25);
-    }
-
-    .time-box::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: conic-gradient(from 0deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
-      animation: glow 6s linear infinite;
-      z-index: 0;
-    }
-
-    @keyframes glow {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .time-value {
+    .page-shell {
+      width: min(1120px, 94vw);
+      margin: 0 auto;
       position: relative;
       z-index: 1;
-      font-size: clamp(2.5rem, 6vw, 3.5rem);
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-      text-shadow: 0 0 20px rgba(255, 209, 102, 0.4);
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .time-label {
-      position: relative;
-      z-index: 1;
-      margin-top: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.32em;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
-
-    .hero__cta-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1.75rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 209, 102, 0.3);
-      color: var(--text-primary);
-      text-decoration: none;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      background: linear-gradient(135deg, rgba(255, 209, 102, 0.25), rgba(255, 255, 255, 0));
-      box-shadow: 0 12px 30px rgba(255, 209, 102, 0.15);
-    }
-
-    .cta svg {
-      width: 1.25rem;
-      height: 1.25rem;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .cta:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 18px 40px rgba(255, 209, 102, 0.25);
-    }
-
-    .cta:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 4px;
-    }
-
-    .secondary-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .secondary-link svg {
-      width: 1.1rem;
-      height: 1.1rem;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.5;
-    }
-
-    .secondary-link:hover { color: var(--text-primary); }
-
-    .layout {
       display: grid;
       gap: clamp(2.5rem, 5vw, 3.5rem);
     }
 
-    .overview {
-      display: grid;
-      gap: 2rem;
+    header.navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-lg);
+      background: rgba(16, 8, 36, 0.68);
+      border: 1px solid var(--border-soft);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 40px rgba(8, 0, 40, 0.35);
     }
 
-    .overview__grid {
+    .brand {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pill-btn,
+    .ghost-btn {
+      font: inherit;
+      font-weight: 500;
+      color: var(--white);
+      padding: 0.65rem 1.6rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border 0.2s ease;
+    }
+
+    .pill-btn {
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+      box-shadow: 0 10px 25px rgba(127, 93, 255, 0.45);
+    }
+
+    .pill-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 35px rgba(127, 93, 255, 0.55);
+    }
+
+    .ghost-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .ghost-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    main {
+      display: grid;
+      gap: clamp(3rem, 5vw, 4rem);
+    }
+
+    .hero {
+      display: grid;
+      gap: clamp(2.5rem, 5vw, 3rem);
+      background: rgba(17, 10, 40, 0.7);
+      border-radius: calc(var(--radius-lg) + 8px);
+      border: 1px solid var(--border-soft);
+      backdrop-filter: blur(18px);
+      padding: clamp(2.25rem, 5vw, 3.5rem);
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border-radius: calc(var(--radius-lg) + 2px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+
+    .hero__layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: clamp(2rem, 5vw, 3rem);
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1.2rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--lavender);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero__headline {
+      font-size: clamp(2.6rem, 5vw, 3.8rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero__description {
+      font-size: clamp(1rem, 2.3vw, 1.25rem);
+      color: var(--lavender);
+      max-width: 50ch;
+      line-height: 1.7;
+      margin-bottom: clamp(1.6rem, 3vw, 2.2rem);
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: clamp(2rem, 4vw, 2.5rem);
+    }
+
+    .countdown__tile {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      padding: 1.4rem 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .countdown__tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(127, 93, 255, 0.25), transparent 60%);
+      opacity: 0.6;
+    }
+
+    .countdown__value {
+      font-size: 2.4rem;
+      font-weight: 600;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .countdown__label {
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--lavender);
+      margin-top: 0.7rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .newsletter {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .newsletter label {
+      font-size: 0.95rem;
+      color: var(--lavender);
+    }
+
+    .newsletter__control {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .newsletter input[type="email"] {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      padding: 0.75rem 1.4rem;
+      color: var(--white);
+      font: inherit;
+      outline: none;
+      transition: border 0.2s ease, background 0.2s ease;
+    }
+
+    .newsletter input[type="email"]::placeholder {
+      color: rgba(245, 241, 255, 0.5);
+    }
+
+    .newsletter input[type="email"]:focus {
+      border-color: rgba(127, 93, 255, 0.9);
+      background: rgba(127, 93, 255, 0.12);
+    }
+
+    .newsletter button {
+      font: inherit;
+      font-weight: 500;
+      padding: 0.75rem 1.8rem;
+      border-radius: 999px;
+      border: none;
+      color: var(--white);
+      background: linear-gradient(120deg, #8c5bff, #4b26f9);
+      box-shadow: 0 10px 25px rgba(76, 40, 252, 0.4);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .newsletter button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 35px rgba(76, 40, 252, 0.5);
+    }
+
+    .newsletter__hint {
+      font-size: 0.85rem;
+      color: rgba(245, 241, 255, 0.6);
+    }
+
+    .hero__preview {
+      position: relative;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .floating-orb {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(127, 93, 255, 0.4), transparent 65%);
+      filter: blur(10px);
+      top: -80px;
+      right: -60px;
+      z-index: 0;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.08);
+        opacity: 1;
+      }
+    }
+
+    .device-card {
+      position: relative;
+      border-radius: 34px;
+      padding: 1.4rem;
+      background: linear-gradient(160deg, rgba(12, 18, 45, 0.95), rgba(23, 11, 53, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 60px rgba(8, 0, 35, 0.55);
+      display: grid;
+      gap: 1rem;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .device-card.light {
+      background: linear-gradient(160deg, rgba(246, 247, 255, 0.96), rgba(230, 233, 255, 0.94));
+      color: #15172b;
+      border-color: rgba(12, 16, 40, 0.08);
+      box-shadow: 0 30px 60px rgba(15, 10, 50, 0.35);
+    }
+
+    .device-card.light .tag {
+      background: rgba(13, 17, 44, 0.08);
+      color: #3a3d5c;
+    }
+
+    .device-card.light .metric-title,
+    .device-card.light .metric-subtitle {
+      color: #1b1d33;
+    }
+
+    .device-card.light .metric-value {
+      color: #161730;
+    }
+
+    .device-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .device-top .tag {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .device-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .device-subtitle {
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 0.9rem;
+    }
+
+    .metric-group {
+      display: grid;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.9rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .device-card.light .metric-group {
+      background: rgba(12, 16, 40, 0.04);
+      border-color: rgba(12, 16, 40, 0.08);
+    }
+
+    .metric-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .metric-value {
+      font-size: 2.1rem;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+
+    .metric-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.4;
+    }
+
+    .metric-columns {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .double-metric {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .section {
+      display: grid;
+      gap: 1.8rem;
+    }
+
+    .section-heading {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .section-heading span {
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245, 241, 255, 0.6);
+    }
+
+    .section-heading h2 {
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .section-heading p {
+      color: var(--lavender);
+      max-width: 65ch;
+      line-height: 1.7;
+    }
+
+    .feature-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.5rem;
     }
 
-    h2 {
-      font-size: clamp(2rem, 4vw, 2.5rem);
-      letter-spacing: -0.01em;
-    }
-
     .feature-card {
-      position: relative;
-      padding: 1.75rem;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.05);
+      padding: 1.4rem 1.6rem;
+      border-radius: var(--radius-md);
+      background: rgba(16, 8, 40, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      box-shadow: 0 20px 40px rgba(8, 0, 35, 0.25);
       display: grid;
-      gap: 0.75rem;
-    }
-
-    .feature-card::before {
-      content: "";
-      position: absolute;
-      top: 1.25rem;
-      left: 1.25rem;
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(255, 209, 102, 0.3), rgba(255, 255, 255, 0));
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: inset 0 0 12px rgba(255, 209, 102, 0.2);
-    }
-
-    .feature-card span {
-      position: relative;
-      margin-left: 4.75rem;
-      display: block;
+      gap: 0.85rem;
     }
 
     .feature-card strong {
-      font-size: 1.1rem;
-      letter-spacing: 0.02em;
+      font-weight: 600;
+      font-size: 1.05rem;
     }
 
     .feature-card p {
-      margin: 0;
+      color: var(--lavender);
       font-size: 0.95rem;
-      color: var(--text-secondary);
       line-height: 1.6;
     }
 
-    .app-preview {
+    .experience-showcase {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 2rem;
-      align-items: center;
+      align-items: start;
     }
 
-    .app-preview__visual {
-      display: grid;
-      gap: 1.5rem;
+    .experience-showcase .device-card {
+      transform: translateY(0);
     }
 
-    .mock-card {
-      padding: 1.75rem;
-      border-radius: 30px;
-      background: linear-gradient(180deg, rgba(30, 9, 70, 0.85), rgba(16, 8, 46, 0.92));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-      color: var(--text-primary);
-    }
-
-    .mock-card--light {
-      background: linear-gradient(180deg, rgba(241, 244, 255, 0.18), rgba(20, 17, 52, 0.6));
-      color: #f0f2ff;
-    }
-
-    .mock-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .mock-title {
-      font-size: 0.95rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-      margin: 1.1rem 0 0.75rem;
-    }
-
-    .mock-balance {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .mock-list {
-      display: grid;
-      gap: 0.85rem;
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.78);
-    }
-
-    .newsletter {
-      padding: 2rem;
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      display: grid;
-      gap: 1.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .newsletter::after {
-      content: "";
-      position: absolute;
-      inset: 40% -40% -60% 60%;
-      background: radial-gradient(circle at top left, rgba(255, 209, 102, 0.2), transparent 60%);
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    h3 {
-      font-size: clamp(1.5rem, 3vw, 1.9rem);
-    }
-
-    .newsletter form {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 1rem;
-    }
-
-    .newsletter input[type="email"] {
-      padding: 0.9rem 1rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      transition: border 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .newsletter input[type="email"]::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .newsletter input[type="email"]:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.2);
-    }
-
-    .newsletter button {
-      padding: 0.9rem 1.75rem;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, rgba(255, 209, 102, 0.3), rgba(255, 255, 255, 0));
-      color: var(--text-primary);
-      box-shadow: 0 12px 25px rgba(255, 209, 102, 0.25);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .newsletter button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 30px rgba(255, 209, 102, 0.35);
-    }
-
-    .newsletter small {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
-    .newsletter small a {
-      color: var(--text-primary);
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
+    .experience-showcase .device-card:nth-child(2) {
+      margin-top: 2rem;
     }
 
     footer {
-      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 0.85rem;
-      color: var(--text-secondary);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-align: center;
+      color: rgba(245, 241, 255, 0.6);
+      padding: 0 0.5rem 1rem;
     }
 
-    @media (max-width: 768px) {
-      .orbit {
-        width: 340px;
-        height: 340px;
-        top: -70px;
-        right: -100px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      main {
-        padding: 2.4rem 1.6rem;
+    @media (max-width: 720px) {
+      header.navbar {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
       }
 
-      .newsletter form {
+      .newsletter__control {
         grid-template-columns: 1fr;
       }
 
-      .hero__top {
-        align-items: flex-start;
+      .countdown {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .countdown__tile {
+        padding: 1.2rem 0.9rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .countdown {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .countdown__value {
+        font-size: 2rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="stars" aria-hidden="true"></div>
-  <div class="orbit" aria-hidden="true">
-    <div class="planet"></div>
+  <div class="page-shell">
+    <header class="navbar">
+      <div class="brand">MyAiBank</div>
+      <div class="nav-actions">
+        <button class="pill-btn" type="button">Connect bank</button>
+        <button class="ghost-btn" type="button">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="floating-orb" aria-hidden="true"></div>
+        <div class="hero__layout">
+          <div class="hero__content">
+            <span class="eyebrow">Financial wellness platform</span>
+            <h1 class="hero__headline">AI-powered savings that grow with you.</h1>
+            <p class="hero__description">
+              Give every dollar a job with automated insights that rebalance spending, grow savings, and reveal new surplus every time you get paid. Launching December 1.
+            </p>
+            <div class="countdown" aria-live="polite">
+              <div class="countdown__tile">
+                <div class="countdown__value" id="days">00</div>
+                <div class="countdown__label">Days</div>
+              </div>
+              <div class="countdown__tile">
+                <div class="countdown__value" id="hours">00</div>
+                <div class="countdown__label">Hours</div>
+              </div>
+              <div class="countdown__tile">
+                <div class="countdown__value" id="minutes">00</div>
+                <div class="countdown__label">Minutes</div>
+              </div>
+              <div class="countdown__tile">
+                <div class="countdown__value" id="seconds">00</div>
+                <div class="countdown__label">Seconds</div>
+              </div>
+            </div>
+            <form class="newsletter" action="#" method="post">
+              <label for="email">Join the waitlist newsletter to get early access:</label>
+              <div class="newsletter__control">
+                <input id="email" name="email" type="email" placeholder="Enter your email" required>
+                <button type="submit">Join the newsletter</button>
+              </div>
+              <p class="newsletter__hint">No spam—just launch updates and actionable money prompts.</p>
+            </form>
+          </div>
+
+          <div class="hero__preview" aria-hidden="true">
+            <div class="device-card">
+              <div class="device-top">
+                <div>
+                  <div class="device-title">Demo User wellness score</div>
+                  <div class="device-subtitle">Score updates automatically whenever new transactions sync.</div>
+                </div>
+                <span class="tag">Financial wellness</span>
+              </div>
+              <div class="metric-group">
+                <div class="metric-title">Score today</div>
+                <div class="metric-value">71<span style="font-size:1.1rem;">/100</span></div>
+                <div class="metric-subtitle">Above the preferred range. Direct surplus income to the largest balance.</div>
+              </div>
+              <div class="metric-columns">
+                <div class="metric-group">
+                  <div class="metric-title">Debt-to-income</div>
+                  <div class="metric-value" style="font-size:1.45rem;">38.7% <span style="font-size:0.85rem; font-weight:500; color:rgba(255,255,255,0.7);">(Elevated)</span></div>
+                  <div class="metric-subtitle">Monthly debt A$7,663.54 vs income A$19,800.00. Target: 36% or below. Excellent if under 25%.</div>
+                </div>
+                <div class="metric-group">
+                  <div class="metric-title">30/30/20 rule</div>
+                  <div class="metric-subtitle">Ensure essentials, growth, and surplus buckets are balanced for every pay cycle.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="device-card light">
+              <div class="device-top">
+                <div>
+                  <div class="device-title">Spending &amp; net worth</div>
+                  <div class="device-subtitle">Split view shows cash available today and the bigger picture across savings, mortgages, and debt.</div>
+                </div>
+                <span class="tag">Balance summary</span>
+              </div>
+              <div class="metric-group">
+                <div class="metric-title">Spending available</div>
+                <div class="metric-value">A$20,679.34</div>
+                <div class="metric-subtitle">Includes checking and savings accounts you can access immediately.</div>
+              </div>
+              <div class="metric-group">
+                <div class="metric-title">Total net worth</div>
+                <div class="metric-value" style="color:#df2d4f;">−A$757,511.34</div>
+                <div class="metric-subtitle">Assets minus liabilities. Track progress every time new data syncs.</div>
+              </div>
+              <div class="double-metric">
+                <div class="metric-group">
+                  <div class="metric-title">Mortgage &amp; debt</div>
+                  <div class="metric-value" style="font-size:1.35rem;">A$778,190.68</div>
+                  <div class="metric-subtitle">Keep every obligation visible so nothing slips through the cracks.</div>
+                </div>
+                <div class="metric-group">
+                  <div class="metric-title">Transactions</div>
+                  <div class="metric-value" style="font-size:1.35rem;">14,000</div>
+                  <div class="metric-subtitle">Auto-categorized with AI for faster reviews and insights.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <span>Real results</span>
+          <h2>Real results for everyday money goals.</h2>
+          <p>MyAiBank gives you a real-time command center for every decision—so you can stash more, pay down faster, and stay in sync with the life you want.</p>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <strong>Subscription hunter</strong>
+            <p>Surface forgotten auto-renewals, suggest downgrades, and instantly redirect savings to your goals.</p>
+          </div>
+          <div class="feature-card">
+            <strong>Smarter net worth tracking</strong>
+            <p>See the delta between assets and liabilities alongside surplus cash flow—updated every time a transaction lands.</p>
+          </div>
+          <div class="feature-card">
+            <strong>Guided surplus automation</strong>
+            <p>Our AI nudges prompt extra deposits when you’re ahead of budget so your savings momentum never stalls.</p>
+          </div>
+          <div class="feature-card">
+            <strong>Shared money rhythms</strong>
+            <p>Invite partners to view shared dashboards, leave notes, and celebrate wins in a single, secure space.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <span>Launch day</span>
+          <h2>What you can expect on day one.</h2>
+          <p>Connect accounts in minutes, get a personalized savings playbook, and let MyAiBank run the heavy lifting.</p>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <strong>Instant account sync</strong>
+            <p>Securely connect your banks and credit cards to see balances, spending, and surplus in one place.</p>
+          </div>
+          <div class="feature-card">
+            <strong>AI coaching moments</strong>
+            <p>Unlock the MyAiBank coach for actionable nudges based on your financial wellness score.</p>
+          </div>
+          <div class="feature-card">
+            <strong>Goal progress snapshots</strong>
+            <p>Dynamic tiles show how each goal is trending so you can course-correct before month end.</p>
+          </div>
+          <div class="feature-card">
+            <strong>Family mode ready</strong>
+            <p>Share budgets, allowances, and savings streaks with household members with granular controls.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <span>Inside the experience</span>
+          <h2>Inside the experience.</h2>
+          <p>Powerful dashboards are ready from day one—built from the same views you saw in the product preview.</p>
+        </div>
+        <div class="experience-showcase">
+          <div class="device-card">
+            <div class="device-top">
+              <div>
+                <div class="device-title">Demo User wellness score</div>
+                <div class="device-subtitle">Need a tour?</div>
+              </div>
+              <span class="tag">Financial wellness</span>
+            </div>
+            <div class="metric-group">
+              <div class="metric-title">Score today</div>
+              <div class="metric-value">71<span style="font-size:1.1rem;">/100</span></div>
+              <div class="metric-subtitle">Score updates automatically whenever new transactions sync.</div>
+            </div>
+            <div class="metric-columns">
+              <div class="metric-group">
+                <div class="metric-title">Debt-to-income</div>
+                <div class="metric-value" style="font-size:1.45rem;">38.7%</div>
+                <div class="metric-subtitle">Above the preferred range. Direct surplus income to the largest balance.</div>
+              </div>
+              <div class="metric-group">
+                <div class="metric-title">30/30/20 rule</div>
+                <div class="metric-subtitle">Automate essentials, quality-of-life upgrades, and future you.</div>
+              </div>
+            </div>
+          </div>
+          <div class="device-card light">
+            <div class="device-top">
+              <div>
+                <div class="device-title">Spending &amp; net worth</div>
+                <div class="device-subtitle">Balance summary</div>
+              </div>
+              <span class="tag">Net worth</span>
+            </div>
+            <div class="metric-group">
+              <div class="metric-title">Spending available</div>
+              <div class="metric-value">A$20,679.34</div>
+              <div class="metric-subtitle">Includes checking and savings accounts you can access immediately.</div>
+            </div>
+            <div class="metric-group">
+              <div class="metric-title">Total net worth</div>
+              <div class="metric-value" style="color:#df2d4f;">−A$757,511.34</div>
+              <div class="metric-subtitle">Assets minus liabilities. Track progress every time new data syncs.</div>
+            </div>
+            <div class="double-metric">
+              <div class="metric-group">
+                <div class="metric-title">Mortgage &amp; debt</div>
+                <div class="metric-value" style="font-size:1.35rem;">A$778,190.68</div>
+              </div>
+              <div class="metric-group">
+                <div class="metric-title">Transactions</div>
+                <div class="metric-value" style="font-size:1.35rem;">14,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© 2024 MyAiBank. All rights reserved.</span>
+      <span>Launching December 1.</span>
+    </footer>
   </div>
-  <main>
-    <section class="hero">
-      <div class="hero__top">
-        <div class="brand">
-          <div class="brand__logo" aria-hidden="true">
-            <svg viewBox="0 0 640 512" role="img" aria-labelledby="logoTitle logoDesc">
-              <title id="logoTitle">MyAiBank Monogram</title>
-              <desc id="logoDesc">Bold MB monogram with angular strokes and twin bowls, matching the official MyAiBank launch mark.</desc>
-              <path d="M96 388V124h64l72 136 72-136h64v264h-60V272l-72 116h-12l-72-116v116H96z" />
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M368 124h104c58 0 104 46 104 104 0 34-16 63-44 82 31 19 52 51 52 88 0 64-52 116-116 116H368V124Zm60 32v144h44c39.8 0 72-32.2 72-72s-32.2-72-72-72h-44Zm0 152v180h60c41.1 0 74.5-33.4 74.5-74.5S529.1 339 488 339h-60Z" />
-            </svg>
-          </div>
-          <div class="brand__text">
-            <span class="brand__name">MyAiBank</span>
-            <span class="brand__tagline">Smarter money, powered by you &amp; AI</span>
-          </div>
-        </div>
-        <div class="hero__badge">Launching December 1</div>
-      </div>
-      <div class="hero__content">
-        <div>
-          <h1>Banking that <span>anticipates</span> your next move</h1>
-          <p>We are blending human guidance with responsible AI to help you automate saving, monitor wellness, and make confident financial decisions the moment they matter.</p>
-        </div>
-        <div class="countdown" aria-label="Countdown to launch">
-          <div class="time-box" aria-live="polite">
-            <div class="time-value" id="days">00</div>
-            <div class="time-label">Days</div>
-          </div>
-          <div class="time-box" aria-live="polite">
-            <div class="time-value" id="hours">00</div>
-            <div class="time-label">Hours</div>
-          </div>
-          <div class="time-box" aria-live="polite">
-            <div class="time-value" id="minutes">00</div>
-            <div class="time-label">Minutes</div>
-          </div>
-          <div class="time-box" aria-live="polite">
-            <div class="time-value" id="seconds">00</div>
-            <div class="time-label">Seconds</div>
-          </div>
-        </div>
-        <div class="hero__cta-group">
-          <a class="cta" href="mailto:hello@myaibank.com">
-            <span>Notify me</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12h14M13 5l7 7-7 7" />
-            </svg>
-          </a>
-          <a class="secondary-link" href="#features">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M10.5 8.5l5 3.5-5 3.5z"></path>
-            </svg>
-            Preview experience
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="layout" id="features">
-      <div class="overview">
-        <div>
-          <h2>What MyAiBank will unlock</h2>
-          <p>From day one we deliver an intelligent hub that learns from your goals, balances risk, and keeps you in control. Here's what our private beta users love most.</p>
-        </div>
-        <div class="overview__grid">
-          <article class="feature-card">
-            <span>
-              <strong>Autopilot cashflow</strong>
-              <p>AI choreographs every deposit and bill so you never miss a beat. Create smart envelopes, automate transfers, and track results instantly.</p>
-            </span>
-          </article>
-          <article class="feature-card">
-            <span>
-              <strong>Wellness insights</strong>
-              <p>Get real-time wellness scores, debt-to-income alerts, and actionable nudges before small issues become big problems.</p>
-            </span>
-          </article>
-          <article class="feature-card">
-            <span>
-              <strong>Secure multi-bank view</strong>
-              <p>Connect all your accounts, cards, and loans into a unified cockpit with bank-grade encryption and privacy-first controls.</p>
-            </span>
-          </article>
-        </div>
-      </div>
-
-      <div class="app-preview">
-        <div class="app-preview__visual" aria-hidden="true">
-          <div class="mock-card mock-card--light">
-            <div class="mock-pill">Balance summary</div>
-            <div class="mock-title">Spending &amp; net worth</div>
-            <div class="mock-balance">A$20,679.34</div>
-            <div class="mock-list">
-              <div>Assets: <strong>A$20,679.34</strong></div>
-              <div>Liabilities: <strong>A$778,190.68</strong></div>
-              <div>Available today with instant insights.</div>
-            </div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-pill">Financial wellness</div>
-            <div class="mock-title">AI guided health score</div>
-            <div class="mock-balance">71<span style="font-size:1rem; color:rgba(255,255,255,0.6);"> /100</span></div>
-            <div class="mock-list">
-              <div>Debt-to-income: <strong>38.7% (Elevated)</strong></div>
-              <div>Smart tips reroute surplus to highest impact.</div>
-              <div>Stay on track with instant rule checks.</div>
-            </div>
-          </div>
-        </div>
-        <div class="newsletter">
-          <div>
-            <h3>Get early access &amp; beta invites</h3>
-            <p>Join the waitlist for product updates, behind-the-scenes drops, and the moment private beta expands.</p>
-          </div>
-          <form action="https://example.com/newsletter" method="post">
-            <label class="sr-only" for="email">Email address</label>
-            <input type="email" id="email" name="email" placeholder="you@example.com" required>
-            <button type="submit">Join waitlist</button>
-          </form>
-          <small>We respect your inbox. Unsubscribe anytime. Read our <a href="#">privacy policy</a>.</small>
-        </div>
-      </div>
-    </section>
-
-    <footer>Stay tuned. Your smarter financial journey begins soon.</footer>
-  </main>
 
   <script>
     (function () {
-      const launchMonth = 11; // December (0-indexed)
-      const launchDay = 1;
-      const launchHour = 0;
-      const now = new Date();
-      let launchYear = now.getFullYear();
+      const countdownTarget = (() => {
+        const now = new Date();
+        const isAfterLaunch = now.getMonth() > 11 || (now.getMonth() === 11 && now.getDate() >= 1);
+        const year = isAfterLaunch ? now.getFullYear() + 1 : now.getFullYear();
+        return new Date(`${year}-12-01T00:00:00`);
+      })();
 
-      const targetThisYear = new Date(launchYear, launchMonth, launchDay, launchHour, 0, 0);
-      if (targetThisYear <= now) {
-        launchYear += 1;
-      }
-
-      const launchDate = new Date(launchYear, launchMonth, launchDay, launchHour, 0, 0);
-
-      const elements = {
+      const refs = {
         days: document.getElementById('days'),
         hours: document.getElementById('hours'),
         minutes: document.getElementById('minutes'),
-        seconds: document.getElementById('seconds'),
+        seconds: document.getElementById('seconds')
       };
-
-      function format(value) {
-        return value.toString().padStart(2, '0');
-      }
 
       function updateCountdown() {
         const now = new Date();
-        let diff = launchDate - now;
+        const diff = countdownTarget - now;
 
         if (diff <= 0) {
-          Object.values(elements).forEach((el) => (el.textContent = '00'));
-          clearInterval(intervalId);
+          refs.days.textContent = '00';
+          refs.hours.textContent = '00';
+          refs.minutes.textContent = '00';
+          refs.seconds.textContent = '00';
+          clearInterval(interval);
           return;
         }
 
-        const seconds = Math.floor(diff / 1000) % 60;
-        const minutes = Math.floor(diff / (1000 * 60)) % 60;
-        const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const seconds = Math.floor(diff / 1000);
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
 
-        elements.days.textContent = format(days);
-        elements.hours.textContent = format(hours);
-        elements.minutes.textContent = format(minutes);
-        elements.seconds.textContent = format(seconds);
+        refs.days.textContent = String(days).padStart(2, '0');
+        refs.hours.textContent = String(hours).padStart(2, '0');
+        refs.minutes.textContent = String(minutes).padStart(2, '0');
+        refs.seconds.textContent = String(secs).padStart(2, '0');
       }
 
       updateCountdown();
-      const intervalId = setInterval(updateCountdown, 1000);
+      const interval = setInterval(updateCountdown, 1000);
     })();
   </script>
 </body>
