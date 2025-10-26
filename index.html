@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My AI Bank - Coming Soon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-start: #1f0036;
+      --bg-gradient-end: #3a0ca3;
+      --accent: #ffd166;
+      --text-primary: #f8f6ff;
+      --text-secondary: rgba(248, 246, 255, 0.7);
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --shadow: rgba(10, 0, 30, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      background: radial-gradient(circle at top left, rgba(255, 215, 0, 0.1), transparent 45%),
+                  radial-gradient(circle at bottom right, rgba(255, 0, 247, 0.12), transparent 45%),
+                  linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      overflow: hidden;
+    }
+
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.6), transparent),
+                        radial-gradient(1px 1px at 150px 80px, rgba(255, 255, 255, 0.4), transparent),
+                        radial-gradient(1.5px 1.5px at 90% 20%, rgba(255, 255, 255, 0.7), transparent),
+                        radial-gradient(1px 1px at 30% 70%, rgba(255, 255, 255, 0.4), transparent),
+                        radial-gradient(1.5px 1.5px at 80% 80%, rgba(255, 255, 255, 0.5), transparent);
+      animation: twinkle 8s linear infinite;
+      opacity: 0.6;
+      z-index: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+      }
+      50% {
+        transform: translateY(-10px);
+        opacity: 0.9;
+      }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(900px, 90vw);
+      padding: 3.5rem;
+      border-radius: 32px;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 80px var(--shadow);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 3.75rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -0.5rem;
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transform: translateX(-50%);
+    }
+
+    p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .time-box {
+      position: relative;
+      padding: 1.5rem 1.25rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      backdrop-filter: blur(15px);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 10px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    .time-box::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(from 0deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+      animation: glow 6s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes glow {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .time-value {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(255, 209, 102, 0.4);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .time-label {
+      position: relative;
+      z-index: 1;
+      margin-top: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 209, 102, 0.3);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.25), rgba(255, 255, 255, 0));
+      box-shadow: 0 12px 30px rgba(255, 209, 102, 0.15);
+    }
+
+    .cta svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+    }
+
+    .cta:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(255, 209, 102, 0.25);
+    }
+
+    .cta:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .orbit {
+      position: absolute;
+      width: 450px;
+      height: 450px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbit 18s linear infinite;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .planet {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 15px rgba(255, 209, 102, 0.7);
+      top: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    @keyframes orbit {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 2.5rem 1.75rem;
+      }
+
+      .orbit {
+        width: 280px;
+        height: 280px;
+      }
+
+      .time-value {
+        font-size: clamp(2rem, 12vw, 3rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="orbit">
+    <div class="planet"></div>
+  </div>
+  <main>
+    <h1>My AI Bank</h1>
+    <p>We are building the future of intelligent banking. Launching December 1.</p>
+    <section class="countdown" aria-label="Countdown to launch">
+      <div class="time-box" aria-live="polite">
+        <div class="time-value" id="days">00</div>
+        <div class="time-label">Days</div>
+      </div>
+      <div class="time-box" aria-live="polite">
+        <div class="time-value" id="hours">00</div>
+        <div class="time-label">Hours</div>
+      </div>
+      <div class="time-box" aria-live="polite">
+        <div class="time-value" id="minutes">00</div>
+        <div class="time-label">Minutes</div>
+      </div>
+      <div class="time-box" aria-live="polite">
+        <div class="time-value" id="seconds">00</div>
+        <div class="time-label">Seconds</div>
+      </div>
+    </section>
+    <a class="cta" href="mailto:hello@myaibank.com">
+      <span>Notify me</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </a>
+    <footer>Stay tuned. Your smarter financial journey begins soon.</footer>
+  </main>
+  <script>
+    (function () {
+      const launchMonth = 11; // December (0-indexed)
+      const launchDay = 1;
+      const launchHour = 0;
+      const now = new Date();
+      let launchYear = now.getFullYear();
+
+      const targetThisYear = new Date(launchYear, launchMonth, launchDay, launchHour, 0, 0);
+      if (targetThisYear <= now) {
+        launchYear += 1;
+      }
+
+      const launchDate = new Date(launchYear, launchMonth, launchDay, launchHour, 0, 0);
+
+      const elements = {
+        days: document.getElementById('days'),
+        hours: document.getElementById('hours'),
+        minutes: document.getElementById('minutes'),
+        seconds: document.getElementById('seconds'),
+      };
+
+      function format(value) {
+        return value.toString().padStart(2, '0');
+      }
+
+      function updateCountdown() {
+        const now = new Date();
+        let diff = launchDate - now;
+
+        if (diff <= 0) {
+          Object.values(elements).forEach((el) => (el.textContent = '00'));
+          clearInterval(intervalId);
+          return;
+        }
+
+        const seconds = Math.floor(diff / 1000) % 60;
+        const minutes = Math.floor(diff / (1000 * 60)) % 60;
+        const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        elements.days.textContent = format(days);
+        elements.hours.textContent = format(hours);
+        elements.minutes.textContent = format(minutes);
+        elements.seconds.textContent = format(seconds);
+      }
+
+      updateCountdown();
+      const intervalId = setInterval(updateCountdown, 1000);
+    })();
+  </script>
+</body>
+</html>
