@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My AI Bank - Coming Soon</title>
+  <title>MyAiBank — Coming Soon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-gradient-start: #1f0036;
       --bg-gradient-end: #3a0ca3;
       --accent: #ffd166;
       --text-primary: #f8f6ff;
-      --text-secondary: rgba(248, 246, 255, 0.7);
-      --card-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --shadow: rgba(10, 0, 30, 0.3);
+      --text-secondary: rgba(248, 246, 255, 0.72);
+      --card-bg: rgba(28, 8, 54, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --shadow: rgba(10, 0, 30, 0.35);
     }
 
     * {
@@ -36,14 +36,12 @@
                   radial-gradient(circle at bottom right, rgba(255, 0, 247, 0.12), transparent 45%),
                   linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
       overflow: hidden;
+      padding: clamp(1.5rem, 4vw, 3rem) 1rem;
     }
 
     .stars {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       pointer-events: none;
       background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.6), transparent),
                         radial-gradient(1px 1px at 150px 80px, rgba(255, 255, 255, 0.4), transparent),
@@ -61,7 +59,7 @@
         opacity: 0.6;
       }
       50% {
-        transform: translateY(-10px);
+        transform: translateY(-12px);
         opacity: 0.9;
       }
     }
@@ -69,48 +67,139 @@
     main {
       position: relative;
       z-index: 1;
-      width: min(900px, 90vw);
-      padding: 3.5rem;
+      width: min(1080px, 92vw);
+      padding: clamp(2.4rem, 5vw, 4rem);
       border-radius: 32px;
       background: var(--card-bg);
       border: 1px solid var(--glass-border);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px);
       box-shadow: 0 25px 80px var(--shadow);
-      text-align: center;
+      display: grid;
+      gap: clamp(2rem, 4vw, 3rem);
     }
 
-    h1 {
-      font-size: clamp(2.5rem, 6vw, 3.75rem);
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      position: relative;
-      display: inline-block;
-    }
-
-    h1::after {
-      content: "";
+    .orbit {
       position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      top: -120px;
+      right: -160px;
+      animation: orbit 18s linear infinite;
+      pointer-events: none;
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .planet {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 15px rgba(255, 209, 102, 0.7);
+      top: -9px;
       left: 50%;
-      bottom: -0.5rem;
-      width: 60%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
       transform: translateX(-50%);
     }
 
-    p {
-      font-size: clamp(1rem, 2vw, 1.25rem);
+    @keyframes orbit {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .hero {
+      display: grid;
+      gap: clamp(1.8rem, 4vw, 2.75rem);
+    }
+
+    .hero__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .brand__logo {
+      width: clamp(68px, 12vw, 88px);
+      height: clamp(68px, 12vw, 88px);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .brand__logo svg {
+      width: 62%;
+      height: auto;
+      fill: none;
+      stroke: var(--text-primary);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .brand__text {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .brand__name {
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .brand__tagline {
       color: var(--text-secondary);
-      margin-bottom: 2.5rem;
+      font-size: 0.95rem;
+    }
+
+    .hero__badge {
+      padding: 0.6rem 1.35rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .hero__content {
+      display: grid;
+      gap: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    h1 {
+      font-size: clamp(2.75rem, 6vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span { color: var(--accent); }
+
+    p {
+      font-size: clamp(1rem, 2.1vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 52ch;
+      line-height: 1.7;
     }
 
     .countdown {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1.5rem;
-      margin-bottom: 2rem;
     }
 
     .time-box {
@@ -134,12 +223,8 @@
     }
 
     @keyframes glow {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .time-value {
@@ -154,12 +239,8 @@
     }
 
     @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .time-label {
@@ -170,6 +251,13 @@
       letter-spacing: 0.32em;
       font-size: 0.75rem;
       color: var(--text-secondary);
+    }
+
+    .hero__cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
     }
 
     .cta {
@@ -192,7 +280,11 @@
     .cta svg {
       width: 1.25rem;
       height: 1.25rem;
-      fill: currentColor;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .cta:hover {
@@ -205,99 +297,404 @@
       outline-offset: 4px;
     }
 
-    .orbit {
+    .secondary-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .secondary-link svg {
+      width: 1.1rem;
+      height: 1.1rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+    .secondary-link:hover { color: var(--text-primary); }
+
+    .layout {
+      display: grid;
+      gap: clamp(2.5rem, 5vw, 3.5rem);
+    }
+
+    .overview {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .overview__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card {
+      position: relative;
+      padding: 1.75rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .feature-card::before {
+      content: "";
       position: absolute;
-      width: 450px;
-      height: 450px;
-      border-radius: 50%;
-      border: 1px dashed rgba(255, 255, 255, 0.12);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: orbit 18s linear infinite;
+      top: 1.25rem;
+      left: 1.25rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.3), rgba(255, 255, 255, 0));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 0 12px rgba(255, 209, 102, 0.2);
+    }
+
+    .feature-card span {
+      position: relative;
+      margin-left: 4.75rem;
+      display: block;
+    }
+
+    .feature-card strong {
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .app-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .app-preview__visual {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .mock-card {
+      padding: 1.75rem;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(30, 9, 70, 0.85), rgba(16, 8, 46, 0.92));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      color: var(--text-primary);
+    }
+
+    .mock-card--light {
+      background: linear-gradient(180deg, rgba(241, 244, 255, 0.18), rgba(20, 17, 52, 0.6));
+      color: #f0f2ff;
+    }
+
+    .mock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .mock-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 1.1rem 0 0.75rem;
+    }
+
+    .mock-balance {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .mock-list {
+      display: grid;
+      gap: 0.85rem;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .newsletter {
+      padding: 2rem;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: grid;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .newsletter::after {
+      content: "";
+      position: absolute;
+      inset: 40% -40% -60% 60%;
+      background: radial-gradient(circle at top left, rgba(255, 209, 102, 0.2), transparent 60%);
+      opacity: 0.7;
       pointer-events: none;
-      opacity: 0.4;
     }
 
-    .planet {
+    h3 {
+      font-size: clamp(1.5rem, 3vw, 1.9rem);
+    }
+
+    .newsletter form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem;
+    }
+
+    .newsletter input[type="email"] {
+      padding: 0.9rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .newsletter input[type="email"]::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .newsletter input[type="email"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.2);
+    }
+
+    .newsletter button {
+      padding: 0.9rem 1.75rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.3), rgba(255, 255, 255, 0));
+      color: var(--text-primary);
+      box-shadow: 0 12px 25px rgba(255, 209, 102, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .newsletter button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px rgba(255, 209, 102, 0.35);
+    }
+
+    .newsletter small {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .newsletter small a {
+      color: var(--text-primary);
+    }
+
+    .sr-only {
       position: absolute;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 15px rgba(255, 209, 102, 0.7);
-      top: -9px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    @keyframes orbit {
-      0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
     }
 
     footer {
-      margin-top: 2.5rem;
+      margin-top: 1rem;
       font-size: 0.85rem;
       color: var(--text-secondary);
       letter-spacing: 0.12em;
       text-transform: uppercase;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .orbit {
+        width: 340px;
+        height: 340px;
+        top: -70px;
+        right: -100px;
+      }
     }
 
     @media (max-width: 600px) {
       main {
-        padding: 2.5rem 1.75rem;
+        padding: 2.4rem 1.6rem;
       }
 
-      .orbit {
-        width: 280px;
-        height: 280px;
+      .newsletter form {
+        grid-template-columns: 1fr;
       }
 
-      .time-value {
-        font-size: clamp(2rem, 12vw, 3rem);
+      .hero__top {
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <div class="stars"></div>
-  <div class="orbit">
+  <div class="stars" aria-hidden="true"></div>
+  <div class="orbit" aria-hidden="true">
     <div class="planet"></div>
   </div>
   <main>
-    <h1>My AI Bank</h1>
-    <p>We are building the future of intelligent banking. Launching December 1.</p>
-    <section class="countdown" aria-label="Countdown to launch">
-      <div class="time-box" aria-live="polite">
-        <div class="time-value" id="days">00</div>
-        <div class="time-label">Days</div>
+    <section class="hero">
+      <div class="hero__top">
+        <div class="brand">
+          <div class="brand__logo" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img" aria-labelledby="logoTitle logoDesc">
+              <title id="logoTitle">MyAiBank Monogram</title>
+              <desc id="logoDesc">Interlocking letterforms M, A, and B to create a futuristic financial mark.</desc>
+              <path d="M10 47L21.6 18.8a2 2 0 0 1 3.7-.1l11.3 20.9" />
+              <path d="M30 18l10 24c.7 1.7 1.9 2.5 3.6 2.5H53" />
+              <path d="M44 18h9v24c0 2.2-1.8 4-4 4h-9" />
+            </svg>
+          </div>
+          <div class="brand__text">
+            <span class="brand__name">MyAiBank</span>
+            <span class="brand__tagline">Smarter money, powered by you &amp; AI</span>
+          </div>
+        </div>
+        <div class="hero__badge">Launching December 1</div>
       </div>
-      <div class="time-box" aria-live="polite">
-        <div class="time-value" id="hours">00</div>
-        <div class="time-label">Hours</div>
-      </div>
-      <div class="time-box" aria-live="polite">
-        <div class="time-value" id="minutes">00</div>
-        <div class="time-label">Minutes</div>
-      </div>
-      <div class="time-box" aria-live="polite">
-        <div class="time-value" id="seconds">00</div>
-        <div class="time-label">Seconds</div>
+      <div class="hero__content">
+        <div>
+          <h1>Banking that <span>anticipates</span> your next move</h1>
+          <p>We are blending human guidance with responsible AI to help you automate saving, monitor wellness, and make confident financial decisions the moment they matter.</p>
+        </div>
+        <div class="countdown" aria-label="Countdown to launch">
+          <div class="time-box" aria-live="polite">
+            <div class="time-value" id="days">00</div>
+            <div class="time-label">Days</div>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <div class="time-value" id="hours">00</div>
+            <div class="time-label">Hours</div>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <div class="time-value" id="minutes">00</div>
+            <div class="time-label">Minutes</div>
+          </div>
+          <div class="time-box" aria-live="polite">
+            <div class="time-value" id="seconds">00</div>
+            <div class="time-label">Seconds</div>
+          </div>
+        </div>
+        <div class="hero__cta-group">
+          <a class="cta" href="mailto:hello@myaibank.com">
+            <span>Notify me</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </a>
+          <a class="secondary-link" href="#features">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M10.5 8.5l5 3.5-5 3.5z"></path>
+            </svg>
+            Preview experience
+          </a>
+        </div>
       </div>
     </section>
-    <a class="cta" href="mailto:hello@myaibank.com">
-      <span>Notify me</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-    </a>
+
+    <section class="layout" id="features">
+      <div class="overview">
+        <div>
+          <h2>What MyAiBank will unlock</h2>
+          <p>From day one we deliver an intelligent hub that learns from your goals, balances risk, and keeps you in control. Here's what our private beta users love most.</p>
+        </div>
+        <div class="overview__grid">
+          <article class="feature-card">
+            <span>
+              <strong>Autopilot cashflow</strong>
+              <p>AI choreographs every deposit and bill so you never miss a beat. Create smart envelopes, automate transfers, and track results instantly.</p>
+            </span>
+          </article>
+          <article class="feature-card">
+            <span>
+              <strong>Wellness insights</strong>
+              <p>Get real-time wellness scores, debt-to-income alerts, and actionable nudges before small issues become big problems.</p>
+            </span>
+          </article>
+          <article class="feature-card">
+            <span>
+              <strong>Secure multi-bank view</strong>
+              <p>Connect all your accounts, cards, and loans into a unified cockpit with bank-grade encryption and privacy-first controls.</p>
+            </span>
+          </article>
+        </div>
+      </div>
+
+      <div class="app-preview">
+        <div class="app-preview__visual" aria-hidden="true">
+          <div class="mock-card mock-card--light">
+            <div class="mock-pill">Balance summary</div>
+            <div class="mock-title">Spending &amp; net worth</div>
+            <div class="mock-balance">A$20,679.34</div>
+            <div class="mock-list">
+              <div>Assets: <strong>A$20,679.34</strong></div>
+              <div>Liabilities: <strong>A$778,190.68</strong></div>
+              <div>Available today with instant insights.</div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-pill">Financial wellness</div>
+            <div class="mock-title">AI guided health score</div>
+            <div class="mock-balance">71<span style="font-size:1rem; color:rgba(255,255,255,0.6);"> /100</span></div>
+            <div class="mock-list">
+              <div>Debt-to-income: <strong>38.7% (Elevated)</strong></div>
+              <div>Smart tips reroute surplus to highest impact.</div>
+              <div>Stay on track with instant rule checks.</div>
+            </div>
+          </div>
+        </div>
+        <div class="newsletter">
+          <div>
+            <h3>Get early access &amp; beta invites</h3>
+            <p>Join the waitlist for product updates, behind-the-scenes drops, and the moment private beta expands.</p>
+          </div>
+          <form action="https://example.com/newsletter" method="post">
+            <label class="sr-only" for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            <button type="submit">Join waitlist</button>
+          </form>
+          <small>We respect your inbox. Unsubscribe anytime. Read our <a href="#">privacy policy</a>.</small>
+        </div>
+      </div>
+    </section>
+
     <footer>Stay tuned. Your smarter financial journey begins soon.</footer>
   </main>
+
   <script>
     (function () {
       const launchMonth = 11; // December (0-indexed)
