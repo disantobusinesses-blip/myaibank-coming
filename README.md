@@ -1,6 +1,6 @@
 # MyAiBank Coming Soon
 
-A dark purple, glassmorphic coming-soon experience for the MyAiBank launch. The page is built with React and Vite so we can layer on interactive features like the live countdown, newsletter opt-in, and Vercel Speed Insights.
+A dark purple, glassmorphic coming-soon experience for the MyAiBank launch. The page is built with React and Vite so we can layer on interactive features like the live countdown, newsletter opt-in, Vercel Speed Insights, and Vercel Analytics.
 
 ## Getting started
 
