@@ -272,6 +272,11 @@ main {
   color: #a0ffcf;
 }
 
+.newsletter__error {
+  font-size: 0.85rem;
+  color: #ff9fb7;
+}
+
 .hero__preview {
   position: relative;
   display: grid;

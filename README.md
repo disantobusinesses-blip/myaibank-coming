@@ -4,12 +4,21 @@ A dark purple, glassmorphic coming-soon experience for the MyAiBank launch. The 
 
 ## Getting started
 
-```bash
-npm install
-npm run dev
-```
+1. Copy the environment template and add your Brevo public API key (Contacts > Settings > API keys):
 
-The site will be available at the URL Vite prints in the terminal (typically `http://localhost:5173`).
+   ```bash
+   cp .env.example .env
+   # edit .env and set VITE_BREVO_API_KEY to your Brevo public API key
+   ```
+
+2. Install dependencies and start the local dev server:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+The site will be available at the URL Vite prints in the terminal (typically `http://localhost:5173`). Newsletter submissions will be sent to Brevo list **5** (`https://app.brevo.com/contact/list/id/5`).
 
 ## Production build
 

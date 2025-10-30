@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+const BREVO_LIST_ID = 5;
+
 const featureGroups = [
   {
     heading: 'Real results',
@@ -120,8 +122,9 @@ export default function App() {
   const countdown = useCountdown();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
 
@@ -130,11 +133,62 @@ export default function App() {
     }
 
     setStatus('submitting');
+    setErrorMessage('');
 
-    window.setTimeout(() => {
+    const brevoApiKey = import.meta.env.VITE_BREVO_API_KEY?.trim();
+
+    if (!brevoApiKey) {
+      setStatus('error');
+      setErrorMessage('Newsletter signups are temporarily unavailable. Please configure the Brevo API key.');
+      return;
+    }
+
+    const normalizedEmail = email.trim();
+
+    try {
+      const response = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': brevoApiKey,
+        },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          listIds: [BREVO_LIST_ID],
+          updateEnabled: true,
+        }),
+      });
+
+      if (!response.ok) {
+        let message = '';
+        try {
+          const payload = await response.json();
+          message =
+            payload?.message ||
+            payload?.errors?.[0]?.message ||
+            payload?.code ||
+            '';
+        } catch (_error) {
+          message = '';
+        }
+
+        setStatus('error');
+        setErrorMessage(
+          message
+            ? `We couldn’t add that email yet: ${message}`
+            : 'We couldn’t reach Brevo right now. Please try again in a moment.'
+        );
+        return;
+      }
+
       setStatus('success');
       setEmail('');
-    }, 600);
+      setErrorMessage('');
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage('We hit a network issue while connecting to Brevo. Please try again.');
+    }
   }
 
   return (
@@ -172,12 +226,13 @@ export default function App() {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      if (status !== 'idle') {
-                        setStatus('idle');
-                      }
-                    }}
+                      onChange={(event) => {
+                        setEmail(event.target.value);
+                        if (status !== 'idle') {
+                          setStatus('idle');
+                          setErrorMessage('');
+                        }
+                      }}
                     required
                   />
                   <button type="submit" disabled={status === 'submitting'}>
@@ -190,6 +245,11 @@ export default function App() {
                 {status === 'success' && (
                   <p className="newsletter__success" role="status">
                     You’re on the list! Check your inbox for the budgeting template.
+                  </p>
+                )}
+                {status === 'error' && (
+                  <p className="newsletter__error" role="alert">
+                    {errorMessage || 'We couldn’t connect to Brevo just now. Please try again later.'}
                   </p>
                 )}
               </form>
