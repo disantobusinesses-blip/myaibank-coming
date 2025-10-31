@@ -135,7 +135,7 @@ export default function App() {
     setStatus('submitting');
     setErrorMessage('');
 
-    const brevoApiKey = import.meta.env.VITE_BREVO_API_KEY?.trim();
+    const brevoApiKey = import.meta.env.VITE_BREVO_KEY?.trim();
 
     if (!brevoApiKey) {
       setStatus('error');

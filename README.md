@@ -8,7 +8,7 @@ A dark purple, glassmorphic coming-soon experience for the MyAiBank launch. The 
 
    ```bash
    cp .env.example .env
-   # edit .env and set VITE_BREVO_API_KEY to your Brevo public API key
+   # edit .env and set VITE_BREVO_KEY to your Brevo public API key
    ```
 
 2. Install dependencies and start the local dev server:
