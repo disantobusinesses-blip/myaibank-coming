@@ -454,53 +454,52 @@ export default function App() {
                 </p>
               )}
             </form>
-          </div>
-
-          <div className="demo__results">
-            {budgetResult ? (
-              <div className="demo__cards">
-                <article className="demo-card" data-tooltip="Balanced budget target">
-                  <h3>Essentials</h3>
-                  <p className="demo-card__percentage">50%</p>
-                  <p className="demo-card__value">
-                    <AnimatedNumber value={budgetResult.essentials} formatter={currencyFormatter} />
-                  </p>
-                  <p className="demo-card__meta">Cover housing, groceries, transport, and healthcare with confidence.</p>
-                </article>
-                <article className="demo-card" data-tooltip="Balanced budget target">
-                  <h3>Wants</h3>
-                  <p className="demo-card__percentage">30%</p>
-                  <p className="demo-card__value">
-                    <AnimatedNumber value={budgetResult.wants} formatter={currencyFormatter} />
-                  </p>
-                  <p className="demo-card__meta">Spend intentionally on dining, entertainment, and subscriptions.</p>
-                </article>
-                <article className="demo-card" data-tooltip="Balanced budget target">
-                  <h3>Savings</h3>
-                  <p className="demo-card__percentage">20%</p>
-                  <p className="demo-card__value">
-                    <AnimatedNumber value={budgetResult.savings} formatter={currencyFormatter} />
-                  </p>
-                  <p className="demo-card__meta">Build emergency funds, investments, and future goals faster.</p>
-                </article>
-                <article className="demo-card" data-tooltip="Debt-to-Income insight">
-                  <h3>Debt-to-Income ratio</h3>
-                  <p className="demo-card__value demo-card__value--accent">
-                    <AnimatedNumber
-                      value={budgetResult.debtToIncome}
-                      formatter={(number) => percentFormatter(number / 100)}
-                    />
-                  </p>
-                  <p className="demo-card__meta">
-                    MyAiBank flags risk as you approach 36% and celebrates when you stay below 25%.
-                  </p>
-                </article>
-              </div>
-            ) : (
-              <div className="demo__placeholder">
-                <p>Submit your numbers to unlock glowing AI recommendations in real-time.</p>
-              </div>
-            )}
+            <div className="demo__results">
+              {budgetResult ? (
+                <div className="demo__cards">
+                  <article className="demo-card" data-tooltip="Balanced budget target">
+                    <h3>Essentials</h3>
+                    <p className="demo-card__percentage">50%</p>
+                    <p className="demo-card__value">
+                      <AnimatedNumber value={budgetResult.essentials} formatter={currencyFormatter} />
+                    </p>
+                    <p className="demo-card__meta">Cover housing, groceries, transport, and healthcare with confidence.</p>
+                  </article>
+                  <article className="demo-card" data-tooltip="Balanced budget target">
+                    <h3>Wants</h3>
+                    <p className="demo-card__percentage">30%</p>
+                    <p className="demo-card__value">
+                      <AnimatedNumber value={budgetResult.wants} formatter={currencyFormatter} />
+                    </p>
+                    <p className="demo-card__meta">Spend intentionally on dining, entertainment, and subscriptions.</p>
+                  </article>
+                  <article className="demo-card" data-tooltip="Balanced budget target">
+                    <h3>Savings</h3>
+                    <p className="demo-card__percentage">20%</p>
+                    <p className="demo-card__value">
+                      <AnimatedNumber value={budgetResult.savings} formatter={currencyFormatter} />
+                    </p>
+                    <p className="demo-card__meta">Build emergency funds, investments, and future goals faster.</p>
+                  </article>
+                  <article className="demo-card" data-tooltip="Debt-to-Income insight">
+                    <h3>Debt-to-Income ratio</h3>
+                    <p className="demo-card__value demo-card__value--accent">
+                      <AnimatedNumber
+                        value={budgetResult.debtToIncome}
+                        formatter={(number) => percentFormatter(number / 100)}
+                      />
+                    </p>
+                    <p className="demo-card__meta">
+                      MyAiBank flags risk as you approach 36% and celebrates when you stay below 25%.
+                    </p>
+                  </article>
+                </div>
+              ) : (
+                <div className="demo__placeholder">
+                  <p>Submit your numbers to unlock glowing AI recommendations in real-time.</p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
