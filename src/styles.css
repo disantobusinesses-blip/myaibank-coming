@@ -459,7 +459,19 @@ button:disabled {
   font-size: 0.95rem;
 }
 
-.demo__form input {
+.demo__field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.demo__field-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, auto);
+  gap: 0.75rem;
+}
+
+.demo__form input,
+.demo__form select {
   width: 100%;
   padding: 0.85rem 1.1rem;
   border-radius: 1rem;
@@ -470,11 +482,23 @@ button:disabled {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.demo__form input:focus {
+.demo__form input:focus,
+.demo__form select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(140, 107, 255, 0.35);
   transform: translateY(-1px);
+}
+
+.demo__form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.5) 50%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5) 50%, transparent 50%);
+  background-position: calc(100% - 1.6rem) 1.4rem, calc(100% - 1.1rem) 1.4rem;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
 }
 
 .demo__error {
@@ -485,6 +509,41 @@ button:disabled {
 
 .demo__results {
   margin-top: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.demo__summary {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.demo__summary-item {
+  padding: 1.1rem 1.3rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(150deg, rgba(31, 0, 81, 0.55), rgba(0, 0, 0, 0.45));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.demo__summary-label {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.demo__summary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.demo__summary-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .demo__cards {
@@ -549,6 +608,19 @@ button:disabled {
   margin-top: 0.6rem;
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+.demo-card__list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: rgba(233, 229, 255, 0.85);
+}
+
+.demo-card__list li::marker {
+  color: var(--accent);
 }
 
 .demo__placeholder {
@@ -768,6 +840,12 @@ button:disabled {
   100% {
     transform: scale(1);
     text-shadow: 0 0 0 rgba(140, 107, 255, 0);
+  }
+}
+
+@media (max-width: 600px) {
+  .demo__field-input {
+    grid-template-columns: 1fr;
   }
 }
 

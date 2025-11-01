@@ -33,6 +33,24 @@ const toolCards = [
   },
 ];
 
+const essentialExamples = [
+  'Rent or mortgage payments',
+  'Groceries and utilities',
+  'Health, transport, and insurance',
+];
+
+const lifestyleExamples = [
+  'Dining out and entertainment',
+  'Streaming services and hobbies',
+  'Travel and personal treats',
+];
+
+const savingsExamples = [
+  'High-yield savings deposits',
+  'Investment or super contributions',
+  'Emergency fund top-ups',
+];
+
 function useCountdown() {
   const targetDate = useMemo(() => {
     const now = new Date();
@@ -96,9 +114,9 @@ function CountdownValue({ value }) {
   return <div className={`countdown__value${pulsing ? ' countdown__value--pulse' : ''}`}>{value}</div>;
 }
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
+const currencyFormatter = new Intl.NumberFormat('en-AU', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'AUD',
   maximumFractionDigits: 0,
 });
 
@@ -142,6 +160,27 @@ function AnimatedNumber({ value, formatter, suffix = '' }) {
   return <span>{formatter(displayValue)}{suffix}</span>;
 }
 
+function parseAmount(value) {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (value === null || value === undefined) {
+    return NaN;
+  }
+
+  const normalized = value
+    .toString()
+    .trim()
+    .replace(/[^0-9.-]/g, '');
+
+  if (!normalized) {
+    return NaN;
+  }
+
+  return Number(normalized);
+}
+
 export default function App() {
   const heroRef = useRef(null);
   const countdown = useCountdown();
@@ -150,6 +189,8 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState('');
   const [income, setIncome] = useState('');
   const [spending, setSpending] = useState('');
+  const [incomeFrequency, setIncomeFrequency] = useState('monthly');
+  const [spendingFrequency, setSpendingFrequency] = useState('monthly');
   const [demoError, setDemoError] = useState('');
   const [budgetResult, setBudgetResult] = useState(null);
 
@@ -278,8 +319,8 @@ export default function App() {
 
   function handleDemoSubmit(event) {
     event.preventDefault();
-    const parsedIncome = Number(income);
-    const parsedSpending = Number(spending);
+    const parsedIncome = parseAmount(income);
+    const parsedSpending = parseAmount(spending);
 
     if (!Number.isFinite(parsedIncome) || !Number.isFinite(parsedSpending) || parsedIncome <= 0 || parsedSpending < 0) {
       setDemoError('Enter valid amounts for income and spending to explore the demo.');
@@ -288,13 +329,27 @@ export default function App() {
     }
 
     setDemoError('');
+
+    const incomeMultiplier = incomeFrequency === 'weekly' ? 4 : 1;
+    const spendingMultiplier = spendingFrequency === 'weekly' ? 4 : 1;
+    const monthlyIncome = parsedIncome * incomeMultiplier;
+    const monthlySpending = parsedSpending * spendingMultiplier;
+    const essentials = monthlyIncome * 0.5;
+    const wants = monthlyIncome * 0.3;
+    const savings = monthlyIncome * 0.2;
+    const debtToIncome = monthlyIncome > 0 ? (monthlySpending / monthlyIncome) * 100 : 0;
+
     setBudgetResult({
       income: parsedIncome,
       spending: parsedSpending,
-      essentials: parsedIncome * 0.5,
-      wants: parsedIncome * 0.3,
-      savings: parsedIncome * 0.2,
-      debtToIncome: (parsedSpending / parsedIncome) * 100,
+      incomeFrequency,
+      spendingFrequency,
+      monthlyIncome,
+      monthlySpending,
+      essentials,
+      wants,
+      savings,
+      debtToIncome,
     });
   }
 
@@ -423,30 +478,60 @@ export default function App() {
               <li>Check your bank statement or estimate your monthly spending.</li>
             </ul>
             <form className="demo__form" onSubmit={handleDemoSubmit}>
-              <label htmlFor="income">Your monthly income (after tax)</label>
-              <input
-                id="income"
-                name="income"
-                type="number"
-                min="0"
-                step="0.01"
-                value={income}
-                onChange={(event) => setIncome(event.target.value)}
-                placeholder="e.g. 5500"
-                required
-              />
-              <label htmlFor="spending">Your total monthly spending</label>
-              <input
-                id="spending"
-                name="spending"
-                type="number"
-                min="0"
-                step="0.01"
-                value={spending}
-                onChange={(event) => setSpending(event.target.value)}
-                placeholder="e.g. 3200"
-                required
-              />
+              <div className="demo__field">
+                <label htmlFor="income">Your income (after tax)</label>
+                <div className="demo__field-input">
+                  <input
+                    id="income"
+                    name="income"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    value={income}
+                    onChange={(event) => setIncome(event.target.value)}
+                    placeholder="e.g. 5500"
+                    required
+                  />
+                  <label className="sr-only" htmlFor="income-frequency">
+                    Income frequency
+                  </label>
+                  <select
+                    id="income-frequency"
+                    value={incomeFrequency}
+                    onChange={(event) => setIncomeFrequency(event.target.value)}
+                  >
+                    <option value="monthly">per month</option>
+                    <option value="weekly">per week</option>
+                  </select>
+                </div>
+              </div>
+              <div className="demo__field">
+                <label htmlFor="spending">Your total spending</label>
+                <div className="demo__field-input">
+                  <input
+                    id="spending"
+                    name="spending"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    value={spending}
+                    onChange={(event) => setSpending(event.target.value)}
+                    placeholder="e.g. 3200"
+                    required
+                  />
+                  <label className="sr-only" htmlFor="spending-frequency">
+                    Spending frequency
+                  </label>
+                  <select
+                    id="spending-frequency"
+                    value={spendingFrequency}
+                    onChange={(event) => setSpendingFrequency(event.target.value)}
+                  >
+                    <option value="monthly">per month</option>
+                    <option value="weekly">per week</option>
+                  </select>
+                </div>
+              </div>
               <button type="submit">Calculate my plan</button>
               {demoError && (
                 <p className="demo__error" role="alert">
@@ -457,13 +542,38 @@ export default function App() {
             <div className="demo__results">
               {budgetResult ? (
                 <div className="demo__cards">
+                  <div className="demo__summary" role="status">
+                    <div className="demo__summary-item">
+                      <span className="demo__summary-label">Estimated monthly income</span>
+                      <span className="demo__summary-value">
+                        <AnimatedNumber value={budgetResult.monthlyIncome} formatter={currencyFormatter} />
+                      </span>
+                      {budgetResult.incomeFrequency === 'weekly' && (
+                        <span className="demo__summary-note">Converted from weekly income × 4.</span>
+                      )}
+                    </div>
+                    <div className="demo__summary-item">
+                      <span className="demo__summary-label">Estimated monthly spending</span>
+                      <span className="demo__summary-value">
+                        <AnimatedNumber value={budgetResult.monthlySpending} formatter={currencyFormatter} />
+                      </span>
+                      {budgetResult.spendingFrequency === 'weekly' && (
+                        <span className="demo__summary-note">Converted from weekly spending × 4.</span>
+                      )}
+                    </div>
+                  </div>
                   <article className="demo-card" data-tooltip="Balanced budget target">
                     <h3>Essentials</h3>
                     <p className="demo-card__percentage">50%</p>
                     <p className="demo-card__value">
                       <AnimatedNumber value={budgetResult.essentials} formatter={currencyFormatter} />
                     </p>
-                    <p className="demo-card__meta">Cover housing, groceries, transport, and healthcare with confidence.</p>
+                    <p className="demo-card__meta">Cover the must-haves first to keep your lifestyle stable.</p>
+                    <ul className="demo-card__list">
+                      {essentialExamples.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
                   </article>
                   <article className="demo-card" data-tooltip="Balanced budget target">
                     <h3>Wants</h3>
@@ -471,7 +581,12 @@ export default function App() {
                     <p className="demo-card__value">
                       <AnimatedNumber value={budgetResult.wants} formatter={currencyFormatter} />
                     </p>
-                    <p className="demo-card__meta">Spend intentionally on dining, entertainment, and subscriptions.</p>
+                    <p className="demo-card__meta">Enjoy lifestyle upgrades while keeping your plan on track.</p>
+                    <ul className="demo-card__list">
+                      {lifestyleExamples.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
                   </article>
                   <article className="demo-card" data-tooltip="Balanced budget target">
                     <h3>Savings</h3>
@@ -479,18 +594,25 @@ export default function App() {
                     <p className="demo-card__value">
                       <AnimatedNumber value={budgetResult.savings} formatter={currencyFormatter} />
                     </p>
-                    <p className="demo-card__meta">Build emergency funds, investments, and future goals faster.</p>
+                    <p className="demo-card__meta">Accelerate goals by paying yourself first each payday.</p>
+                    <ul className="demo-card__list">
+                      {savingsExamples.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
                   </article>
                   <article className="demo-card" data-tooltip="Debt-to-Income insight">
                     <h3>Debt-to-Income ratio</h3>
                     <p className="demo-card__value demo-card__value--accent">
                       <AnimatedNumber
                         value={budgetResult.debtToIncome}
-                        formatter={(number) => percentFormatter(number / 100)}
+                        formatter={(number) => number.toFixed(1)}
+                        suffix=" / 100"
                       />
                     </p>
                     <p className="demo-card__meta">
-                      MyAiBank flags risk as you approach 36% and celebrates when you stay below 25%.
+                      That’s equivalent to {percentFormatter(budgetResult.debtToIncome / 100)} of your income. MyAiBank flags
+                      risk as you approach 36% and celebrates when you stay below 25%.
                     </p>
                   </article>
                 </div>
