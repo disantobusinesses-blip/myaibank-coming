@@ -1,65 +1,35 @@
-export const RESEND_API_ENV_NAME = 'VITE_RESEND_API_KEY';
-export const RESEND_AUDIENCE_ENV_NAME = 'VITE_RESEND_AUDIENCE_ID';
+/**
+ * MyAiBank Newsletter Configuration — Resend API
+ * Supports frontend (Vite) and backend (Vercel functions).
+ */
 
-const DEFAULT_RESEND_AUDIENCE_ID = 'b38826d1-e452-4e97-8a62-928ff782a6fd';
+// Default Audience ID (replace with your Resend audience if needed)
+const DEFAULT_RESEND_AUDIENCE_ID = "b38826d1-e452-4e97-8a62-928ff782a6fd";
 
-function getMetaEnv() {
-  try {
-    return typeof import.meta !== 'undefined' && import.meta && import.meta.env ? import.meta.env : {};
-  } catch (error) {
-    return {};
+// Detect build environment
+const isServer = typeof process !== "undefined" && !!process.env;
+
+// ✅ Frontend: Vite exposes variables with import.meta.env
+// ✅ Backend: Vercel exposes variables through process.env
+export const RESEND_API_KEY = isServer
+  ? process.env.VITE_RESEND_API_KEY || ""
+  : import.meta.env.VITE_RESEND_API_KEY || "";
+
+export const RESEND_AUDIENCE_ID = isServer
+  ? process.env.VITE_RESEND_AUDIENCE_ID || DEFAULT_RESEND_AUDIENCE_ID
+  : import.meta.env.VITE_RESEND_AUDIENCE_ID || DEFAULT_RESEND_AUDIENCE_ID;
+
+/**
+ * Helper to confirm configuration is loaded
+ */
+export function verifyResendConfig() {
+  const hasKey = !!RESEND_API_KEY;
+  const hasAudience = !!RESEND_AUDIENCE_ID;
+  if (!hasKey) {
+    console.error("⚠️ Resend API key missing. Please set VITE_RESEND_API_KEY in Vercel environment variables.");
   }
-}
-
-function normalizeResendValue(value) {
-  if (typeof value !== 'string') {
-    return '';
+  if (!hasAudience) {
+    console.error("⚠️ Resend Audience ID missing. Please set VITE_RESEND_AUDIENCE_ID in Vercel environment variables.");
   }
-
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : '';
+  return { hasKey, hasAudience };
 }
-
-export function getResendApiKey() {
-  const metaEnv = getMetaEnv();
-  const processEnv = globalThis?.process?.env ?? {};
-  const browserEnv = typeof window === 'undefined' ? {} : window.__env__ ?? {};
-
-  const candidates = [
-    metaEnv[RESEND_API_ENV_NAME],
-    processEnv[RESEND_API_ENV_NAME],
-    browserEnv[RESEND_API_ENV_NAME],
-  ];
-
-  for (const candidate of candidates) {
-    const normalized = normalizeResendValue(candidate);
-    if (normalized) {
-      return normalized;
-    }
-  }
-
-  return '';
-}
-
-export function getResendAudienceId() {
-  const metaEnv = getMetaEnv();
-  const processEnv = globalThis?.process?.env ?? {};
-  const browserEnv = typeof window === 'undefined' ? {} : window.__env__ ?? {};
-
-  const candidates = [
-    metaEnv[RESEND_AUDIENCE_ENV_NAME],
-    processEnv[RESEND_AUDIENCE_ENV_NAME],
-    browserEnv[RESEND_AUDIENCE_ENV_NAME],
-  ];
-
-  for (const candidate of candidates) {
-    const normalized = normalizeResendValue(candidate);
-    if (normalized) {
-      return normalized;
-    }
-  }
-
-  return DEFAULT_RESEND_AUDIENCE_ID;
-}
-
-export const RESEND_API_KEY = getResendApiKey();
