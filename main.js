@@ -51,6 +51,12 @@ if (typeof window !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const footerYear = document.getElementById('footer-year');
+
+  if (footerYear) {
+    footerYear.textContent = String(new Date().getFullYear());
+  }
+
   const form = document.getElementById('newsletter-form');
   if (!form) return;
 
@@ -59,11 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const hint = document.getElementById('newsletter-hint');
   const success = document.getElementById('newsletter-success');
   const error = document.getElementById('newsletter-error');
-  const footerYear = document.getElementById('footer-year');
-
-  if (footerYear) {
-    footerYear.textContent = String(new Date().getFullYear());
-  }
 
   const statusElements = { button: submitButton, hint, success, error };
   let status = 'idle';

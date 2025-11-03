@@ -38,26 +38,17 @@
           </ul>
         </div>
 
-        <form class="newsletter" id="newsletter-form" novalidate>
+        <div class="newsletter" id="newsletter-container">
           <h2 class="newsletter__title">Join the newsletter</h2>
-          <label class="sr-only" for="email">Email address</label>
-          <div class="newsletter__controls">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="name@email.com"
-              autocomplete="email"
-              required
-            />
-            <button type="submit" id="newsletter-submit">Join the waitlist</button>
+          <div class="newsletter__embed">
+            <iframe
+              src="https://8074984b.sibforms.com/serve/MUIFAJE7qs-pgbbFQ-3zWpMft-8nhKBWANMq7tHYRPH_TBPFXbAq33XezBa7cboP76x_6PVDDwG1OLgcMbHhJvJlES1xfa4qirlcGv9w3uMUYfUcNQcN_yanvPsgeCj9f5F-bMifjzmc79GLGOEJAAukfzRS8CwxYTfg_jYJMBt7GwivQIWU-7PKgh-hL7MMDJLnSCjLSqbxpx4Z1Q=="
+              frameborder="0"
+              scrolling="auto"
+              allowfullscreen
+            ></iframe>
           </div>
-          <p class="newsletter__hint" id="newsletter-hint">No spam — just thoughtful, useful updates.</p>
-          <p class="newsletter__success" id="newsletter-success" role="status" hidden>
-            You’re on the list! Check your inbox soon for a welcome note.
-          </p>
-          <p class="newsletter__error" id="newsletter-error" role="alert" hidden></p>
-        </form>
+        </div>
       </section>
     </main>
 
