@@ -1,5 +1,29 @@
-const BREVO_LIST_ID = 5;
-const BREVO_STORAGE_KEY = 'myaibank.brevoKey';
+const RESEND_STORAGE_KEY = 'myaibank.resendKey';
+const RESEND_FROM_EMAIL = 'MyAiBank Launch <launch@myaibank.ai>';
+const RESEND_SUBJECT = 'Welcome to the MyAiBank waitlist';
+const RESEND_PLAIN_TEXT =
+  'Thanks for joining the MyAiBank waitlist! Keep an eye on your inbox for launch updates and your budgeting template.';
+
+function buildResendHtml(emailAddress) {
+  return `
+    <div style="font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0f0d1f;">
+      <h1 style="font-size: 20px; color: #1f0051;">Welcome to the MyAiBank waitlist 🎉</h1>
+      <p style="font-size: 16px; line-height: 1.6;">
+        Hi there,
+        <br />
+        Thanks for joining MyAiBank. We just reserved your spot on the launch list and will send over the budgeting template and
+        AI finance tips as we count down to launch day.
+      </p>
+      <p style="font-size: 16px; line-height: 1.6;">
+        <strong>Your email:</strong> ${emailAddress}
+      </p>
+      <p style="font-size: 16px; line-height: 1.6;">
+        Talk soon,<br />
+        The MyAiBank Team
+      </p>
+    </div>
+  `;
+}
 
 const countdownUnits = ['days', 'hours', 'minutes', 'seconds'];
 
@@ -128,8 +152,8 @@ function parseAmount(value) {
   return Number(normalized);
 }
 
-function resolveBrevoKey() {
-  const globalKey = (typeof window !== 'undefined' && window.VITE_BREVO_KEY) || '';
+function resolveResendKey() {
+  const globalKey = (typeof window !== 'undefined' && window.RESEND_API_KEY) || '';
   if (globalKey?.trim()) return globalKey.trim();
 
   if (typeof window !== 'undefined') {
@@ -153,30 +177,36 @@ function resolveBrevoKey() {
         }
       };
 
-      if (params.has('clearBrevoKey')) {
+      if (params.has('clearResendKey')) {
         shouldRewrite = true;
-        params.delete('clearBrevoKey');
+        params.delete('clearResendKey');
         if (storage) {
           try {
-            storage.removeItem(BREVO_STORAGE_KEY);
+            storage.removeItem(RESEND_STORAGE_KEY);
           } catch (storageError) {
             // Ignore storage access issues when clearing the key.
           }
         }
       }
 
-      const paramKey = params.get('brevoKey') || params.get('brevo_key');
+      const paramKey =
+        params.get('resendKey') ||
+        params.get('resend_key') ||
+        params.get('resendApiKey') ||
+        params.get('resend_api_key');
       if (paramKey?.trim()) {
         const trimmed = paramKey.trim();
         if (storage) {
           try {
-            storage.setItem(BREVO_STORAGE_KEY, trimmed);
+            storage.setItem(RESEND_STORAGE_KEY, trimmed);
           } catch (storageError) {
             // Ignore quota errors when persisting the key.
           }
         }
-        params.delete('brevoKey');
-        params.delete('brevo_key');
+        params.delete('resendKey');
+        params.delete('resend_key');
+        params.delete('resendApiKey');
+        params.delete('resend_api_key');
         shouldRewrite = true;
         applyRewrite();
         return trimmed;
@@ -185,7 +215,7 @@ function resolveBrevoKey() {
       let storedKey = '';
       if (storage) {
         try {
-          storedKey = storage.getItem(BREVO_STORAGE_KEY) || '';
+          storedKey = storage.getItem(RESEND_STORAGE_KEY) || '';
         } catch (storageError) {
           storedKey = '';
         }
@@ -202,21 +232,19 @@ function resolveBrevoKey() {
     }
   }
 
-  const windowEnv = typeof window !== 'undefined' && window.env?.VITE_BREVO_KEY;
+  const windowEnv = typeof window !== 'undefined' && window.env?.RESEND_API_KEY;
   if (windowEnv?.trim()) return windowEnv.trim();
 
-  const altGlobal = typeof window !== 'undefined' && window.__BREVO_KEY__;
-  if (altGlobal?.trim) {
-    const candidate = altGlobal.trim();
-    if (candidate) return candidate;
+  const altGlobal = typeof window !== 'undefined' && window.__RESEND_KEY__;
+  if (typeof altGlobal === 'string' && altGlobal.trim()) {
+    return altGlobal.trim();
   }
 
   const metaSelectors = [
-    'meta[name="vite-brevo-key"]',
-    'meta[name="brevo-key"]',
-    'meta[name="VITE_BREVO_KEY"]',
-    'meta[property="vite-brevo-key"]',
-    'meta[property="VITE_BREVO_KEY"]',
+    'meta[name="resend-api-key"]',
+    'meta[name="RESEND_API_KEY"]',
+    'meta[property="resend-api-key"]',
+    'meta[property="RESEND_API_KEY"]',
   ];
 
   for (const selector of metaSelectors) {
@@ -227,10 +255,10 @@ function resolveBrevoKey() {
   }
 
   const dataAttributes = [
-    document.documentElement?.dataset?.viteBrevoKey,
-    document.documentElement?.dataset?.brevoKey,
-    document.body?.dataset?.viteBrevoKey,
-    document.body?.dataset?.brevoKey,
+    document.documentElement?.dataset?.resendApiKey,
+    document.documentElement?.dataset?.resendKey,
+    document.body?.dataset?.resendApiKey,
+    document.body?.dataset?.resendKey,
   ];
 
   for (const dataKey of dataAttributes) {
@@ -239,16 +267,16 @@ function resolveBrevoKey() {
     }
   }
 
-  const configScript = document.querySelector('script[data-brevo-key]');
-  if (configScript?.dataset?.brevoKey?.trim()) {
-    return configScript.dataset.brevoKey.trim();
+  const configScript = document.querySelector('script[data-resend-key]');
+  if (configScript?.dataset?.resendKey?.trim()) {
+    return configScript.dataset.resendKey.trim();
   }
 
-  const envScript = document.getElementById('brevo-env');
+  const envScript = document.getElementById('resend-env');
   if (envScript?.textContent) {
     try {
       const parsed = JSON.parse(envScript.textContent);
-      const value = parsed?.VITE_BREVO_KEY || parsed?.brevoKey;
+      const value = parsed?.RESEND_API_KEY || parsed?.resendKey;
       if (typeof value === 'string' && value.trim()) {
         return value.trim();
       }
@@ -409,13 +437,13 @@ function initNewsletter() {
     status = 'submitting';
     setNewsletterStatus(statusElements, status);
 
-    const brevoApiKey = resolveBrevoKey();
-    if (!brevoApiKey) {
+    const resendApiKey = resolveResendKey();
+    if (!resendApiKey) {
       status = 'error';
       setNewsletterStatus(
         statusElements,
         status,
-        'Newsletter signups are temporarily unavailable. Please configure the Brevo API key.'
+        'Newsletter signups are temporarily unavailable. Please configure the Resend API key.'
       );
       return;
     }
@@ -423,17 +451,19 @@ function initNewsletter() {
     const email = emailInput?.value?.trim() ?? '';
 
     try {
-      const response = await fetch('https://api.brevo.com/v3/contacts', {
+      const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          'api-key': brevoApiKey,
+          Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          email,
-          listIds: [BREVO_LIST_ID],
-          updateEnabled: true,
+          from: RESEND_FROM_EMAIL,
+          to: [email],
+          subject: RESEND_SUBJECT,
+          html: buildResendHtml(email),
+          text: RESEND_PLAIN_TEXT,
         }),
       });
 
@@ -443,8 +473,9 @@ function initNewsletter() {
           const payload = await response.json();
           message =
             payload?.message ||
+            payload?.name ||
+            payload?.error ||
             payload?.errors?.[0]?.message ||
-            payload?.code ||
             '';
         } catch (error) {
           message = '';
@@ -455,8 +486,8 @@ function initNewsletter() {
           statusElements,
           status,
           message
-            ? `We couldn’t add that email yet: ${message}`
-            : 'We couldn’t reach Brevo right now. Please try again in a moment.'
+            ? `We couldn’t send the confirmation yet: ${message}`
+            : 'We couldn’t reach Resend right now. Please try again in a moment.'
         );
         return;
       }
@@ -472,7 +503,7 @@ function initNewsletter() {
       setNewsletterStatus(
         statusElements,
         status,
-        'We hit a network issue while connecting to Brevo. Please try again.'
+        'We hit a network issue while connecting to Resend. Please try again.'
       );
     }
   });
