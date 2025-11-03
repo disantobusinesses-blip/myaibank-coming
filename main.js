@@ -152,7 +152,7 @@ function parseAmount(value) {
   return Number(normalized);
 }
 
-function resolveResendKey() {
+function discoverResendKeyFromDocument() {
   const globalKey = (typeof window !== 'undefined' && window.RESEND_API_KEY) || '';
   if (globalKey?.trim()) return globalKey.trim();
 
@@ -286,6 +286,108 @@ function resolveResendKey() {
   }
 
   return '';
+}
+
+async function fetchResendKeyFromEnvFiles() {
+  const sources = [
+    './resend.json',
+    './resend.config.json',
+    './resend-env.json',
+    './env.json',
+    './resend.env',
+    './resend.key',
+    './.env',
+    './.env.local',
+  ];
+
+  const parseEnvText = (text) => {
+    if (!text) return '';
+    const lines = text.split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const [key, ...rest] = trimmed.split('=');
+      if (!key) continue;
+      if (key.trim() === 'RESEND_API_KEY') {
+        return rest.join('=').trim();
+      }
+    }
+    return '';
+  };
+
+  for (const source of sources) {
+    try {
+      const response = await fetch(source, { cache: 'no-store' });
+      if (!response.ok) {
+        continue;
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+
+      if (contentType.includes('application/json')) {
+        try {
+          const json = await response.json();
+          const value =
+            typeof json?.RESEND_API_KEY === 'string'
+              ? json.RESEND_API_KEY
+              : typeof json?.resendApiKey === 'string'
+              ? json.resendApiKey
+              : typeof json?.resend_key === 'string'
+              ? json.resend_key
+              : '';
+          if (value?.trim()) {
+            return value.trim();
+          }
+        } catch (error) {
+          // Ignore JSON parse errors and continue.
+        }
+      } else {
+        const text = await response.text();
+        const parsed = parseEnvText(text);
+        if (parsed?.trim()) {
+          return parsed.trim();
+        }
+      }
+    } catch (error) {
+      // Ignore fetch issues (for example, file not found) and continue searching.
+    }
+  }
+
+  return '';
+}
+
+let cachedResendKey = '';
+let resolvingResendKeyPromise = null;
+
+async function resolveResendKey() {
+  if (cachedResendKey?.trim()) {
+    return cachedResendKey;
+  }
+
+  const immediate = discoverResendKeyFromDocument();
+  if (immediate?.trim()) {
+    cachedResendKey = immediate.trim();
+    if (typeof window !== 'undefined') {
+      window.RESEND_API_KEY = cachedResendKey;
+    }
+    return cachedResendKey;
+  }
+
+  if (!resolvingResendKeyPromise) {
+    resolvingResendKeyPromise = (async () => {
+      const fetched = await fetchResendKeyFromEnvFiles();
+      if (fetched?.trim()) {
+        cachedResendKey = fetched.trim();
+        if (typeof window !== 'undefined') {
+          window.RESEND_API_KEY = cachedResendKey;
+        }
+      }
+      return cachedResendKey;
+    })();
+  }
+
+  await resolvingResendKeyPromise;
+  return cachedResendKey;
 }
 
 function initParticles() {
@@ -437,7 +539,7 @@ function initNewsletter() {
     status = 'submitting';
     setNewsletterStatus(statusElements, status);
 
-    const resendApiKey = resolveResendKey();
+    const resendApiKey = await resolveResendKey();
     if (!resendApiKey) {
       status = 'error';
       setNewsletterStatus(

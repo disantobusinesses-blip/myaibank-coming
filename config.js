@@ -38,6 +38,7 @@
   pushCandidate(global.__ENV__?.RESEND_API_KEY);
   pushCandidate(global.__env?.RESEND_API_KEY);
   pushCandidate(global.env?.RESEND_API_KEY);
+  pushCandidate(global.process?.env?.RESEND_API_KEY);
 
   const currentScript = document.currentScript || document.querySelector('script[data-resend-key]');
   if (currentScript) {

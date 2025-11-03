@@ -18,6 +18,8 @@ vanilla JavaScript so it can run without a build step while keeping the live cou
    - Add a `data-resend-key="YOUR_KEY"` attribute to the `<script src="./config.js">` tag in `index.html`.
    - Populate the `<meta name="resend-api-key" content="YOUR_KEY">` tag in `index.html`.
    - Visit the site with `?resendKey=YOUR_KEY` in the URL once; the key is stored in `localStorage` and you can clear it later with `?clearResendKey`.
+   - Copy `resend.config.json.example` to `resend.config.json` and add your key to the JSON. The page will fetch this automatically at runtime (you can also name the file `resend.json`).
+   - Keep a `.env`, `.env.local`, or `resend.env` file with `RESEND_API_KEY=YOUR_KEY` next to `index.html`. When served statically those values are read after the first submit attempt.
    - Expose `window.RESEND_API_KEY` or `window.__ENV__.RESEND_API_KEY` before the page loads (for example via a server-side template).
 
 3. Serve the folder with any static server (for example, Python’s built-in server) or open `index.html` directly in your
