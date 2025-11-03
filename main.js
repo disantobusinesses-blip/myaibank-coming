@@ -4,12 +4,12 @@ import {
   RESEND_API_ENV_NAME,
   RESEND_AUDIENCE_ENV_NAME,
 } from './config.js';
+import { handleNewsletterSignup } from './newsletter.js';
 
 const RESEND_FROM_EMAIL = 'MyAiBank Launch <launch@myaibank.ai>';
 const RESEND_SUBJECT = 'Welcome to the MyAiBank waitlist';
 const RESEND_PLAIN_TEXT =
   'Thanks for joining the MyAiBank waitlist! Keep an eye on your inbox for launch updates and your budgeting template.';
-const RESEND_AUDIENCE_ENDPOINT = 'https://api.resend.com/audiences';
 
 function buildResendHtml(emailAddress) {
   return `
@@ -359,28 +359,7 @@ function initNewsletter() {
     const email = emailInput?.value?.trim() ?? '';
 
     try {
-      const contactResponse = await fetch(`${RESEND_AUDIENCE_ENDPOINT}/${audienceId}/contacts`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${resendApiKey}`,
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!contactResponse.ok && contactResponse.status !== 409) {
-        const message = await extractResendErrorMessage(contactResponse);
-        status = 'error';
-        setNewsletterStatus(
-          statusElements,
-          status,
-          message
-            ? `We couldn’t save your contact yet: ${message}`
-            : 'We couldn’t reach Resend right now. Please try again in a moment.'
-        );
-        return;
-      }
+      await handleNewsletterSignup(email);
 
       const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -419,11 +398,9 @@ function initNewsletter() {
       setNewsletterStatus(statusElements, status);
     } catch (error) {
       status = 'error';
-      setNewsletterStatus(
-        statusElements,
-        status,
-        'We hit a network issue while connecting to Resend. Please try again.'
-      );
+      const fallbackMessage = 'We hit a network issue while connecting to Resend. Please try again.';
+      const errorMessage = error instanceof Error && error.message ? error.message : fallbackMessage;
+      setNewsletterStatus(statusElements, status, errorMessage);
     }
   });
 }
