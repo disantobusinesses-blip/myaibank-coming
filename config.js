@@ -1,4 +1,4 @@
-export const RESEND_API_ENV_NAME = 'VITE_RESEND_API_KEY';
+export const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || "";
 
 function normalizeResendValue(value) {
   if (typeof value !== 'string') {
