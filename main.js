@@ -1,47 +1,5 @@
 import { Analytics } from '@vercel/analytics/next';
 
-const env = (typeof process !== 'undefined' && process.env) || {};
-const BREVO_API_BASE_URL = env.BREVO_API_BASE_URL || 'https://api.brevo.com/v3';
-const BREVO_CONTACT_LIST_ID = Number.parseInt(env.BREVO_CONTACT_LIST_ID ?? '', 10);
-
-function getBrevoApiKey() {
-  const apiKey = env.BREVO_API_KEY;
-  return typeof apiKey === 'string' ? apiKey.trim() : '';
-}
-
-function getBrevoListIds() {
-  if (Number.isNaN(BREVO_CONTACT_LIST_ID)) {
-    return [];
-  }
-
-  return [BREVO_CONTACT_LIST_ID];
-}
-
-function formatError(message) {
-  if (!message) return 'We couldn’t save that email right now. Please try again in a moment.';
-  return message;
-}
-
-function setStatus({ button, hint, success, error }, status, message = '') {
-  if (button) {
-    button.disabled = status === 'submitting';
-    button.textContent = status === 'submitting' ? 'Joining…' : 'Join the waitlist';
-  }
-
-  if (hint) {
-    hint.hidden = status !== 'idle';
-  }
-
-  if (success) {
-    success.hidden = status !== 'success';
-  }
-
-  if (error) {
-    error.hidden = status !== 'error';
-    error.textContent = status === 'error' ? message : '';
-  }
-}
-
 if (typeof window !== 'undefined') {
   try {
     Analytics();
@@ -50,120 +8,190 @@ if (typeof window !== 'undefined') {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const footerYear = document.getElementById('footer-year');
+const easeOutQuad = (t) => t * (2 - t);
 
-  if (footerYear) {
-    footerYear.textContent = String(new Date().getFullYear());
+function animateValue(element, target, { duration = 1200, prefix = '', suffix = '', decimals = 0 } = {}) {
+  const startValue = Number.parseFloat(element.dataset.currentValue || '0') || 0;
+  const startTime = performance.now();
+  const delta = target - startValue;
+
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  function tick(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const eased = easeOutQuad(progress);
+    const currentValue = startValue + delta * eased;
+    element.textContent = `${prefix}${formatter.format(currentValue)}${suffix}`;
+
+    if (progress < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      element.dataset.currentValue = String(target);
+    }
   }
 
-  const form = document.getElementById('newsletter-form');
-  if (!form) return;
+  requestAnimationFrame(tick);
+}
 
-  const emailInput = document.getElementById('email');
-  const submitButton = document.getElementById('newsletter-submit');
-  const hint = document.getElementById('newsletter-hint');
-  const success = document.getElementById('newsletter-success');
-  const error = document.getElementById('newsletter-error');
-
-  const statusElements = { button: submitButton, hint, success, error };
-  let status = 'idle';
-
-  setStatus(statusElements, status);
-
-  const resetStatus = () => {
-    if (status !== 'idle') {
-      status = 'idle';
-      setStatus(statusElements, status);
-    }
-  };
-
-  emailInput?.addEventListener('input', resetStatus);
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    if (!form.reportValidity()) {
-      return;
-    }
-
-    const email = emailInput?.value?.trim() ?? '';
-    if (!email) {
-      status = 'error';
-      setStatus(statusElements, status, 'Add a valid email address to join the newsletter.');
-      return;
-    }
-
-    const apiKey = getBrevoApiKey();
-    if (!apiKey) {
-      status = 'error';
-      setStatus(
-        statusElements,
-        status,
-        'Newsletter signups unavailable: Brevo API key missing.'
-      );
-      return;
-    }
-
-    const listIds = getBrevoListIds();
-    if (!listIds.length) {
-      status = 'error';
-      setStatus(statusElements, status, 'Newsletter signups unavailable: Brevo list not configured.');
-      return;
-    }
-
-    status = 'submitting';
-    setStatus(statusElements, status);
-
-    try {
-      const response = await fetch(`${BREVO_API_BASE_URL}/contacts`, {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-          'api-key': apiKey,
-        },
-        body: JSON.stringify({
-          email,
-          listIds,
-          updateEnabled: true,
-        }),
-      });
-
-      let responseBodyText = '';
-      try {
-        responseBodyText = await response.clone().text();
-      } catch (readError) {
-        responseBodyText = '';
-      }
-
-      console.log('[Brevo] response', response.status, responseBodyText);
-
-      if (!response.ok) {
-        let details = '';
-        try {
-          const payload = responseBodyText ? JSON.parse(responseBodyText) : await response.json();
-          details =
-            payload?.message || payload?.errors?.[0]?.message || payload?.code || '';
-        } catch (parseError) {
-          details = '';
-        }
-
-        status = 'error';
-        setStatus(statusElements, status, formatError(details));
-        return;
-      }
-
-      if (emailInput) {
-        emailInput.value = '';
-      }
-
-      status = 'success';
-      setStatus(statusElements, status);
-    } catch (networkError) {
-      console.error('[Brevo] request failed', networkError);
-      status = 'error';
-      setStatus(statusElements, status, 'We hit a network issue while reaching Brevo. Please try again.');
+function initCounters() {
+  const counterElements = document.querySelectorAll('[data-counter]');
+  counterElements.forEach((element) => {
+    const target = Number.parseFloat(element.dataset.counterTarget || '0');
+    const prefix = element.dataset.counterPrefix || '';
+    const suffix = element.dataset.counterSuffix || '';
+    const decimals = Number.parseInt(element.dataset.counterDecimals || '0', 10);
+    if (!Number.isNaN(target)) {
+      animateValue(element, target, { prefix, suffix, decimals });
     }
   });
+}
+
+function initParticles() {
+  const field = document.getElementById('particle-field');
+  if (!field) return;
+
+  const particleCount = 40;
+
+  const resetParticle = (particle) => {
+    particle.style.left = `${Math.random() * 100}%`;
+    particle.style.bottom = `${-Math.random() * 80}px`;
+    const duration = 14 + Math.random() * 14;
+    particle.style.animationDuration = `${duration}s`;
+    particle.style.animationDelay = `${Math.random() * -duration}s`;
+    particle.style.opacity = `${0.3 + Math.random() * 0.4}`;
+  };
+
+  for (let index = 0; index < particleCount; index += 1) {
+    const particle = document.createElement('span');
+    resetParticle(particle);
+    particle.addEventListener('animationend', () => {
+      resetParticle(particle);
+    });
+    field.appendChild(particle);
+  }
+}
+
+function initPointerGlow() {
+  const glow = document.querySelector('.pointer-glow');
+  if (!glow) return;
+
+  const update = (x, y) => {
+    glow.style.setProperty('--pointer-x', `${x}px`);
+    glow.style.setProperty('--pointer-y', `${y}px`);
+  };
+
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      update(event.clientX, event.clientY + window.scrollY);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      update(window.innerWidth * 0.5, window.scrollY + window.innerHeight * 0.25);
+    },
+    { passive: true }
+  );
+}
+
+function initParallax() {
+  const elements = document.querySelectorAll('[data-parallax]');
+  if (!elements.length) return;
+
+  const update = () => {
+    const scrollY = window.scrollY || window.pageYOffset;
+    elements.forEach((element) => {
+      const depth = Number.parseFloat(element.dataset.depth || '0.15');
+      const offset = scrollY * depth * -0.12;
+      element.style.transform = `translate3d(0, ${offset}px, 0)`;
+    });
+  };
+
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+}
+
+function initDemo() {
+  const form = document.getElementById('rule-form');
+  if (!form) return;
+
+  const incomeInput = document.getElementById('income');
+  const spendingInput = document.getElementById('spending');
+  const outputs = {
+    essentials: document.querySelector('[data-output="essentials"]'),
+    wants: document.querySelector('[data-output="wants"]'),
+    savings: document.querySelector('[data-output="savings"]'),
+    dti: document.querySelector('[data-output="dti"]'),
+  };
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const income = Number.parseFloat(incomeInput?.value || '0');
+    const spending = Number.parseFloat(spendingInput?.value || '0');
+
+    if (!income || income <= 0) {
+      form.reportValidity();
+      return;
+    }
+
+    const essentials = income * 0.5;
+    const wants = income * 0.3;
+    const savings = income * 0.2;
+    const dtiRatio = income ? (spending / income) * 100 : 0;
+
+    if (outputs.essentials) {
+      animateValue(outputs.essentials, essentials, {
+        prefix: '$',
+        decimals: 2,
+        duration: 900,
+      });
+    }
+
+    if (outputs.wants) {
+      animateValue(outputs.wants, wants, {
+        prefix: '$',
+        decimals: 2,
+        duration: 900,
+      });
+    }
+
+    if (outputs.savings) {
+      animateValue(outputs.savings, savings, {
+        prefix: '$',
+        decimals: 2,
+        duration: 900,
+      });
+    }
+
+    if (outputs.dti) {
+      animateValue(outputs.dti, dtiRatio, {
+        suffix: '%',
+        decimals: 1,
+        duration: 900,
+      });
+    }
+
+    const cards = document.querySelectorAll('.result-card');
+    cards.forEach((card) => {
+      card.classList.remove('is-active');
+      void card.offsetWidth;
+      card.classList.add('is-active');
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCounters();
+  initParticles();
+  initPointerGlow();
+  initParallax();
+  initDemo();
 });

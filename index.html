@@ -3,56 +3,186 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyAiBank — Newsletter</title>
+    <title>MyAiBank — Intelligent Budgeting</title>
     <meta
       name="description"
-      content="Join the MyAiBank newsletter for product news, AI budgeting tips, and launch updates."
+      content="Experience the future of AI-guided budgeting with immersive demos, live insights, and the MyAiBank newsletter."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
     <meta name="vite-brevo-key" content="%VITE_BREVO_KEY%" />
   </head>
   <body>
+    <div class="animated-background"></div>
+    <div class="particle-field" id="particle-field" aria-hidden="true"></div>
+    <div class="pointer-glow" aria-hidden="true"></div>
+
     <main class="page">
-      <header class="header">
+      <header class="header" data-parallax data-depth="0.2">
         <span class="logo">MyAiBank</span>
-        <p class="header__tagline">Smarter money decisions start with better signals.</p>
+        <p class="header__tagline">Smarter money decisions with predictive AI copilots.</p>
       </header>
 
-      <section class="intro">
-        <div class="intro__copy">
-          <h1>Bank on AI guidance before we launch.</h1>
-          <p>
-            We’re building tools that forecast savings, flag hidden subscriptions, and recommend your next best financial move.
-            Join the newsletter to be first in line when MyAiBank opens the doors.
-          </p>
-          <ul class="intro__list">
-            <li>Monthly product updates and feature previews.</li>
-            <li>Actionable budgeting templates from our team.</li>
-            <li>Early invites to beta programs and events.</li>
-          </ul>
+      <section class="hero" data-parallax data-depth="0.1">
+        <div class="hero__content">
+          <div class="hero__eyebrow">Experience the Future of Budgeting.</div>
+          <h1 class="hero__title">AI copilots that help you control every dollar in real time.</h1>
+          <p class="hero__subtitle">First 500 users get 25% off for 6 months.</p>
+          <div class="hero__cta-group">
+            <a class="btn btn--primary" href="#demo">Explore the demo</a>
+            <a class="btn btn--ghost" href="#dashboard">See the dashboard</a>
+          </div>
         </div>
 
-        <div class="newsletter" id="newsletter-container">
-          <h2 class="newsletter__title">Join the newsletter</h2>
-          <div class="newsletter__embed">
-            <iframe
-              src="https://8074984b.sibforms.com/serve/MUIFAJE7qs-pgbbFQ-3zWpMft-8nhKBWANMq7tHYRPH_TBPFXbAq33XezBa7cboP76x_6PVDDwG1OLgcMbHhJvJlES1xfa4qirlcGv9w3uMUYfUcNQcN_yanvPsgeCj9f5F-bMifjzmc79GLGOEJAAukfzRS8CwxYTfg_jYJMBt7GwivQIWU-7PKgh-hL7MMDJLnSCjLSqbxpx4Z1Q=="
-              frameborder="0"
-              scrolling="auto"
-              allowfullscreen
-            ></iframe>
+        <div class="hero__panel" data-parallax data-depth="0.25">
+          <div class="panel-card">
+            <div class="panel-card__header">
+              <h2>Predictive cashflow summary</h2>
+              <span class="panel-card__status">Live</span>
+            </div>
+            <div class="panel-card__body">
+              <div class="panel-card__metric">
+                <span class="panel-card__label">AI Savings Forecast</span>
+                <span
+                  class="panel-card__value"
+                  data-counter
+                  data-counter-target="12400"
+                  data-counter-prefix="$"
+                >$12,400</span>
+              </div>
+              <div class="panel-card__progress">
+                <span class="panel-card__progress-label">Goal completion</span>
+                <div class="panel-card__progress-bar">
+                  <span style="width: 78%"></span>
+                </div>
+              </div>
+              <ul class="panel-card__list">
+                <li>Automated bill scanning detects hidden fees.</li>
+                <li>Predictive alerts flag overspending days in advance.</li>
+                <li>Smart goals rebalance budgets using AI scoring.</li>
+              </ul>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <section class="demo" id="demo" data-parallax data-depth="0.15">
+        <div class="demo__header">
+          <h2>The 50/30/20 Rule Demo</h2>
+          <p>
+            Enter your income and spending to see how the 50/30/20 budgeting framework distributes your money across
+            essentials, wants, and savings.
+          </p>
+        </div>
+        <form class="demo__form" id="rule-form">
+          <label class="demo__field">
+            <span>Your monthly or weekly income (after tax)</span>
+            <input type="number" id="income" name="income" min="0" step="0.01" required placeholder="e.g. 5200" />
+          </label>
+          <label class="demo__field">
+            <span>Your total monthly spending</span>
+            <input type="number" id="spending" name="spending" min="0" step="0.01" required placeholder="e.g. 3600" />
+          </label>
+          <div class="demo__instructions">
+            <p>If paid weekly, multiply your weekly after-tax wage by 4.</p>
+            <p>Check your bank statement or estimate your monthly spending.</p>
+          </div>
+          <button type="submit" class="btn btn--primary btn--shine">Show my breakdown</button>
+        </form>
+
+        <div class="demo__results" id="demo-results" aria-live="polite">
+          <div class="result-card" data-hover>
+            <h3>50% Essentials</h3>
+            <p class="result-card__value" data-output="essentials">$0</p>
+          </div>
+          <div class="result-card" data-hover>
+            <h3>30% Wants</h3>
+            <p class="result-card__value" data-output="wants">$0</p>
+          </div>
+          <div class="result-card" data-hover>
+            <h3>20% Savings</h3>
+            <p class="result-card__value" data-output="savings">$0</p>
+          </div>
+          <div class="result-card result-card--wide" data-hover>
+            <h3>Debt-to-Income Ratio</h3>
+            <p class="result-card__value" data-output="dti">0%</p>
+            <p class="result-card__caption">(spending ÷ income) × 100</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard" id="dashboard">
+        <div class="dashboard__copy" data-parallax data-depth="0.18">
+          <h2>Dynamic AI dashboard</h2>
+          <p>
+            Predict upcoming expenses, automate sinking funds, and watch your savings accelerate with adaptive plans
+            that respond to your real-time cash flow.
+          </p>
+          <ul class="dashboard__list">
+            <li>Scenario modeling with conversational AI guidance.</li>
+            <li>Personalized automations for paydays, savings, and debt payoff.</li>
+            <li>Unified dashboard for accounts, subscriptions, and goals.</li>
+          </ul>
+        </div>
+        <div class="dashboard__panel" data-parallax data-depth="0.3">
+          <div class="dashboard__glow"></div>
+          <div class="dashboard__screen">
+            <div class="dashboard__top">
+              <span class="dashboard__title">MyAiBank Insights</span>
+              <span class="dashboard__badge">Alpha</span>
+            </div>
+            <div class="dashboard__grid">
+              <div class="dashboard__tile" data-hover>
+                <span class="dashboard__tile-label">Next payday buffer</span>
+                <span
+                  class="dashboard__tile-value"
+                  data-counter
+                  data-counter-target="1850"
+                  data-counter-prefix="$"
+                >$1,850</span>
+              </div>
+              <div class="dashboard__tile" data-hover>
+                <span class="dashboard__tile-label">Subscriptions flagged</span>
+                <span class="dashboard__tile-value" data-counter data-counter-target="6">6</span>
+              </div>
+              <div class="dashboard__tile" data-hover>
+                <span class="dashboard__tile-label">Projected savings</span>
+                <span
+                  class="dashboard__tile-value"
+                  data-counter
+                  data-counter-target="320"
+                  data-counter-prefix="$"
+                  data-counter-suffix=" / mo"
+                >$320 / mo</span>
+              </div>
+              <div class="dashboard__tile" data-hover>
+                <span class="dashboard__tile-label">AI nudges completed</span>
+                <span class="dashboard__tile-value" data-counter data-counter-target="42">42</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="newsletter" id="newsletter-container">
+        <h2 class="newsletter__title">Join the newsletter</h2>
+        <div class="newsletter__embed">
+          <iframe
+            src="https://8074984b.sibforms.com/serve/MUIFAJE7qs-pgbbFQ-3zWpMft-8nhKBWANMq7tHYRPH_TBPFXbAq33XezBa7cboP76x_6PVDDwG1OLgcMbHhJvJlES1xfa4qirlcGv9w3uMUYfUcNQcN_yanvPsgeCj9f5F-bMifjzmc79GLGOEJAAukfzRS8CwxYTfg_jYJMBt7GwivQIWU-7PKgh-hL7MMDJLnSCjLSqbxpx4Z1Q=="
+            frameborder="0"
+            scrolling="auto"
+            allowfullscreen
+          ></iframe>
         </div>
       </section>
     </main>
 
-    <footer class="footer">© <span id="footer-year"></span> MyAiBank. All rights reserved.</footer>
+    <footer class="footer">Powered by MyAiBank.ai – All rights reserved</footer>
 
     <script type="importmap">
       {
