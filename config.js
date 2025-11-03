@@ -1,69 +1,35 @@
 /**
- * Configure the Resend API key for newsletter signups.
- *
- * You can expose the key in several ways:
- * - Set `window.RESEND_API_KEY` before this script loads.
- * - Attach a `data-resend-key` attribute to the script tag that imports this file.
- * - Inject a `<meta name="resend-api-key" content="YOUR_KEY">` tag in `index.html`.
- * - Populate `window.__ENV__`, `window.__env`, or `window.env` objects with `RESEND_API_KEY`.
- * - Edit the `FALLBACK_RESEND_KEY` constant below when working locally.
+ * Config for MyAiBank newsletter integration using Resend API.
+ * Frontend-safe version for Vite builds.
  */
-(function configureResendKey(global) {
-  if (typeof document === 'undefined' || !global) {
-    return;
+
+export const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY || "";
+
+/**
+ * Helper function for sending a newsletter signup request.
+ * Replace the endpoint URL if your API route differs.
+ */
+export async function subscribeToNewsletter(email) {
+  if (!RESEND_API_KEY) {
+    throw new Error("Resend API key not configured");
   }
 
-  const FALLBACK_RESEND_KEY = '';
+  const response = await fetch("https://api.resend.com/v1/contacts", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email,
+      audience_id: "your_audience_id_here" // optional: replace with your Resend audience ID
+    })
+  });
 
-  const candidates = [];
-  const pushCandidate = (value) => {
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed) {
-        candidates.push(trimmed);
-      }
-    }
-  };
-
-  pushCandidate(global.RESEND_API_KEY);
-
-  try {
-    if (typeof RESEND_API_KEY !== 'undefined') {
-      pushCandidate(String(RESEND_API_KEY));
-    }
-  } catch (error) {
-    // Ignore reference errors when RESEND_API_KEY is not defined globally.
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Resend error: ${error.message || response.statusText}`);
   }
 
-  pushCandidate(global.__ENV__?.RESEND_API_KEY);
-  pushCandidate(global.__env?.RESEND_API_KEY);
-  pushCandidate(global.env?.RESEND_API_KEY);
-  pushCandidate(global.process?.env?.RESEND_API_KEY);
-
-  const currentScript = document.currentScript || document.querySelector('script[data-resend-key]');
-  if (currentScript) {
-    pushCandidate(currentScript.dataset?.resendKey);
-    if (typeof currentScript.getAttribute === 'function') {
-      pushCandidate(currentScript.getAttribute('data-resend-key'));
-    }
-  }
-
-  if (candidates.length === 0) {
-    const metaTag =
-      document.querySelector('meta[name="resend-api-key"]') ||
-      document.querySelector('meta[name="RESEND_API_KEY"]') ||
-      document.querySelector('meta[property="resend-api-key"]') ||
-      document.querySelector('meta[property="RESEND_API_KEY"]');
-    if (metaTag) {
-      pushCandidate(metaTag.content);
-    }
-  }
-
-  if (candidates.length === 0) {
-    pushCandidate(FALLBACK_RESEND_KEY);
-  }
-
-  if (candidates.length > 0) {
-    global.RESEND_API_KEY = candidates[0];
-  }
-})(typeof window !== 'undefined' ? window : undefined);
+  return await response.json();
+}
