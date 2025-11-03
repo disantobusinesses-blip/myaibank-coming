@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My AI Bank — Coming Soon</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <h1 class="title">Something magical is landing soon ✨</h1>
+        <p class="subtitle">
+          We are crafting a smarter banking experience. Sign up to be the first to
+          know when we launch.
+        </p>
+        <div class="countdown" aria-live="polite">
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-days">0</span>
+            <span class="countdown__label">Days</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-hours">0</span>
+            <span class="countdown__label">Hours</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-minutes">0</span>
+            <span class="countdown__label">Minutes</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-seconds">0</span>
+            <span class="countdown__label">Seconds</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="newsletter" aria-labelledby="newsletter-heading">
+        <h2 class="newsletter__heading" id="newsletter-heading">
+          Join the newsletter
+        </h2>
+        <p class="newsletter__copy">
+          Drop your email below and we will add you to our Resend audience so you
+          never miss an update.
+        </p>
+        <form id="subscribe-form" class="newsletter__form" novalidate>
+          <div class="field-group">
+            <label class="field">
+              <span class="field__label">Email address *</span>
+              <input
+                class="field__input"
+                type="email"
+                name="email"
+                id="email"
+                placeholder="you@example.com"
+                required
+              />
+            </label>
+            <label class="field">
+              <span class="field__label">First name</span>
+              <input
+                class="field__input"
+                type="text"
+                name="firstName"
+                id="firstName"
+                placeholder="Ada"
+              />
+            </label>
+            <label class="field">
+              <span class="field__label">Last name</span>
+              <input
+                class="field__input"
+                type="text"
+                name="lastName"
+                id="lastName"
+                placeholder="Lovelace"
+              />
+            </label>
+          </div>
+          <button class="newsletter__button" type="submit">Notify me</button>
+        </form>
+        <p class="newsletter__message" id="subscribe-message" role="status"></p>
+      </section>
+    </main>
+    <footer class="footer">
+      <p>© <span id="year"></span> My AI Bank. All rights reserved.</p>
+    </footer>
+    <script src="/script.js" type="module"></script>
+  </body>
+</html>
