@@ -1,4 +1,4 @@
-import { getResendApiKey } from './config.js';
+import { getResendApiKey, RESEND_API_ENV_NAME } from './config.js';
 
 const RESEND_FROM_EMAIL = 'MyAiBank Launch <launch@myaibank.ai>';
 const RESEND_SUBJECT = 'Welcome to the MyAiBank waitlist';
@@ -319,7 +319,7 @@ function initNewsletter() {
       setNewsletterStatus(
         statusElements,
         status,
-        'Newsletter signups are temporarily unavailable. Please configure the Resend API key.'
+        `Newsletter signups are temporarily unavailable. Please configure the ${RESEND_API_ENV_NAME} environment variable.`
       );
       return;
     }
