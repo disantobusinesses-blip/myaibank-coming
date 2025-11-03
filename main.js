@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/next';
+
 const env = (typeof process !== 'undefined' && process.env) || {};
 const BREVO_API_BASE_URL = env.BREVO_API_BASE_URL || 'https://api.brevo.com/v3';
 const BREVO_CONTACT_LIST_ID = Number.parseInt(env.BREVO_CONTACT_LIST_ID ?? '', 10);
@@ -37,6 +39,14 @@ function setStatus({ button, hint, success, error }, status, message = '') {
   if (error) {
     error.hidden = status !== 'error';
     error.textContent = status === 'error' ? message : '';
+  }
+}
+
+if (typeof window !== 'undefined') {
+  try {
+    Analytics();
+  } catch (analyticsError) {
+    console.warn('[Vercel Analytics] init failed', analyticsError);
   }
 }
 
