@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyAiBank — Coming Soon</title>
+    <meta
+      name="description"
+      content="Experience the future of budgeting with MyAiBank. Join the waitlist, explore AI tools, and prepare for the December 1 launch."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <meta name="vite-brevo-key" content="" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="animated-gradient" aria-hidden="true"></div>
+      <div class="particle-field" aria-hidden="true" id="particle-field"></div>
+
+      <header class="navbar" data-depth style="--parallax-depth: 40px">
+        <div class="brand">MyAiBank</div>
+        <span class="nav-domain">myaibank.ai</span>
+      </header>
+
+      <main>
+        <section class="hero" data-depth style="--parallax-depth: 70px" id="hero">
+          <div class="hero__content">
+            <div class="hero__badge">Experience the Future of Budgeting.</div>
+            <h1>AI-guided money management that helps you plan, predict, and win every budget cycle.</h1>
+            <p>
+              MyAiBank monitors your cash flow, spots hidden subscriptions, and projects savings in real time so you always know
+              the next best move.
+            </p>
+            <div class="hero__banner">
+              <span class="hero__banner-title">Experience the Future of Budgeting.</span>
+              <span class="hero__banner-offer">First 500 users get 25% off for 6 months.</span>
+            </div>
+            <div class="hero__countdown" aria-live="polite" id="countdown">
+              <div class="countdown__tile" data-unit="days">
+                <div class="countdown__value">00</div>
+                <div class="countdown__label">Days</div>
+              </div>
+              <div class="countdown__tile" data-unit="hours">
+                <div class="countdown__value">00</div>
+                <div class="countdown__label">Hours</div>
+              </div>
+              <div class="countdown__tile" data-unit="minutes">
+                <div class="countdown__value">00</div>
+                <div class="countdown__label">Minutes</div>
+              </div>
+              <div class="countdown__tile" data-unit="seconds">
+                <div class="countdown__value">00</div>
+                <div class="countdown__label">Seconds</div>
+              </div>
+            </div>
+
+            <div class="newsletter" aria-labelledby="newsletter-title">
+              <h2 id="newsletter-title">Join the newsletter</h2>
+              <p class="newsletter__intro">
+                Receive a free budgeting template and stay up to date with news from MyAiBank.
+              </p>
+              <form id="newsletter-form" novalidate>
+                <label class="sr-only" for="email">Email address</label>
+                <div class="newsletter__controls">
+                  <input id="email" name="email" type="email" placeholder="Enter your email" required />
+                  <button type="submit" id="newsletter-submit">Join the waitlist</button>
+                </div>
+                <p class="newsletter__hint" id="newsletter-hint">No spam—just AI budgeting guidance and launch updates.</p>
+                <p class="newsletter__success" id="newsletter-success" role="status" hidden>
+                  You’re on the list! Check your inbox for the budgeting template.
+                </p>
+                <p class="newsletter__error" id="newsletter-error" role="alert" hidden></p>
+              </form>
+            </div>
+          </div>
+
+          <div class="hero__visual" aria-hidden="true">
+            <div class="hero__visual-card">
+              <div class="hero__visual-placeholder">
+                <p>Drop a hero screenshot to showcase AI budgeting targets.</p>
+              </div>
+              <div class="hero__visual-overlay">
+                <p>Preview AI budgeting targets before launch.</p>
+              </div>
+            </div>
+            <div class="hero__visual-card">
+              <div class="hero__visual-placeholder">
+                <p>Drop a hero screenshot for the financial wellness insights.</p>
+              </div>
+              <div class="hero__visual-overlay">
+                <p>See 30-day income, net worth, and savings insights instantly.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="demo" data-depth style="--parallax-depth: 50px">
+          <div class="demo__copy">
+            <h2>The 50/30/20 Rule Demo</h2>
+            <p>
+              Test-drive how MyAiBank balances your take-home pay. Enter your monthly income and spending to see targets for
+              essentials, lifestyle, and savings in seconds.
+            </p>
+            <ul class="demo__tips">
+              <li>If paid weekly, multiply your weekly after-tax wage by 4.</li>
+              <li>Check your bank statement or estimate your monthly spending.</li>
+            </ul>
+            <form class="demo__form" id="demo-form">
+              <div class="demo__field">
+                <label for="income">Your income (after tax)</label>
+                <div class="demo__field-input">
+                  <input id="income" name="income" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 5500" required />
+                  <label class="sr-only" for="income-frequency">Income frequency</label>
+                  <select id="income-frequency" name="income-frequency">
+                    <option value="monthly" selected>per month</option>
+                    <option value="weekly">per week</option>
+                  </select>
+                </div>
+              </div>
+              <div class="demo__field">
+                <label for="spending">Your total spending</label>
+                <div class="demo__field-input">
+                  <input id="spending" name="spending" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3200" required />
+                  <label class="sr-only" for="spending-frequency">Spending frequency</label>
+                  <select id="spending-frequency" name="spending-frequency">
+                    <option value="monthly" selected>per month</option>
+                    <option value="weekly">per week</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit">Calculate my plan</button>
+              <p class="demo__error" id="demo-error" role="alert" hidden></p>
+            </form>
+            <div class="demo__results" id="demo-results">
+              <div class="demo__placeholder" id="demo-placeholder">
+                <p>Submit your numbers to unlock glowing AI recommendations in real-time.</p>
+              </div>
+              <div class="demo__cards" id="demo-cards" hidden>
+                <div class="demo__summary" role="status">
+                  <div class="demo__summary-item">
+                    <span class="demo__summary-label">Estimated monthly income</span>
+                    <span class="demo__summary-value"><span data-field="monthlyIncome">$0</span></span>
+                    <span class="demo__summary-note" data-field="incomeNote" hidden>Converted from weekly income × 4.</span>
+                  </div>
+                  <div class="demo__summary-item">
+                    <span class="demo__summary-label">Estimated monthly spending</span>
+                    <span class="demo__summary-value"><span data-field="monthlySpending">$0</span></span>
+                    <span class="demo__summary-note" data-field="spendingNote" hidden>Converted from weekly spending × 4.</span>
+                  </div>
+                </div>
+                <article class="demo-card" data-tooltip="Balanced budget target">
+                  <h3>Essentials</h3>
+                  <p class="demo-card__percentage">50%</p>
+                  <p class="demo-card__value"><span data-field="essentials">$0</span></p>
+                  <p class="demo-card__meta">Cover the must-haves first to keep your lifestyle stable.</p>
+                  <ul class="demo-card__list" data-list="essentials"></ul>
+                </article>
+                <article class="demo-card" data-tooltip="Balanced budget target">
+                  <h3>Wants</h3>
+                  <p class="demo-card__percentage">30%</p>
+                  <p class="demo-card__value"><span data-field="wants">$0</span></p>
+                  <p class="demo-card__meta">Enjoy lifestyle upgrades while keeping your plan on track.</p>
+                  <ul class="demo-card__list" data-list="lifestyle"></ul>
+                </article>
+                <article class="demo-card" data-tooltip="Balanced budget target">
+                  <h3>Savings</h3>
+                  <p class="demo-card__percentage">20%</p>
+                  <p class="demo-card__value"><span data-field="savings">$0</span></p>
+                  <p class="demo-card__meta">Accelerate goals by paying yourself first each payday.</p>
+                  <ul class="demo-card__list" data-list="savings"></ul>
+                </article>
+                <article class="demo-card" data-tooltip="Debt-to-Income insight">
+                  <h3>Debt-to-Income ratio</h3>
+                  <p class="demo-card__value demo-card__value--accent"><span data-field="debtToIncome">0 / 100</span></p>
+                  <p class="demo-card__meta">
+                    That’s equivalent to <span data-field="dtiPercent">0%</span> of your income. MyAiBank flags risk as you approach
+                    36% and celebrates when you stay below 25%.
+                  </p>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tools" data-depth style="--parallax-depth: 45px">
+          <div class="tools__header">
+            <h2>Active Tool Displays</h2>
+            <p>
+              Preview how MyAiBank’s AI budgeting suite keeps you ahead—from identifying hidden subscriptions to forecasting
+              savings and tracking wellness.
+            </p>
+          </div>
+          <div class="tool-carousel" role="list" id="tool-carousel"></div>
+        </section>
+      </main>
+
+      <footer class="footer">Powered by MyAiBank.ai – All rights reserved</footer>
+    </div>
+
+    <script src="./config.js" defer></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
