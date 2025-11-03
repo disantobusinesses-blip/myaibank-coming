@@ -1,4 +1,5 @@
 const BREVO_LIST_ID = 5;
+const BREVO_STORAGE_KEY = 'myaibank.brevoKey';
 
 const countdownUnits = ['days', 'hours', 'minutes', 'seconds'];
 
@@ -130,6 +131,76 @@ function parseAmount(value) {
 function resolveBrevoKey() {
   const globalKey = (typeof window !== 'undefined' && window.VITE_BREVO_KEY) || '';
   if (globalKey?.trim()) return globalKey.trim();
+
+  if (typeof window !== 'undefined') {
+    try {
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+      let shouldRewrite = false;
+
+      let storage;
+      try {
+        storage = window.localStorage;
+      } catch (storageError) {
+        storage = undefined;
+      }
+
+      const applyRewrite = () => {
+        if (shouldRewrite && typeof window.history?.replaceState === 'function') {
+          const search = params.toString();
+          const newUrl = `${url.pathname}${search ? `?${search}` : ''}${url.hash}`;
+          window.history.replaceState({}, '', newUrl);
+        }
+      };
+
+      if (params.has('clearBrevoKey')) {
+        shouldRewrite = true;
+        params.delete('clearBrevoKey');
+        if (storage) {
+          try {
+            storage.removeItem(BREVO_STORAGE_KEY);
+          } catch (storageError) {
+            // Ignore storage access issues when clearing the key.
+          }
+        }
+      }
+
+      const paramKey = params.get('brevoKey') || params.get('brevo_key');
+      if (paramKey?.trim()) {
+        const trimmed = paramKey.trim();
+        if (storage) {
+          try {
+            storage.setItem(BREVO_STORAGE_KEY, trimmed);
+          } catch (storageError) {
+            // Ignore quota errors when persisting the key.
+          }
+        }
+        params.delete('brevoKey');
+        params.delete('brevo_key');
+        shouldRewrite = true;
+        applyRewrite();
+        return trimmed;
+      }
+
+      let storedKey = '';
+      if (storage) {
+        try {
+          storedKey = storage.getItem(BREVO_STORAGE_KEY) || '';
+        } catch (storageError) {
+          storedKey = '';
+        }
+      }
+
+      if (storedKey?.trim()) {
+        applyRewrite();
+        return storedKey.trim();
+      }
+
+      applyRewrite();
+    } catch (error) {
+      // Ignore issues parsing the current URL or accessing Web APIs.
+    }
+  }
 
   const windowEnv = typeof window !== 'undefined' && window.env?.VITE_BREVO_KEY;
   if (windowEnv?.trim()) return windowEnv.trim();
