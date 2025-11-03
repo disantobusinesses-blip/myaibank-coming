@@ -1,9 +1,15 @@
-import { getResendApiKey, RESEND_API_ENV_NAME } from './config.js';
+import {
+  getResendApiKey,
+  getResendAudienceId,
+  RESEND_API_ENV_NAME,
+  RESEND_AUDIENCE_ENV_NAME,
+} from './config.js';
 
 const RESEND_FROM_EMAIL = 'MyAiBank Launch <launch@myaibank.ai>';
 const RESEND_SUBJECT = 'Welcome to the MyAiBank waitlist';
 const RESEND_PLAIN_TEXT =
   'Thanks for joining the MyAiBank waitlist! Keep an eye on your inbox for launch updates and your budgeting template.';
+const RESEND_AUDIENCE_ENDPOINT = 'https://api.resend.com/audiences';
 
 function buildResendHtml(emailAddress) {
   return `
@@ -24,6 +30,21 @@ function buildResendHtml(emailAddress) {
       </p>
     </div>
   `;
+}
+
+async function extractResendErrorMessage(response) {
+  try {
+    const payload = await response.json();
+    return (
+      payload?.message ||
+      payload?.name ||
+      payload?.error ||
+      payload?.errors?.[0]?.message ||
+      ''
+    );
+  } catch (error) {
+    return '';
+  }
 }
 
 const countdownUnits = ['days', 'hours', 'minutes', 'seconds'];
@@ -324,10 +345,44 @@ function initNewsletter() {
       return;
     }
 
+    const audienceId = getResendAudienceId();
+    if (!audienceId) {
+      status = 'error';
+      setNewsletterStatus(
+        statusElements,
+        status,
+        `Newsletter signups are temporarily unavailable. Please configure the ${RESEND_AUDIENCE_ENV_NAME} environment variable.`
+      );
+      return;
+    }
+
     const email = emailInput?.value?.trim() ?? '';
 
     try {
-      const response = await fetch('https://api.resend.com/emails', {
+      const contactResponse = await fetch(`${RESEND_AUDIENCE_ENDPOINT}/${audienceId}/contacts`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!contactResponse.ok && contactResponse.status !== 409) {
+        const message = await extractResendErrorMessage(contactResponse);
+        status = 'error';
+        setNewsletterStatus(
+          statusElements,
+          status,
+          message
+            ? `We couldn’t save your contact yet: ${message}`
+            : 'We couldn’t reach Resend right now. Please try again in a moment.'
+        );
+        return;
+      }
+
+      const emailResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -343,20 +398,8 @@ function initNewsletter() {
         }),
       });
 
-      if (!response.ok) {
-        let message = '';
-        try {
-          const payload = await response.json();
-          message =
-            payload?.message ||
-            payload?.name ||
-            payload?.error ||
-            payload?.errors?.[0]?.message ||
-            '';
-        } catch (error) {
-          message = '';
-        }
-
+      if (!emailResponse.ok) {
+        const message = await extractResendErrorMessage(emailResponse);
         status = 'error';
         setNewsletterStatus(
           statusElements,
