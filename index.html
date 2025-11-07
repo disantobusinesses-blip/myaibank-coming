@@ -38,6 +38,7 @@
       </header>
 
       <section class="newsletter" id="newsletter-container">
+        <p class="newsletter__cta">Grab our free AI budgeting template when you subscribe.</p>
         <h2 class="newsletter__title">Join the newsletter</h2>
         <div class="newsletter__embed">
           <iframe
@@ -63,11 +64,19 @@
             <input type="number" id="income" name="income" min="0" step="0.01" required placeholder="e.g. 5200" />
           </label>
           <label class="demo__field">
+            <span>How often are you paid?</span>
+            <select id="frequency" name="frequency" required>
+              <option value="monthly" selected>Monthly</option>
+              <option value="fortnightly">Fortnightly</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </label>
+          <label class="demo__field">
             <span>Your total monthly spending</span>
             <input type="number" id="spending" name="spending" min="0" step="0.01" required placeholder="e.g. 3600" />
           </label>
           <div class="demo__instructions">
-            <p>If paid weekly, multiply your weekly after-tax wage by 4.</p>
+            <p>Select your pay schedule and we will convert everything to a monthly view automatically.</p>
             <p>Check your bank statement or estimate your monthly spending.</p>
           </div>
           <button type="submit" class="btn btn--primary btn--shine">Show my breakdown</button>

@@ -8,9 +8,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-const easeOutQuad = (t) => t * (2 - t);
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-function animateValue(element, target, { duration = 1200, prefix = '', suffix = '', decimals = 0 } = {}) {
+function animateValue(element, target, { duration = 1400, prefix = '', suffix = '', decimals = 0 } = {}) {
   const startValue = Number.parseFloat(element.dataset.currentValue || '0') || 0;
   const startTime = performance.now();
   const delta = target - startValue;
@@ -23,7 +23,7 @@ function animateValue(element, target, { duration = 1200, prefix = '', suffix = 
   function tick(now) {
     const elapsed = now - startTime;
     const progress = Math.min(1, elapsed / duration);
-    const eased = easeOutQuad(progress);
+    const eased = easeOutCubic(progress);
     const currentValue = startValue + delta * eased;
     element.textContent = `${prefix}${formatter.format(currentValue)}${suffix}`;
 
@@ -124,6 +124,7 @@ function initDemo() {
 
   const incomeInput = document.getElementById('income');
   const spendingInput = document.getElementById('spending');
+  const frequencyInput = document.getElementById('frequency');
   const outputs = {
     essentials: document.querySelector('[data-output="essentials"]'),
     wants: document.querySelector('[data-output="wants"]'),
@@ -136,22 +137,36 @@ function initDemo() {
 
     const income = Number.parseFloat(incomeInput?.value || '0');
     const spending = Number.parseFloat(spendingInput?.value || '0');
+    const frequency = frequencyInput?.value || 'monthly';
 
-    if (!income || income <= 0) {
+    const normalizeIncome = (value, cadence) => {
+      switch (cadence) {
+        case 'weekly':
+          return value * 4;
+        case 'fortnightly':
+          return value * 2;
+        default:
+          return value;
+      }
+    };
+
+    const monthlyIncome = normalizeIncome(income, frequency);
+
+    if (!monthlyIncome || monthlyIncome <= 0) {
       form.reportValidity();
       return;
     }
 
-    const essentials = income * 0.5;
-    const wants = income * 0.3;
-    const savings = income * 0.2;
-    const dtiRatio = income ? (spending / income) * 100 : 0;
+    const essentials = monthlyIncome * 0.5;
+    const wants = monthlyIncome * 0.3;
+    const savings = monthlyIncome * 0.2;
+    const dtiRatio = monthlyIncome ? (spending / monthlyIncome) * 100 : 0;
 
     if (outputs.essentials) {
       animateValue(outputs.essentials, essentials, {
         prefix: '$',
         decimals: 2,
-        duration: 900,
+        duration: 1300,
       });
     }
 
@@ -159,7 +174,7 @@ function initDemo() {
       animateValue(outputs.wants, wants, {
         prefix: '$',
         decimals: 2,
-        duration: 900,
+        duration: 1300,
       });
     }
 
@@ -167,7 +182,7 @@ function initDemo() {
       animateValue(outputs.savings, savings, {
         prefix: '$',
         decimals: 2,
-        duration: 900,
+        duration: 1300,
       });
     }
 
@@ -175,7 +190,7 @@ function initDemo() {
       animateValue(outputs.dti, dtiRatio, {
         suffix: '%',
         decimals: 1,
-        duration: 900,
+        duration: 1300,
       });
     }
 
