@@ -47,27 +47,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isDemoMode, setIsDemoMode] = useState(false)
+  // Initialize with null to indicate "not yet checked"
+  const [isDemoMode, setIsDemoMode] = useState<boolean | null>(null)
 
-  // Check demo mode on mount and when window becomes available
+  // Check demo mode on mount - runs once
   useEffect(() => {
-    setIsDemoMode(checkDemoMode())
+    const demoActive = checkDemoMode()
+    setIsDemoMode(demoActive)
   }, [])
 
   useEffect(() => {
-    // Check demo mode directly from sessionStorage to avoid race conditions
-    const demoActive = checkDemoMode()
-    if (demoActive) {
-      setIsDemoMode(true)
-      return
-    }
+    // Wait until demo mode check is complete (isDemoMode is not null)
+    if (isDemoMode === null) return
+
+    // Skip auth redirect if in demo mode
+    if (isDemoMode) return
 
     if (!loading && !user) {
       router.push("/login")
     } else if (!loading && user && profile && !profile.is_onboarded) {
       router.push("/onboarding")
     }
-  }, [user, profile, loading, router])
+  }, [user, profile, loading, router, isDemoMode])
 
   const handleSignOut = async () => {
     await signOut()
@@ -84,8 +85,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   // Determine if we should show the app content
-  const showApp = isDemoMode || (!loading && user)
-  const showLoading = !isDemoMode && (loading || !user)
+  // Show loading while demo mode check is pending (isDemoMode === null)
+  const demoCheckPending = isDemoMode === null
+  const showApp = isDemoMode === true || (!loading && user)
+  const showLoading = demoCheckPending || (isDemoMode === false && (loading || !user))
 
   // IMPORTANT FIX:
   // Always mount AppDataProvider even during loading / unauth states.

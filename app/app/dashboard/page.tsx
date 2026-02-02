@@ -17,11 +17,18 @@ import {
   X,
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
   const { user, profile } = useAuth()
   const { accounts, transactions, connected, syncStatus, refreshData, isLoading, isDemoMode, disableDemoMode } = useAppData()
+  const router = useRouter()
+
+  const handleExitDemo = () => {
+    disableDemoMode()
+    router.push("/")
+  }
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0)
   const income = transactions
@@ -52,7 +59,7 @@ export default function DashboardPage() {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={disableDemoMode}
+              onClick={handleExitDemo}
               className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-500/20"
             >
               <X className="w-4 h-4" />
