@@ -54,11 +54,11 @@ function FiskilCallbackInner() {
 
         setStatus("success")
         setMessage("Connection confirmed. Redirecting you to your dashboard...")
-        setTimeout(() => router.push("/app/dashboard"), 900)
+        setTimeout(() => router.replace("/app/dashboard"), 900)
       } catch (err: any) {
         setStatus("error")
         setMessage(err?.message || "Unable to confirm your connection.")
-        setTimeout(() => router.push("/onboarding"), 2000)
+        setTimeout(() => router.replace("/onboarding"), 2000)
       }
     }
 

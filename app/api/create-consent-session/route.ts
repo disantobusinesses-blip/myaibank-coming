@@ -162,8 +162,8 @@ export async function POST() {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
-    // Match old working flow pattern (optional but aligns with your old zip):
-    const redirect_uri = `${appUrl}/onboarding?end_user_id=${encodeURIComponent(endUserId)}`
+    // Redirect to the Fiskil callback page after successful bank connection
+    const redirect_uri = `${appUrl}/fiskil/callback?end_user_id=${encodeURIComponent(endUserId)}`
     const cancel_uri = `${appUrl}/onboarding`
 
     const payload = {

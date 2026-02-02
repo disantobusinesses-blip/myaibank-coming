@@ -11,8 +11,10 @@ import {
   Loader2, 
   Sparkles,
   Bot,
-  User
+  User,
+  AlertCircle
 } from "lucide-react"
+import Link from "next/link"
 
 const suggestedQuestions = [
   "How can I save more money?",
@@ -20,6 +22,31 @@ const suggestedQuestions = [
   "What subscriptions should I cancel?",
   "Help me create a budget",
 ]
+
+const DEMO_AI_LIMIT = 3
+const DEMO_AI_COUNT_KEY = "mab_demo_ai_count"
+
+// Helper to check demo mode
+function checkDemoMode(): boolean {
+  if (typeof window === "undefined") return false
+  return sessionStorage.getItem("myaibank_demo_mode") === "true"
+}
+
+// Helper to get/set demo AI count
+function getDemoAiCount(): number {
+  if (typeof window === "undefined") return 0
+  const count = sessionStorage.getItem(DEMO_AI_COUNT_KEY)
+  return count ? parseInt(count, 10) : 0
+}
+
+function incrementDemoAiCount(): number {
+  const current = getDemoAiCount()
+  const newCount = current + 1
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(DEMO_AI_COUNT_KEY, String(newCount))
+  }
+  return newCount
+}
 
 // Helper to extract text from message parts
 function getMessageText(message: { parts?: Array<{ type: string; text?: string }> }): string {
@@ -34,6 +61,20 @@ export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [demoAiCount, setDemoAiCount] = useState(0)
+  const [demoLimitReached, setDemoLimitReached] = useState(false)
+
+  // Check demo mode on mount
+  useEffect(() => {
+    const demo = checkDemoMode()
+    setIsDemoMode(demo)
+    if (demo) {
+      const count = getDemoAiCount()
+      setDemoAiCount(count)
+      setDemoLimitReached(count >= DEMO_AI_LIMIT)
+    }
+  }, [])
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
@@ -58,6 +99,21 @@ export function AIAssistant() {
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return
+    
+    // Check demo mode limit
+    if (isDemoMode) {
+      if (demoAiCount >= DEMO_AI_LIMIT) {
+        setDemoLimitReached(true)
+        return
+      }
+      // Increment the count
+      const newCount = incrementDemoAiCount()
+      setDemoAiCount(newCount)
+      if (newCount >= DEMO_AI_LIMIT) {
+        setDemoLimitReached(true)
+      }
+    }
+    
     sendMessage({ text: input.trim() })
     setInput("")
   }
@@ -165,6 +221,27 @@ export function AIAssistant() {
             </div>
           )}
 
+          {/* Demo Limit Message */}
+          {isDemoMode && demoLimitReached && (
+            <div className="px-4 py-3 bg-amber-50 border-t border-amber-200">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-amber-800">Demo limit reached</p>
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    Sign up to continue using the AI assistant with unlimited questions.
+                  </p>
+                  <Link
+                    href="/signup"
+                    className="inline-block mt-2 text-xs font-medium text-[#1F0051] hover:underline"
+                  >
+                    Sign up to continue
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Input */}
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-2">
@@ -172,13 +249,13 @@ export function AIAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask me anything..."
+                placeholder={isDemoMode && demoLimitReached ? "Sign up to continue..." : "Ask me anything..."}
                 className="flex-1 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-                disabled={isLoading}
+                disabled={isLoading || (isDemoMode && demoLimitReached)}
               />
               <Button
                 onClick={handleSend}
-                disabled={!input.trim() || isLoading}
+                disabled={!input.trim() || isLoading || (isDemoMode && demoLimitReached)}
                 size="icon"
                 className="bg-[#1F0051] hover:bg-[#1F0051]/90 text-white"
               >
@@ -189,6 +266,11 @@ export function AIAssistant() {
                 )}
               </Button>
             </div>
+            {isDemoMode && !demoLimitReached && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Demo mode: {DEMO_AI_LIMIT - demoAiCount} question{DEMO_AI_LIMIT - demoAiCount !== 1 ? 's' : ''} remaining
+              </p>
+            )}
           </div>
         </div>
       )}

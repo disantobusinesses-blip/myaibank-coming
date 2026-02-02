@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/contexts/auth-context"
-import { AppDataProvider } from "@/contexts/app-data-context"
+import { AppDataProvider, useAppData } from "@/contexts/app-data-context"
 import {
   LayoutDashboard,
   CreditCard,
@@ -36,37 +36,65 @@ const navItems = [
   { href: "/app/profile", label: "Profile", icon: User },
 ]
 
+// Check if demo mode is active from sessionStorage
+function checkDemoMode(): boolean {
+  if (typeof window === "undefined") return false
+  return sessionStorage.getItem("myaibank_demo_mode") === "true"
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, profile, loading, signOut } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isDemoMode, setIsDemoMode] = useState(false)
+
+  // Check demo mode on mount and when window becomes available
+  useEffect(() => {
+    setIsDemoMode(checkDemoMode())
+  }, [])
 
   useEffect(() => {
+    // Skip auth redirect if in demo mode
+    if (isDemoMode) return
+
     if (!loading && !user) {
       router.push("/login")
     } else if (!loading && user && profile && !profile.is_onboarded) {
       router.push("/onboarding")
     }
-  }, [user, profile, loading, router])
+  }, [user, profile, loading, router, isDemoMode])
 
   const handleSignOut = async () => {
     await signOut()
     router.push("/")
   }
 
+  const handleExitDemo = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("myaibank_demo_mode")
+      sessionStorage.removeItem("mab_demo_ai_count")
+    }
+    setIsDemoMode(false)
+    router.push("/")
+  }
+
+  // Determine if we should show the app content
+  const showApp = isDemoMode || (!loading && user)
+  const showLoading = !isDemoMode && (loading || !user)
+
   // IMPORTANT FIX:
   // Always mount AppDataProvider even during loading / unauth states.
   // This prevents "useAppData must be used within an AppDataProvider".
   return (
     <AppDataProvider>
-      {loading || !user ? (
+      {showLoading ? (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
             <Image src="/logo.jpeg" alt="MyAiBank" width={60} height={60} className="rounded-xl" />
           </div>
         </div>
-      ) : (
+      ) : showApp ? (
         <div className="min-h-screen bg-background flex">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-sidebar">
@@ -100,14 +128,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            {/* Sign Out */}
+            {/* Sign Out / Exit Demo */}
             <div className="p-4 border-t border-sidebar-border">
               <button
-                onClick={handleSignOut}
+                onClick={isDemoMode ? handleExitDemo : handleSignOut}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                <span className="font-medium">Sign Out</span>
+                <span className="font-medium">{isDemoMode ? "Exit Demo" : "Sign Out"}</span>
               </button>
             </div>
           </aside>
@@ -162,11 +190,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </nav>
                   <div className="p-4 border-t border-sidebar-border">
                     <button
-                      onClick={handleSignOut}
+                      onClick={isDemoMode ? handleExitDemo : handleSignOut}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
                     >
                       <LogOut className="w-5 h-5" />
-                      <span className="font-medium">Sign Out</span>
+                      <span className="font-medium">{isDemoMode ? "Exit Demo" : "Sign Out"}</span>
                     </button>
                   </div>
                 </div>
@@ -200,6 +228,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 })}
               </div>
             </nav>
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-pulse">
+            <Image src="/logo.jpeg" alt="MyAiBank" width={60} height={60} className="rounded-xl" />
           </div>
         </div>
       )}
