@@ -55,15 +55,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    // Skip auth redirect if in demo mode
-    if (isDemoMode) return
+    // Check demo mode directly from sessionStorage to avoid race conditions
+    const demoActive = checkDemoMode()
+    if (demoActive) {
+      setIsDemoMode(true)
+      return
+    }
 
     if (!loading && !user) {
       router.push("/login")
     } else if (!loading && user && profile && !profile.is_onboarded) {
       router.push("/onboarding")
     }
-  }, [user, profile, loading, router, isDemoMode])
+  }, [user, profile, loading, router])
 
   const handleSignOut = async () => {
     await signOut()
