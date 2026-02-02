@@ -1,22 +1,40 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// Required ENV:
-// - FISKIL_BASE_URL (default https://api.fiskil.com)
-// - FISKIL_CLIENT_ID
-// - FISKIL_CLIENT_SECRET
-// - NEXT_PUBLIC_APP_URL
+const mustEnv = (name: string, value?: string) => {
+  if (!value) throw new Error(`Missing env var: ${name}`)
+  return value
+}
+
+const normalizeBase = (url: string) => String(url || "").replace(/\/$/, "")
+const toV1 = (base: string) => {
+  const b = normalizeBase(base)
+  return /\/v1$/i.test(b) ? b : `${b}/v1`
+}
 
 const FISKIL_BASE_URL = process.env.FISKIL_BASE_URL || "https://api.fiskil.com"
+const FISKIL_V1_BASE = toV1(FISKIL_BASE_URL)
+
 const FISKIL_CLIENT_ID = process.env.FISKIL_CLIENT_ID
 const FISKIL_CLIENT_SECRET = process.env.FISKIL_CLIENT_SECRET
 
-async function getFiskilAccessToken(): Promise<string> {
-  const response = await fetch(`${FISKIL_BASE_URL}/v1/token`, {
+function pickEndUserId(json: any): string | null {
+  return json?.end_user_id || json?.id || json?.endUserId || null
+}
+
+function pickAuthUrl(json: any): string | null {
+  return json?.auth_url || json?.url || json?.redirect_url || json?.link || null
+}
+
+async function getFiskilToken(): Promise<string> {
+  mustEnv("FISKIL_CLIENT_ID", FISKIL_CLIENT_ID)
+  mustEnv("FISKIL_CLIENT_SECRET", FISKIL_CLIENT_SECRET)
+
+  const r = await fetch(`${FISKIL_V1_BASE}/token`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json; charset=UTF-8",
-      Accept: "application/json; charset=UTF-8",
+      accept: "application/json",
+      "content-type": "application/json; charset=UTF-8",
     },
     body: JSON.stringify({
       client_id: FISKIL_CLIENT_ID,
@@ -24,79 +42,56 @@ async function getFiskilAccessToken(): Promise<string> {
     }),
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to get Fiskil token: ${error}`)
-  }
-
-  const data = await response.json()
-  return data.token
-}
-
-async function createFiskilEndUser(accessToken: string, userId: string): Promise<string> {
-  const response = await fetch(`${FISKIL_BASE_URL}/v1/end-users`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json; charset=UTF-8",
-      Accept: "application/json; charset=UTF-8",
-    },
-    body: JSON.stringify({
-      external_id: userId,
-    }),
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to create end user: ${error}`)
-  }
-
-  const data = await response.json()
-  return data.id
-}
-
-async function createFiskilAuthSession(
-  accessToken: string,
-  endUserId: string,
-  redirectUri: string,
-  cancelUri: string
-): Promise<{ authSessionId: string; authUrl?: string }> {
-  const response = await fetch(`${FISKIL_BASE_URL}/v1/auth/session`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json; charset=UTF-8",
-      Accept: "application/json; charset=UTF-8",
-    },
-    body: JSON.stringify({
-      end_user_id: endUserId,
-      redirect_uri: redirectUri,
-      cancel_uri: cancelUri,
-    }),
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to create auth session: ${error}`)
-  }
-
-  const data = await response.json()
-  return {
-    authSessionId: data.id || data.auth_session_id,
-    authUrl: data.auth_url,
-  }
-}
-
-export async function POST(_request: NextRequest) {
+  const text = await r.text()
+  let json: any = null
   try {
-    if (!FISKIL_CLIENT_ID || !FISKIL_CLIENT_SECRET) {
-      return NextResponse.json({ error: "Fiskil not configured" }, { status: 500 })
-    }
+    json = text ? JSON.parse(text) : null
+  } catch {
+    json = null
+  }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    const redirectUri = `${appUrl}/fiskil/callback`
-    const cancelUri = `${appUrl}/onboarding`
+  if (!r.ok) throw new Error(`Fiskil token failed (${r.status}): ${text}`)
 
+  const token = json?.token
+  if (!token) throw new Error(`Fiskil token missing in response: ${text}`)
+  return token
+}
+
+async function fiskilRequest(path: string, opts: RequestInit & { token: string }) {
+  const url = `${FISKIL_V1_BASE}${path.startsWith("/") ? path : `/${path}`}`
+
+  const r = await fetch(url, {
+    ...opts,
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json; charset=UTF-8",
+      authorization: `Bearer ${opts.token}`,
+      ...(opts.headers || {}),
+    },
+  })
+
+  const text = await r.text()
+  let json: any = null
+  try {
+    json = text ? JSON.parse(text) : null
+  } catch {
+    json = null
+  }
+
+  if (!r.ok) {
+    throw new Error(`Failed to ${opts.method || "GET"} ${path}: ${text}`)
+  }
+
+  return json
+}
+
+export async function POST() {
+  try {
+    // 0) Validate env
+    mustEnv("FISKIL_CLIENT_ID", FISKIL_CLIENT_ID)
+    mustEnv("FISKIL_CLIENT_SECRET", FISKIL_CLIENT_SECRET)
+
+    // 1) Get authenticated user (cookie session)
     const supabase = await createClient()
     const {
       data: { user },
@@ -107,47 +102,80 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const userId = user.id
+    const appUserId = user.id
+    const email = user.email || null
 
-    // 1) Token
-    const accessToken = await getFiskilAccessToken()
-
-    // 2) Reuse existing end_user_id if we already have it, otherwise create it
-    const { data: profileRow } = await supabase
+    // 2) Load existing end_user_id from profiles (reuse, don’t recreate)
+    const { data: profile, error: profileErr } = await supabase
       .from("profiles")
       .select("fiskil_user_id")
-      .eq("id", userId)
-      .single()
+      .eq("id", appUserId)
+      .maybeSingle()
 
-    let endUserId: string | null = profileRow?.fiskil_user_id ?? null
+    if (profileErr) throw profileErr
+
+    // 3) Token
+    const token = await getFiskilToken()
+
+    // 4) Get or create end user
+    let endUserId: string | null = profile?.fiskil_user_id ?? null
 
     if (!endUserId) {
-      endUserId = await createFiskilEndUser(accessToken, userId)
+      const created = await fiskilRequest("/end-users", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          email: email || `user_${appUserId}@example.com`,
+          external_id: appUserId,
+        }),
+      })
 
-      await supabase
-        .from("profiles")
-        .update({ fiskil_user_id: endUserId })
-        .eq("id", userId)
+      endUserId = pickEndUserId(created)
+
+      if (!endUserId) {
+        throw new Error(`Fiskil end user id missing from response: ${JSON.stringify(created)}`)
+      }
+
+      await supabase.from("profiles").update({ fiskil_user_id: endUserId }).eq("id", appUserId)
     }
 
-    // 3) Create auth session WITH end_user_id (this fixes your error)
-    const { authSessionId, authUrl } = await createFiskilAuthSession(
-      accessToken,
-      endUserId,
-      redirectUri,
-      cancelUri
-    )
+    // IMPORTANT: never call auth/session without a verified endUserId
+    if (!endUserId) {
+      throw new Error("end_user_id could not be resolved")
+    }
+
+    // 5) Create auth session (redirect flow)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const redirect_uri = `${appUrl}/fiskil/callback`
+    const cancel_uri = `${appUrl}/onboarding`
+
+    const sessionJson = await fiskilRequest("/auth/session", {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        end_user_id: endUserId,
+        redirect_uri,
+        cancel_uri,
+      }),
+    })
+
+    const auth_url = pickAuthUrl(sessionJson)
+    if (!auth_url) {
+      return NextResponse.json(
+        { error: "Missing auth_url from Fiskil auth session response", raw: sessionJson },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
-      auth_session_id: authSessionId,
-      auth_url: authUrl, // should be like https://auth.fiskil.com/?sess_id=...
+      auth_url,
       end_user_id: endUserId,
-      redirect_uri: redirectUri,
+      redirect_uri,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating consent session:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      { error: error?.message || "create-consent-session failed" },
       { status: 500 }
     )
   }
