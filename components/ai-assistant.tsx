@@ -1,0 +1,197 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport } from "ai"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { 
+  X, 
+  Send, 
+  Loader2, 
+  Sparkles,
+  Bot,
+  User
+} from "lucide-react"
+
+const suggestedQuestions = [
+  "How can I save more money?",
+  "Explain the 50/30/20 budget rule",
+  "What subscriptions should I cancel?",
+  "Help me create a budget",
+]
+
+// Helper to extract text from message parts
+function getMessageText(message: { parts?: Array<{ type: string; text?: string }> }): string {
+  if (!message.parts || !Array.isArray(message.parts)) return ""
+  return message.parts
+    .filter((p): p is { type: "text"; text: string } => p.type === "text" && typeof p.text === "string")
+    .map((p) => p.text)
+    .join("")
+}
+
+export function AIAssistant() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [input, setInput] = useState("")
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
+    initialMessages: [
+      {
+        id: "welcome",
+        role: "assistant",
+        parts: [{ type: "text", text: "Hi! I'm your AI financial assistant. I can help you analyze your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
+      },
+    ],
+  })
+
+  const isLoading = status === "streaming" || status === "submitted"
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSend = () => {
+    if (!input.trim() || isLoading) return
+    sendMessage({ text: input.trim() })
+    setInput("")
+  }
+
+  const handleSuggestedQuestion = (question: string) => {
+    setInput(question)
+  }
+
+  return (
+    <>
+      {/* Floating Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 ${
+          isOpen ? "hidden" : "flex"
+        }`}
+        aria-label="Open AI Assistant"
+      >
+        <Sparkles className="w-6 h-6" />
+      </button>
+
+      {/* Chat Panel */}
+      {isOpen && (
+        <div className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-[calc(100%-2rem)] max-w-md h-[500px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-[#1F0051] to-[#2d1b69]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">AI Assistant</h3>
+                <p className="text-xs text-white/70">Powered by AI</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+            {messages.map((message) => {
+              const text = getMessageText(message)
+              if (!text) return null
+              return (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {message.role === "assistant" && (
+                    <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-[#1F0051]" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
+                      message.role === "user"
+                        ? "bg-[#1F0051] text-white rounded-br-md"
+                        : "bg-secondary text-foreground rounded-bl-md"
+                    }`}
+                  >
+                    {text}
+                  </div>
+                  {message.role === "user" && (
+                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-foreground" />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
+                <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4 text-[#1F0051]" />
+                </div>
+                <div className="bg-secondary p-3 rounded-2xl rounded-bl-md">
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggested Questions */}
+          {messages.length <= 2 && (
+            <div className="px-4 pb-2">
+              <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
+              <div className="flex flex-wrap gap-2">
+                {suggestedQuestions.map((question) => (
+                  <button
+                    key={question}
+                    onClick={() => handleSuggestedQuestion(question)}
+                    className="text-xs px-3 py-1.5 rounded-full bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="p-4 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Ask me anything..."
+                className="flex-1 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                disabled={isLoading}
+              />
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                className="bg-[#1F0051] hover:bg-[#1F0051]/90 text-white"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
