@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "./auth-context"
-import { demoAccounts, demoTransactions, demoSubscriptions, getDemoStats } from "@/lib/demo-data"
+import { demoAccounts, demoTransactions, demoSubscriptions } from "@/lib/demo-data"
 
 export interface Transaction {
   id: string
@@ -82,6 +82,23 @@ interface AppDataContextType {
   disableDemoMode: () => void
 }
 
+const defaultAppData: AppDataContextType = {
+  accounts: [],
+  transactions: [],
+  subscriptions: [],
+  connected: false,
+  lastUpdated: null,
+  syncStatus: { stage: "idle", progress: 0, message: "" },
+  refreshData: async () => {},
+  isLoading: true,
+  totalBalance: 0,
+  totalIncome: 0,
+  totalExpenses: 0,
+  isDemoMode: false,
+  enableDemoMode: () => {},
+  disableDemoMode: () => {},
+}
+
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined)
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
@@ -104,9 +121,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   // Enable demo mode with fake data
   const enableDemoMode = useCallback(() => {
     setIsDemoMode(true)
-    
+
     // Convert demo accounts to proper Account type
-    const mappedAccounts: Account[] = demoAccounts.map(a => ({
+    const mappedAccounts: Account[] = demoAccounts.map((a) => ({
       id: a.id,
       fiskil_account_id: null,
       institution_name: a.institution_name,
@@ -122,9 +139,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }))
-    
+
     // Convert demo transactions to proper Transaction type
-    const mappedTransactions: Transaction[] = demoTransactions.map(t => ({
+    const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
       id: t.id,
       account_id: "demo-acc-1",
       fiskil_transaction_id: null,
@@ -146,9 +163,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }))
-    
+
     // Convert demo subscriptions
-    const mappedSubscriptions: Subscription[] = demoSubscriptions.map(s => ({
+    const mappedSubscriptions: Subscription[] = demoSubscriptions.map((s) => ({
       id: s.id,
       name: s.name,
       amount: s.amount,
@@ -169,7 +186,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setLastUpdated(new Date().toISOString())
     setSyncStatus({ stage: "complete", progress: 100, message: "Demo data loaded" })
     setIsLoading(false)
-    
+
     // Store in sessionStorage so demo mode persists during navigation
     if (typeof window !== "undefined") {
       sessionStorage.setItem("myaibank_demo_mode", "true")
@@ -183,7 +200,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setSubscriptions([])
     setConnected(false)
     setSyncStatus({ stage: "idle", progress: 0, message: "" })
-    
+
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("myaibank_demo_mode")
     }
@@ -278,18 +295,16 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   // Calculate totals
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0)
-  
+
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-  
-  const recentTransactions = transactions.filter(
-    (t) => new Date(t.transaction_date) >= thirtyDaysAgo
-  )
-  
+
+  const recentTransactions = transactions.filter((t) => new Date(t.transaction_date) >= thirtyDaysAgo)
+
   const totalIncome = recentTransactions
     .filter((t) => Number(t.amount) > 0)
     .reduce((sum, t) => sum + Number(t.amount), 0)
-  
+
   const totalExpenses = Math.abs(
     recentTransactions
       .filter((t) => Number(t.amount) < 0)
@@ -320,10 +335,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useAppData() {
+export function useAppData(): AppDataContextType {
   const context = useContext(AppDataContext)
+
+  // SSR/build safety: during prerender the provider may not exist.
+  // Return a safe default instead of crashing the build.
   if (context === undefined) {
+    if (typeof window === "undefined") return defaultAppData
     throw new Error("useAppData must be used within an AppDataProvider")
   }
+
   return context
 }
