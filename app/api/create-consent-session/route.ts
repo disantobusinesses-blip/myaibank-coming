@@ -19,11 +19,28 @@ const FISKIL_CLIENT_ID = process.env.FISKIL_CLIENT_ID
 const FISKIL_CLIENT_SECRET = process.env.FISKIL_CLIENT_SECRET
 
 function pickEndUserId(json: any): string | null {
-  return json?.end_user_id || json?.id || json?.endUserId || null
+  // Defensive: handle nested shapes too
+  return (
+    json?.end_user_id ||
+    json?.id ||
+    json?.endUserId ||
+    json?.data?.end_user_id ||
+    json?.data?.id ||
+    json?.data?.endUserId ||
+    null
+  )
 }
 
 function pickAuthUrl(json: any): string | null {
-  return json?.auth_url || json?.url || json?.redirect_url || json?.link || null
+  return (
+    json?.auth_url ||
+    json?.url ||
+    json?.redirect_url ||
+    json?.link ||
+    json?.data?.auth_url ||
+    json?.data?.url ||
+    null
+  )
 }
 
 async function getFiskilToken(): Promise<string> {
@@ -79,7 +96,11 @@ async function fiskilRequest(path: string, opts: RequestInit & { token: string }
   }
 
   if (!r.ok) {
-    throw new Error(`Failed to ${opts.method || "GET"} ${path}: ${text}`)
+    // include the body we attempted to send for debugging
+    const attemptedBody = typeof opts.body === "string" ? opts.body : "[non-string body]"
+    throw new Error(
+      `Failed to ${opts.method || "GET"} ${path} (${r.status}): ${text}\nAttempted body: ${attemptedBody}`
+    )
   }
 
   return json
@@ -87,11 +108,9 @@ async function fiskilRequest(path: string, opts: RequestInit & { token: string }
 
 export async function POST() {
   try {
-    // 0) Validate env
     mustEnv("FISKIL_CLIENT_ID", FISKIL_CLIENT_ID)
     mustEnv("FISKIL_CLIENT_SECRET", FISKIL_CLIENT_SECRET)
 
-    // 1) Get authenticated user (cookie session)
     const supabase = await createClient()
     const {
       data: { user },
@@ -105,7 +124,6 @@ export async function POST() {
     const appUserId = user.id
     const email = user.email || null
 
-    // 2) Load existing end_user_id from profiles (reuse, don’t recreate)
     const { data: profile, error: profileErr } = await supabase
       .from("profiles")
       .select("fiskil_user_id")
@@ -114,10 +132,8 @@ export async function POST() {
 
     if (profileErr) throw profileErr
 
-    // 3) Token
     const token = await getFiskilToken()
 
-    // 4) Get or create end user
     let endUserId: string | null = profile?.fiskil_user_id ?? null
 
     if (!endUserId) {
@@ -139,24 +155,30 @@ export async function POST() {
       await supabase.from("profiles").update({ fiskil_user_id: endUserId }).eq("id", appUserId)
     }
 
-    // IMPORTANT: never call auth/session without a verified endUserId
-    if (!endUserId) {
-      throw new Error("end_user_id could not be resolved")
+    // HARD CHECK: must be a non-empty string
+    if (typeof endUserId !== "string" || endUserId.trim().length === 0) {
+      throw new Error(`Resolved end_user_id is invalid: ${String(endUserId)}`)
     }
 
-    // 5) Create auth session (redirect flow)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    const redirect_uri = `${appUrl}/fiskil/callback`
+
+    // Match old working flow pattern (optional but aligns with your old zip):
+    const redirect_uri = `${appUrl}/onboarding?end_user_id=${encodeURIComponent(endUserId)}`
     const cancel_uri = `${appUrl}/onboarding`
+
+    const payload = {
+      end_user_id: endUserId,
+      redirect_uri,
+      cancel_uri,
+    }
+
+    // This will show up in Vercel logs and proves what you are sending.
+    console.log("[create-consent-session] auth/session payload:", payload)
 
     const sessionJson = await fiskilRequest("/auth/session", {
       method: "POST",
       token,
-      body: JSON.stringify({
-        end_user_id: endUserId,
-        redirect_uri,
-        cancel_uri,
-      }),
+      body: JSON.stringify(payload),
     })
 
     const auth_url = pickAuthUrl(sessionJson)
@@ -167,7 +189,9 @@ export async function POST() {
       )
     }
 
+    // Signature marker so you can confirm this code is what’s running
     return NextResponse.json({
+      __mab_signature: "create-consent-session-v2",
       auth_url,
       end_user_id: endUserId,
       redirect_uri,
