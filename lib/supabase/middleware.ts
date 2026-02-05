@@ -46,10 +46,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Check if demo mode is enabled via cookie (since we can't access sessionStorage in middleware)
+  const isDemoMode = request.cookies.get('myaibank_demo_mode')?.value === 'true'
+
   if (
     // if the user is not logged in and the app path is accessed, redirect to the login page
+    // UNLESS demo mode is enabled
     request.nextUrl.pathname.startsWith('/app') &&
-    !user
+    !user &&
+    !isDemoMode
   ) {
     // no user, redirect to the login page
     const url = request.nextUrl.clone()
