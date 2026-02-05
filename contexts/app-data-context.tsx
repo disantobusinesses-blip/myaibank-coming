@@ -203,6 +203,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("myaibank_demo_mode")
+      // Also remove the cookie
+      document.cookie = "myaibank_demo_mode=; path=/; max-age=0"
     }
   }, [])
 
