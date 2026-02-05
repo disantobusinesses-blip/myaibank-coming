@@ -43,12 +43,20 @@ export default function WelcomePage() {
   }, [user, profile, loading, router, mounted])
 
   const handleDemoMode = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("myaibank_demo_mode", "true")
-      // Also set a cookie so the middleware can detect demo mode
-      document.cookie = "myaibank_demo_mode=true; path=/; max-age=86400" // 24 hours
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("myaibank_demo_mode", "true")
+        // Also set a cookie so the middleware can detect demo mode
+        document.cookie = "myaibank_demo_mode=true; path=/; max-age=86400; SameSite=Lax"
+      }
+      router.push("/app/dashboard")
+    } catch (error) {
+      console.error("Error enabling demo mode:", error)
+      // Fallback: try to navigate anyway
+      if (typeof window !== "undefined") {
+        window.location.href = "/app/dashboard"
+      }
     }
-    router.push("/app/dashboard")
   }
 
   if (loading) {
