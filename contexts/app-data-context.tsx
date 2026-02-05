@@ -120,91 +120,101 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   // Enable demo mode with fake data
   const enableDemoMode = useCallback(() => {
-    setIsDemoMode(true)
+    try {
+      setIsDemoMode(true)
 
-    // Convert demo accounts to proper Account type
-    const mappedAccounts: Account[] = demoAccounts.map((a) => ({
-      id: a.id,
-      fiskil_account_id: null,
-      institution_name: a.institution_name,
-      account_name: a.account_name,
-      account_type: a.account_type,
-      account_number_masked: "****1234",
-      bsb: "062-000",
-      balance: a.balance,
-      available_balance: a.available_balance,
-      currency: "AUD",
-      is_primary: a.id === "demo-acc-1",
-      last_synced_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }))
+      // Convert demo accounts to proper Account type
+      const mappedAccounts: Account[] = demoAccounts.map((a) => ({
+        id: a.id,
+        fiskil_account_id: null,
+        institution_name: a.institution_name,
+        account_name: a.account_name,
+        account_type: a.account_type,
+        account_number_masked: "****1234",
+        bsb: "062-000",
+        balance: a.balance,
+        available_balance: a.available_balance,
+        currency: "AUD",
+        is_primary: a.id === "demo-acc-1",
+        last_synced_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }))
 
-    // Convert demo transactions to proper Transaction type
-    const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
-      id: t.id,
-      account_id: "demo-acc-1",
-      fiskil_transaction_id: null,
-      amount: t.amount,
-      currency: "AUD",
-      description: t.description,
-      merchant_name: t.merchant_name,
-      merchant_category: null,
-      category: t.category,
-      subcategory: null,
-      transaction_type: t.transaction_type,
-      transaction_date: t.transaction_date,
-      posted_date: t.transaction_date,
-      is_pending: false,
-      is_recurring: t.is_subscription,
-      is_subscription: t.is_subscription,
-      tags: null,
-      notes: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }))
+      // Convert demo transactions to proper Transaction type
+      const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
+        id: t.id,
+        account_id: "demo-acc-1",
+        fiskil_transaction_id: null,
+        amount: t.amount,
+        currency: "AUD",
+        description: t.description,
+        merchant_name: t.merchant_name,
+        merchant_category: null,
+        category: t.category,
+        subcategory: null,
+        transaction_type: t.transaction_type,
+        transaction_date: t.transaction_date,
+        posted_date: t.transaction_date,
+        is_pending: false,
+        is_recurring: t.is_subscription,
+        is_subscription: t.is_subscription,
+        tags: null,
+        notes: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }))
 
-    // Convert demo subscriptions
-    const mappedSubscriptions: Subscription[] = demoSubscriptions.map((s) => ({
-      id: s.id,
-      name: s.name,
-      amount: s.amount,
-      currency: "AUD",
-      frequency: s.frequency,
-      category: s.category,
-      next_billing_date: s.next_billing_date,
-      is_active: s.is_active,
-      merchant_name: s.name,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }))
+      // Convert demo subscriptions
+      const mappedSubscriptions: Subscription[] = demoSubscriptions.map((s) => ({
+        id: s.id,
+        name: s.name,
+        amount: s.amount,
+        currency: "AUD",
+        frequency: s.frequency,
+        category: s.category,
+        next_billing_date: s.next_billing_date,
+        is_active: s.is_active,
+        merchant_name: s.name,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }))
 
-    setAccounts(mappedAccounts)
-    setTransactions(mappedTransactions)
-    setSubscriptions(mappedSubscriptions)
-    setConnected(true)
-    setLastUpdated(new Date().toISOString())
-    setSyncStatus({ stage: "complete", progress: 100, message: "Demo data loaded" })
-    setIsLoading(false)
+      setAccounts(mappedAccounts)
+      setTransactions(mappedTransactions)
+      setSubscriptions(mappedSubscriptions)
+      setConnected(true)
+      setLastUpdated(new Date().toISOString())
+      setSyncStatus({ stage: "complete", progress: 100, message: "Demo data loaded" })
+      setIsLoading(false)
 
-    // Store in sessionStorage so demo mode persists during navigation
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("myaibank_demo_mode", "true")
+      // Store in sessionStorage so demo mode persists during navigation
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("myaibank_demo_mode", "true")
+      }
+    } catch (error) {
+      console.error("Error enabling demo mode:", error)
+      setIsLoading(false)
+      setSyncStatus({ stage: "error", progress: 0, message: "Failed to load demo data" })
     }
   }, [])
 
   const disableDemoMode = useCallback(() => {
-    setIsDemoMode(false)
-    setAccounts([])
-    setTransactions([])
-    setSubscriptions([])
-    setConnected(false)
-    setSyncStatus({ stage: "idle", progress: 0, message: "" })
+    try {
+      setIsDemoMode(false)
+      setAccounts([])
+      setTransactions([])
+      setSubscriptions([])
+      setConnected(false)
+      setSyncStatus({ stage: "idle", progress: 0, message: "" })
 
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("myaibank_demo_mode")
-      // Also remove the cookie
-      document.cookie = "myaibank_demo_mode=; path=/; max-age=0"
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("myaibank_demo_mode")
+        // Also remove the cookie
+        document.cookie = "myaibank_demo_mode=; path=/; max-age=0"
+      }
+    } catch (error) {
+      console.error("Error disabling demo mode:", error)
     }
   }, [])
 
