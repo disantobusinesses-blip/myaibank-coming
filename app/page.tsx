@@ -23,8 +23,10 @@ export default function WelcomePage() {
   useEffect(() => {
     if (!mounted) return
 
-    // Check if demo mode is active in sessionStorage
-    const isDemoMode = typeof window !== "undefined" && sessionStorage.getItem("myaibank_demo_mode") === "true"
+    // Check if demo mode is active in sessionStorage or cookie
+    const isDemoMode = typeof window !== "undefined" && 
+      (sessionStorage.getItem("myaibank_demo_mode") === "true" ||
+       document.cookie.includes("myaibank_demo_mode=true"))
     
     if (isDemoMode) {
       router.push("/app/dashboard")
@@ -43,6 +45,8 @@ export default function WelcomePage() {
   const handleDemoMode = () => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("myaibank_demo_mode", "true")
+      // Also set a cookie so the middleware can detect demo mode
+      document.cookie = "myaibank_demo_mode=true; path=/; max-age=86400" // 24 hours
     }
     router.push("/app/dashboard")
   }
