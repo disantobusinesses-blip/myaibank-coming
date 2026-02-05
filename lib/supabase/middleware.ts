@@ -5,6 +5,9 @@ export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+  // Check if demo mode is enabled via cookie (since we can't access sessionStorage in middleware)
+  const isDemoMode = request.cookies.get('myaibank_demo_mode')?.value === 'true'
+
   // If Supabase is not configured, just pass through
   if (!supabaseUrl || !supabaseAnonKey) {
     return NextResponse.next({ request })
@@ -45,9 +48,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  // Check if demo mode is enabled via cookie (since we can't access sessionStorage in middleware)
-  const isDemoMode = request.cookies.get('myaibank_demo_mode')?.value === 'true'
 
   if (
     // if the user is not logged in and the app path is accessed, redirect to the login page
