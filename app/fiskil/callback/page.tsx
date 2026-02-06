@@ -33,6 +33,8 @@ function FiskilCallbackInner() {
           return
         }
 
+        setMessage("Marking your bank connection...")
+
         // Mark bank connected in DB (store end_user_id)
         const res = await fetch("/api/mark-bank-connected", {
           method: "POST",
@@ -45,7 +47,25 @@ function FiskilCallbackInner() {
           throw new Error(text || "Unable to update bank connection")
         }
 
-        // Update local auth/profile state (optional but helps UI immediately)
+        setMessage("Fetching your financial data...")
+
+        // Fetch and inject Fiskil data
+        const dataRes = await fetch("/api/fiskil-data/inject", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            end_user_id: endUserId,
+            user_id: user.id 
+          }),
+        })
+
+        if (!dataRes.ok) {
+          console.error("Failed to inject Fiskil data, but continuing...")
+        }
+
+        // Update local auth/profile state
         await updateProfile({
           has_bank_connection: true,
           ...(endUserId ? { fiskil_user_id: endUserId } : {}),
@@ -82,14 +102,14 @@ function FiskilCallbackInner() {
 
         {status === "success" && (
           <div className="flex flex-col items-center gap-3">
-            <CheckCircle className="w-8 h-8" />
+            <CheckCircle className="w-8 h-8 text-green-500" />
             <p className="text-sm text-muted-foreground">{message}</p>
           </div>
         )}
 
         {status === "error" && (
           <div className="flex flex-col items-center gap-3">
-            <XCircle className="w-8 h-8" />
+            <XCircle className="w-8 h-8 text-red-500" />
             <p className="text-sm text-muted-foreground">{message}</p>
           </div>
         )}
