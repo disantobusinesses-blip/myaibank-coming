@@ -1,11 +1,9 @@
-import { AppDataProvider } from '@/contexts/app-data-context';
+import { AppShell } from '@/components/app-shell';
+import type { ReactNode } from 'react';
 
-const Layout = ({ children }) => {
-  return (
-    <AppDataProvider>
-      {children}
-    </AppDataProvider>
-  );
-};
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export default Layout;
+export default function AppLayout({ children }: { children: ReactNode }) {
+  return <AppShell>{children}</AppShell>;
+}
