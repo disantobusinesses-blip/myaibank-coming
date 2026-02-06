@@ -1,8 +1,11 @@
-import type { ReactNode } from "react";
+import { AppDataProvider } from '@/contexts/app-data-context';
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+const Layout = ({ children }) => {
+  return (
+    <AppDataProvider>
+      {children}
+    </AppDataProvider>
+  );
+};
 
-export default function AppLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
-}
+export default Layout;
