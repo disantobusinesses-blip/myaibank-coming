@@ -146,7 +146,7 @@ export function AIAssistant() {
               </div>
               <div>
                 <h3 className="font-semibold text-white">AI Assistant</h3>
-                <p className="text-xs text-white/70">Powered by AI</p>
+                <p className="text-xs text-white/70">Powered by GPT-4o-mini</p>
               </div>
             </div>
             <button

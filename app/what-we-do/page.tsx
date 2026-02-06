@@ -20,7 +20,7 @@ const features = [
     icon: <Sparkles className="w-6 h-6" />,
     title: "AI-Powered Insights",
     description:
-      "Our AI analyzes your spending patterns and provides personalized recommendations to help you save money and reach your goals faster.",
+      "Our AI assistant, powered by OpenAI's GPT-4o-mini model, analyzes your spending patterns and provides personalized recommendations to help you save money and reach your goals faster.",
     color: "text-[#8b5cf6]",
     bg: "bg-[#8b5cf6]/20",
   },
@@ -103,6 +103,14 @@ export default function WhatWeDoPage() {
           <h2 className="font-semibold text-foreground mb-2">Important Notice</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             MyAiBank provides AI-assisted budgeting and transaction insights for information purposes only. We do NOT provide financial advice, hold customer funds, or act as a bank. Always seek independent professional advice for financial decisions.
+          </p>
+        </div>
+
+        {/* AI Technology */}
+        <div className="p-4 rounded-2xl bg-card border border-border mb-8">
+          <h2 className="font-semibold text-foreground mb-2">AI Technology</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Our AI assistant uses OpenAI's GPT-4o-mini model to provide intelligent financial insights and answer your questions about budgeting, saving, and money management. This advanced language model helps deliver accurate, helpful, and conversational responses tailored to your financial queries.
           </p>
         </div>
 
