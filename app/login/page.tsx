@@ -22,6 +22,14 @@ export default function LoginPage() {
   const { signIn, signInWithGoogle } = useAuth()
   const router = useRouter()
 
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push("/")
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -54,13 +62,14 @@ export default function LoginPage() {
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
       <div className="flex-1 flex flex-col px-6 py-8 max-w-md mx-auto w-full">
         {/* Back Button */}
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={handleBack}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
-        </Link>
+        </button>
 
         {/* Logo */}
         <div className="flex justify-center mb-8">

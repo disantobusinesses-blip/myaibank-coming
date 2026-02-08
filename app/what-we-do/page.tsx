@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import {
@@ -67,17 +68,28 @@ const features = [
 ]
 
 export default function WhatWeDoPage() {
+  const router = useRouter()
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push("/")
+    }
+  }
+
   return (
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
       <div className="flex-1 px-6 py-8 max-w-2xl mx-auto w-full">
         {/* Back Button */}
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={handleBack}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
-        </Link>
+        </button>
 
         {/* Logo */}
         <div className="flex justify-center mb-8">

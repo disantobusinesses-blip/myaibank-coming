@@ -210,32 +210,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Main Content */}
-            <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+            <main className="flex-1">{children}</main>
 
             {/* AI Assistant */}
             <AIAssistant />
 
-            {/* Mobile Bottom Navigation */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border safe-area-inset z-30">
-              <div className="flex items-center justify-around py-2">
-                {navItems.slice(0, 5).map((item) => {
-                  const Icon = item.icon
-                  const isActive = pathname === item.href
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
-                        isActive ? "text-[#1F0051]" : "text-muted-foreground"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="text-xs font-medium">{item.label.slice(0, 6)}</span>
-                    </Link>
-                  )
-                })}
-              </div>
-            </nav>
           </div>
         </div>
       ) : (
