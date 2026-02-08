@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from "lucide-react"
 import Link from "next/link"
+import { useAppData } from "@/contexts/app-data-context"
 
 const suggestedQuestions = [
   "How can I save more money?",
@@ -64,6 +65,7 @@ export function AIAssistant() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [demoAiCount, setDemoAiCount] = useState(0)
   const [demoLimitReached, setDemoLimitReached] = useState(false)
+  const { transactions } = useAppData()
 
   // Check demo mode on mount
   useEffect(() => {
@@ -76,13 +78,62 @@ export function AIAssistant() {
     }
   }, [])
 
+  const aiContext = useMemo(() => {
+    const normalizedTransactions = transactions.map((t) => ({
+      date: t.transaction_date,
+      amount: Number(t.amount),
+      merchant: t.merchant_name ?? t.description ?? "Unknown",
+      description: t.description ?? "",
+      category: t.category ?? t.merchant_category ?? "uncategorized",
+      isSubscription: t.is_subscription,
+    }))
+
+    const income = normalizedTransactions
+      .filter((t) => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0)
+    const expenses = Math.abs(
+      normalizedTransactions
+        .filter((t) => t.amount < 0)
+        .reduce((sum, t) => sum + t.amount, 0)
+    )
+
+    const byCategory = normalizedTransactions.reduce<Record<string, number>>((acc, t) => {
+      if (t.amount >= 0) return acc
+      acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount)
+      return acc
+    }, {})
+
+    const byMerchant = normalizedTransactions.reduce<Record<string, number>>((acc, t) => {
+      if (t.amount >= 0) return acc
+      acc[t.merchant] = (acc[t.merchant] || 0) + Math.abs(t.amount)
+      return acc
+    }, {})
+
+    const subscriptions = normalizedTransactions.filter((t) => t.isSubscription)
+
+    return {
+      totals: {
+        income,
+        expenses,
+        net: income - expenses,
+      },
+      byCategory,
+      byMerchant,
+      subscriptions,
+      transactions: normalizedTransactions,
+    }
+  }, [transactions])
+
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
+    body: {
+      context: aiContext,
+    },
     initialMessages: [
       {
         id: "welcome",
         role: "assistant",
-        parts: [{ type: "text", text: "Hi! I'm your AI financial assistant. I can help you analyze your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
+        parts: [{ type: "text", text: "Hi! I'm your AI Financial Assistant. I can help you analyze your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
       },
     ],
   })
@@ -130,7 +181,7 @@ export function AIAssistant() {
         className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 ${
           isOpen ? "hidden" : "flex"
         }`}
-        aria-label="Open AI Assistant"
+        aria-label="Open AI Financial Assistant"
       >
         <Sparkles className="w-6 h-6" />
       </button>
@@ -145,8 +196,8 @@ export function AIAssistant() {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">AI Assistant</h3>
-                <p className="text-xs text-white/70">Powered by AI</p>
+                <h3 className="font-semibold text-white">AI Financial Assistant</h3>
+                <p className="text-xs text-white/70">Powered by MyAiBank</p>
               </div>
             </div>
             <button
@@ -229,7 +280,7 @@ export function AIAssistant() {
                 <div className="flex-1">
                   <p className="text-sm font-medium text-amber-800">Demo limit reached</p>
                   <p className="text-xs text-amber-700 mt-0.5">
-                    Sign up to continue using the AI assistant with unlimited questions.
+                    Sign up to continue using the AI Financial Assistant with unlimited questions.
                   </p>
                   <Link
                     href="/signup"

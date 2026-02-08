@@ -21,7 +21,7 @@ Important guidelines:
 
 export async function POST(req: Request) {
   try {
-    const { messages }: { messages: UIMessage[] } = await req.json()
+    const { messages, context }: { messages: UIMessage[]; context?: Record<string, unknown> } = await req.json()
 
     if (!process.env.OPENAI_API_KEY) {
       return new Response(
@@ -34,9 +34,13 @@ export async function POST(req: Request) {
       apiKey: process.env.OPENAI_API_KEY,
     })
 
+    const contextPrompt = context
+      ? `\n\nContext (user transactions and aggregates):\n${JSON.stringify(context, null, 2)}`
+      : ""
+
     const result = streamText({
       model: openai("gpt-4o-mini"),
-      system: FINANCE_SYSTEM_PROMPT,
+      system: `${FINANCE_SYSTEM_PROMPT}${contextPrompt}`,
       messages: await convertToModelMessages(messages),
       abortSignal: req.signal,
     })

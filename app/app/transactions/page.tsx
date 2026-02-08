@@ -86,9 +86,9 @@ export default function TransactionsPage() {
           filteredTransactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-4"
+              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div
                   className={`px-2 py-1 rounded-lg text-xs font-medium ${
                     categoryColors[transaction.category] || categoryColors.default
@@ -96,8 +96,8 @@ export default function TransactionsPage() {
                 >
                   {transaction.category}
                 </div>
-                <div>
-                  <p className="font-medium text-foreground">
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground break-words">
                     {transaction.description}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -110,7 +110,7 @@ export default function TransactionsPage() {
                 </div>
               </div>
               <p
-                className={`font-semibold ${
+                className={`font-semibold sm:text-right ${
                   transaction.amount > 0 ? "text-[#22c55e]" : "text-foreground"
                 }`}
               >

@@ -1,97 +1,72 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
-import {
-  ArrowLeft,
-  ArrowRight,
-  Sparkles,
-  PieChart,
-  TrendingUp,
-  Bell,
-  Target,
-  BarChart3,
-} from "lucide-react"
 
-const features = [
+export const metadata = {
+  title: "Learn What MyAiBank Does | AI Budgeting and Money Management",
+  description:
+    "MyAiBank is an AI budgeting and money management app that helps you track spending, spot subscriptions, and build smarter budgets from your transactions.",
+}
+
+const faqItems = [
   {
-    icon: <Sparkles className="w-6 h-6" />,
-    title: "AI-Powered Insights",
-    description:
-      "Our AI analyzes your spending patterns and provides personalized recommendations to help you save money and reach your goals faster.",
-    color: "text-[#8b5cf6]",
-    bg: "bg-[#8b5cf6]/20",
+    question: "What is an AI budgeting app?",
+    answer:
+      "An AI budgeting app uses transaction data to automatically categorise spending, highlight patterns, and surface insights that help you budget faster.",
   },
   {
-    icon: <PieChart className="w-6 h-6" />,
-    title: "Smart Budgeting",
-    description:
-      "Automatic 50/30/20 budget allocation with real-time tracking. Know exactly where your money goes each month.",
-    color: "text-[#22c55e]",
-    bg: "bg-[#22c55e]/20",
+    question: "How does MyAiBank read transactions?",
+    answer:
+      "MyAiBank connects to your accounts with secure providers to pull transaction data and turn it into summaries, trends, and insights.",
   },
   {
-    icon: <TrendingUp className="w-6 h-6" />,
-    title: "Cashflow Forecasting",
-    description:
-      "See your financial future with accurate cashflow predictions based on your income and spending habits.",
-    color: "text-[#14b8a6]",
-    bg: "bg-[#14b8a6]/20",
+    question: "Can I use the demo?",
+    answer:
+      "Yes. The demo lets you explore MyAiBank with realistic sample data so you can see how insights and the assistant work.",
   },
   {
-    icon: <Bell className="w-6 h-6" />,
-    title: "Subscription Tracking",
-    description:
-      "Never forget about a subscription again. We detect and track all your recurring payments automatically.",
-    color: "text-[#f59e0b]",
-    bg: "bg-[#f59e0b]/20",
+    question: "Does it work in Australia?",
+    answer:
+      "Yes. MyAiBank is built for Australians and supports local categories, merchants, and money management needs.",
   },
   {
-    icon: <Target className="w-6 h-6" />,
-    title: "Goal Setting",
-    description:
-      "Set savings goals and track your progress. We'll help you stay on track with smart notifications.",
-    color: "text-[#ec4899]",
-    bg: "bg-[#ec4899]/20",
-  },
-  {
-    icon: <BarChart3 className="w-6 h-6" />,
-    title: "Portfolio Tracking",
-    description:
-      "Track your investments and properties in one place. Get a complete view of your net worth.",
-    color: "text-[#6366f1]",
-    bg: "bg-[#6366f1]/20",
+    question: "Is MyAiBank a bank?",
+    answer:
+      "No. MyAiBank is a money management and spending tracker app. We do not hold funds or provide banking services.",
   },
 ]
 
 export default function WhatWeDoPage() {
-  const router = useRouter()
-
-  const handleBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back()
-    } else {
-      router.push("/")
-    }
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
   }
 
   return (
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
       <div className="flex-1 px-6 py-8 max-w-2xl mx-auto w-full">
-        {/* Back Button */}
-        <button
-          type="button"
-          onClick={handleBack}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+
+        <Link
+          href="/"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <span aria-hidden="true">←</span>
           <span>Back</span>
-        </button>
+        </Link>
 
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <Image
             src="/logo.jpeg"
@@ -102,54 +77,66 @@ export default function WhatWeDoPage() {
           />
         </div>
 
-        {/* Header */}
         <h1 className="text-3xl font-bold text-foreground text-center mb-3 text-balance">
-          What is MyAiBank?
+          Learn what MyAiBank does
         </h1>
         <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10 text-pretty">
-          MyAiBank is your AI-powered financial companion. We help you understand your money, track your spending, and make smarter financial decisions.
+          MyAiBank turns your transactions into clear insights. Track spending, find subscriptions, and ask our AI
+          financial assistant questions about where your money goes.
         </p>
 
-        {/* Important Notice */}
-        <div className="p-4 rounded-2xl bg-card border border-border mb-8">
-          <h2 className="font-semibold text-foreground mb-2">Important Notice</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            MyAiBank provides AI-assisted budgeting and transaction insights for information purposes only. We do NOT provide financial advice, hold customer funds, or act as a bank. Always seek independent professional advice for financial decisions.
-          </p>
-        </div>
+        <section className="space-y-8 mb-10">
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              AI budgeting that understands your spending
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              See categories, trends, and monthly summaries automatically. Identify overspending and set simple
+              targets that fit your lifestyle.
+            </p>
+          </div>
 
-        {/* Features */}
-        <h2 className="text-xl font-semibold text-foreground mb-6">Features</h2>
-        <div className="grid gap-4 mb-10">
-          {features.map((feature, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-4 p-4 rounded-2xl bg-card border border-border"
-            >
-              <div
-                className={`w-12 h-12 rounded-xl ${feature.bg} flex items-center justify-center flex-shrink-0 ${feature.color}`}
-              >
-                {feature.icon}
-              </div>
-              <div>
-                <h3 className="font-medium text-foreground mb-1">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">Subscription and bill detection</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Find recurring charges fast and see what they cost over time so you can cancel or negotiate.
+            </p>
+          </div>
 
-        {/* CTA */}
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">Ask questions with the AI financial assistant</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Ask “What did I spend on food last month?” or “Show my biggest merchants.” The assistant reads your
+              transactions to answer with clear numbers.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">Built for privacy</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Your data is used to generate insights and answers. We minimise access and never share your
+              information.
+            </p>
+          </div>
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Frequently asked questions</h2>
+          <div className="space-y-4">
+            {faqItems.map((item) => (
+              <div key={item.question} className="p-4 rounded-2xl bg-card border border-border">
+                <h3 className="font-medium text-foreground mb-2">{item.question}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <Button
           asChild
           className="w-full h-14 rounded-2xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold text-base"
         >
-          <Link href="/signup">
-            Get Started
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Link>
+          <Link href="/signup">Get Started</Link>
         </Button>
       </div>
 
