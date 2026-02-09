@@ -130,9 +130,23 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     console.error("Error inserting accounts:", accountsError)
   }
 
-  // Insert transactions
+  // Build a lookup from fiskil_account_id → DB account row id
+  const { data: savedAccounts } = await supabase
+    .from("bank_accounts")
+    .select("id, fiskil_account_id")
+    .eq("user_id", userId)
+
+  const accountIdMap: Record<string, string> = {}
+  for (const row of savedAccounts || []) {
+    if (row.fiskil_account_id) {
+      accountIdMap[row.fiskil_account_id] = row.id
+    }
+  }
+
+  // Insert transactions — link each to its bank account via account_id
   const transactionsToInsert = transactions.map((tx: any) => ({
     user_id: userId,
+    account_id: accountIdMap[tx.account_id] || null,
     fiskil_transaction_id: tx.id,
     amount: parseFloat(tx.amount || 0),
     currency: tx.currency || "AUD",
@@ -164,11 +178,11 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 }
 
 async function injectMockData(supabase: any, userId: string) {
-  // Mock accounts
+  // Mock accounts — use deterministic fiskil_account_id to allow upsert
   const mockAccounts = [
     {
       user_id: userId,
-      fiskil_account_id: null,
+      fiskil_account_id: `mock-account-${userId}-1`,
       institution_name: "Commonwealth Bank",
       account_name: "Smart Access",
       account_type: "transaction",
@@ -182,7 +196,7 @@ async function injectMockData(supabase: any, userId: string) {
     },
     {
       user_id: userId,
-      fiskil_account_id: null,
+      fiskil_account_id: `mock-account-${userId}-2`,
       institution_name: "Commonwealth Bank",
       account_name: "GoalSaver",
       account_type: "savings",
@@ -198,7 +212,7 @@ async function injectMockData(supabase: any, userId: string) {
 
   const { error: accountsError } = await supabase
     .from("bank_accounts")
-    .insert(mockAccounts)
+    .upsert(mockAccounts, { onConflict: "user_id,fiskil_account_id" })
 
   if (accountsError) {
     console.error("Error inserting mock accounts:", accountsError)
@@ -229,9 +243,9 @@ async function injectMockData(supabase: any, userId: string) {
     { amount: -500.00, description: "Transfer to Savings", merchant_name: "Internal Transfer", category: "Transfer", date: daysAgo(1), type: "debit" },
   ]
 
-  const transactionsToInsert = mockTransactions.map(tx => ({
+  const transactionsToInsert = mockTransactions.map((tx, idx) => ({
     user_id: userId,
-    fiskil_transaction_id: null,
+    fiskil_transaction_id: `mock-tx-${userId}-${idx}`,
     amount: tx.amount,
     currency: "AUD",
     description: tx.description,
@@ -247,7 +261,7 @@ async function injectMockData(supabase: any, userId: string) {
 
   const { error: transactionsError } = await supabase
     .from("transactions")
-    .insert(transactionsToInsert)
+    .upsert(transactionsToInsert, { onConflict: "user_id,fiskil_transaction_id" })
 
   if (transactionsError) {
     console.error("Error inserting mock transactions:", transactionsError)
