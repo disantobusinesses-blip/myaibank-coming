@@ -87,13 +87,17 @@ async function fetchFiskilData(endUserId: string) {
     throw new Error(`Fiskil token missing in response: ${JSON.stringify(tokenJson)}`)
   }
 
-  // Fetch accounts
-  const accountsRes = await fetch(`${fiskilV1Base}/accounts?end_user_id=${endUserId}`, {
-    headers: {
-      accept: "application/json",
-      authorization: `Bearer ${token}`,
-    },
-  })
+  const authHeaders = {
+    accept: "application/json",
+    "content-type": "application/json; charset=UTF-8",
+    authorization: `Bearer ${token}`,
+  }
+
+  // Fetch accounts — correct Fiskil endpoint is /v1/banking/accounts
+  const accountsRes = await fetch(
+    `${fiskilV1Base}/banking/accounts?end_user_id=${endUserId}`,
+    { headers: authHeaders }
+  )
 
   if (!accountsRes.ok) {
     const text = await accountsRes.text()
@@ -103,27 +107,59 @@ async function fetchFiskilData(endUserId: string) {
   const accountsData = await accountsRes.json()
   const accountsList = accountsData.accounts || accountsData.data || []
 
-  // Fetch transactions for each account
-  const allTransactions = []
-  for (const account of accountsList) {
-    const txRes = await fetch(
-      `${fiskilV1Base}/transactions?account_id=${account.id}&end_user_id=${endUserId}`,
-      {
-        headers: {
-          accept: "application/json",
-          authorization: `Bearer ${token}`,
-        },
+  // Fetch balances — Fiskil returns balances via /v1/banking/balances
+  const balancesRes = await fetch(
+    `${fiskilV1Base}/banking/balances?end_user_id=${endUserId}`,
+    { headers: authHeaders }
+  )
+
+  const balanceMap: Record<string, { current_balance: string; available_balance: string; currency: string }> = {}
+  if (balancesRes.ok) {
+    const balancesData = await balancesRes.json()
+    for (const b of balancesData.balances || balancesData.data || []) {
+      balanceMap[b.account_id] = {
+        current_balance: b.current_balance || "0",
+        available_balance: b.available_balance || "0",
+        currency: b.currency || "AUD",
       }
-    )
-    
-    if (txRes.ok) {
-      const txData = await txRes.json()
-      allTransactions.push(...(txData.transactions || txData.data || []))
+    }
+  }
+
+  // Merge balance info into each account
+  const accountsWithBalances = accountsList.map((acc: any) => {
+    const bal = balanceMap[acc.account_id] || {}
+    return { ...acc, ...bal }
+  })
+
+  // Fetch transactions — correct Fiskil endpoint is /v1/banking/transactions
+  const allTransactions = []
+  // First try fetching all transactions for the user at once
+  const txRes = await fetch(
+    `${fiskilV1Base}/banking/transactions?end_user_id=${endUserId}`,
+    { headers: authHeaders }
+  )
+
+  if (txRes.ok) {
+    const txData = await txRes.json()
+    allTransactions.push(...(txData.transactions || txData.data || []))
+  } else {
+    // Log the error and fallback: fetch per account
+    const txErrText = await txRes.text().catch(() => "")
+    console.warn(`Bulk transaction fetch failed (${txRes.status}): ${txErrText}. Falling back to per-account fetch.`)
+    for (const account of accountsWithBalances) {
+      const accTxRes = await fetch(
+        `${fiskilV1Base}/banking/transactions?account_id=${account.account_id}&end_user_id=${endUserId}`,
+        { headers: authHeaders }
+      )
+      if (accTxRes.ok) {
+        const accTxData = await accTxRes.json()
+        allTransactions.push(...(accTxData.transactions || accTxData.data || []))
+      }
     }
   }
 
   return {
-    accounts: accountsList,
+    accounts: accountsWithBalances,
     transactions: allTransactions,
   }
 }
@@ -131,14 +167,15 @@ async function fetchFiskilData(endUserId: string) {
 async function injectRealData(supabase: any, userId: string, fiskilData: any) {
   const { accounts, transactions } = fiskilData
 
-  // Insert accounts — only columns that exist in the bank_accounts schema
+  // Insert accounts — map Fiskil response fields to our schema
+  // Fiskil fields: account_id, display_name, account_ownership, bsb, bundle_name, current_balance, available_balance, currency
   const accountsToInsert = accounts.map((acc: any) => ({
     user_id: userId,
-    fiskil_account_id: acc.id,
-    institution_name: acc.institution?.name || "Unknown",
-    account_name: acc.name || acc.account_name,
-    account_type: acc.type || acc.account_type,
-    balance: parseFloat(acc.balance || acc.current_balance || 0),
+    fiskil_account_id: acc.account_id || acc.id,
+    institution_name: acc.institution?.name || acc.institution_id || "Unknown",
+    account_name: acc.display_name || acc.name || acc.account_name || acc.bundle_name,
+    account_type: acc.product_category || acc.type || acc.account_type,
+    balance: parseFloat(acc.current_balance || acc.balance || 0),
     currency: acc.currency || "AUD",
     last_synced_at: new Date().toISOString(),
   }))
@@ -164,20 +201,25 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     }
   }
 
-  // Insert transactions — only columns that exist in the transactions schema
-  const transactionsToInsert = transactions.map((tx: any) => ({
-    user_id: userId,
-    account_id: accountIdMap[tx.account_id] || null,
-    fiskil_transaction_id: tx.id,
-    amount: parseFloat(tx.amount || 0),
-    currency: tx.currency || "AUD",
-    description: tx.description,
-    merchant_name: tx.merchant?.name || tx.merchant_name,
-    category: tx.category,
-    transaction_type: parseFloat(tx.amount || 0) > 0 ? "credit" : "debit",
-    transaction_date: tx.date || tx.transaction_date,
-    is_pending: tx.pending || false,
-  }))
+  // Insert transactions — map Fiskil response fields to our schema
+  // Fiskil fields: transaction_id, account_id, amount, currency, description, merchant_name, category, execution_date_time, status
+  const transactionsToInsert = transactions.map((tx: any) => {
+    const amount = parseFloat(tx.amount || 0)
+    const fiskilAccountId = tx.account_id
+    return {
+      user_id: userId,
+      account_id: accountIdMap[fiskilAccountId] || null,
+      fiskil_transaction_id: tx.transaction_id || tx.id,
+      amount,
+      currency: tx.currency || "AUD",
+      description: tx.description || tx.reference,
+      merchant_name: tx.merchant_name || tx.merchant?.name,
+      category: tx.category?.primary_category || tx.category,
+      transaction_type: amount > 0 ? "credit" : "debit",
+      transaction_date: tx.execution_date_time || tx.posting_date_time || tx.value_date_time || tx.date || tx.transaction_date,
+      is_pending: tx.status === "PENDING" || tx.pending || false,
+    }
+  })
 
   const { error: transactionsError } = await supabase
     .from("transactions")
