@@ -3,9 +3,17 @@ import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const fiskilBaseUrl = process.env.FISKIL_BASE_URL
+const fiskilBaseUrl = process.env.FISKIL_BASE_URL || "https://api.fiskil.com"
 const fiskilClientId = process.env.FISKIL_CLIENT_ID
 const fiskilClientSecret = process.env.FISKIL_CLIENT_SECRET
+
+// Normalize base URL to include /v1 like the consent-session route does
+const normalizeBase = (url: string) => String(url || "").replace(/\/$/, "")
+const toV1 = (base: string) => {
+  const b = normalizeBase(base)
+  return /\/v1$/i.test(b) ? b : `${b}/v1`
+}
+const fiskilV1Base = toV1(fiskilBaseUrl)
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,50 +63,67 @@ export async function POST(request: NextRequest) {
 }
 
 async function fetchFiskilData(endUserId: string) {
-  // Get Fiskil access token
-  const tokenRes = await fetch(`${fiskilBaseUrl}/oauth/token`, {
+  // Get Fiskil token — use the same /v1/token endpoint as create-consent-session
+  const tokenRes = await fetch(`${fiskilV1Base}/token`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json; charset=UTF-8",
+    },
     body: JSON.stringify({
       client_id: fiskilClientId,
       client_secret: fiskilClientSecret,
-      grant_type: "client_credentials",
     }),
   })
 
   if (!tokenRes.ok) {
-    throw new Error("Failed to get Fiskil access token")
+    const text = await tokenRes.text()
+    throw new Error(`Failed to get Fiskil token (${tokenRes.status}): ${text}`)
   }
 
-  const { access_token } = await tokenRes.json()
+  const tokenJson = await tokenRes.json()
+  const token = tokenJson.token
+  if (!token) {
+    throw new Error(`Fiskil token missing in response: ${JSON.stringify(tokenJson)}`)
+  }
 
   // Fetch accounts
-  const accountsRes = await fetch(`${fiskilBaseUrl}/accounts?end_user_id=${endUserId}`, {
-    headers: { Authorization: `Bearer ${access_token}` },
+  const accountsRes = await fetch(`${fiskilV1Base}/accounts?end_user_id=${endUserId}`, {
+    headers: {
+      accept: "application/json",
+      authorization: `Bearer ${token}`,
+    },
   })
 
   if (!accountsRes.ok) {
-    throw new Error("Failed to fetch accounts from Fiskil")
+    const text = await accountsRes.text()
+    throw new Error(`Failed to fetch accounts from Fiskil (${accountsRes.status}): ${text}`)
   }
 
   const accountsData = await accountsRes.json()
+  const accountsList = accountsData.accounts || accountsData.data || []
 
   // Fetch transactions for each account
   const allTransactions = []
-  for (const account of accountsData.accounts || []) {
+  for (const account of accountsList) {
     const txRes = await fetch(
-      `${fiskilBaseUrl}/transactions?account_id=${account.id}&end_user_id=${endUserId}`,
-      { headers: { Authorization: `Bearer ${access_token}` } }
+      `${fiskilV1Base}/transactions?account_id=${account.id}&end_user_id=${endUserId}`,
+      {
+        headers: {
+          accept: "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      }
     )
     
     if (txRes.ok) {
       const txData = await txRes.json()
-      allTransactions.push(...(txData.transactions || []))
+      allTransactions.push(...(txData.transactions || txData.data || []))
     }
   }
 
   return {
-    accounts: accountsData.accounts || [],
+    accounts: accountsList,
     transactions: allTransactions,
   }
 }
@@ -106,19 +131,15 @@ async function fetchFiskilData(endUserId: string) {
 async function injectRealData(supabase: any, userId: string, fiskilData: any) {
   const { accounts, transactions } = fiskilData
 
-  // Insert accounts
+  // Insert accounts — only columns that exist in the bank_accounts schema
   const accountsToInsert = accounts.map((acc: any) => ({
     user_id: userId,
     fiskil_account_id: acc.id,
     institution_name: acc.institution?.name || "Unknown",
     account_name: acc.name || acc.account_name,
     account_type: acc.type || acc.account_type,
-    account_number_masked: acc.account_number?.masked || acc.mask,
-    bsb: acc.bsb,
     balance: parseFloat(acc.balance || acc.current_balance || 0),
-    available_balance: parseFloat(acc.available_balance || acc.balance || 0),
     currency: acc.currency || "AUD",
-    is_primary: false,
     last_synced_at: new Date().toISOString(),
   }))
 
@@ -143,7 +164,7 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     }
   }
 
-  // Insert transactions — link each to its bank account via account_id
+  // Insert transactions — only columns that exist in the transactions schema
   const transactionsToInsert = transactions.map((tx: any) => ({
     user_id: userId,
     account_id: accountIdMap[tx.account_id] || null,
@@ -155,10 +176,7 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     category: tx.category,
     transaction_type: parseFloat(tx.amount || 0) > 0 ? "credit" : "debit",
     transaction_date: tx.date || tx.transaction_date,
-    posted_date: tx.posted_date || tx.date,
     is_pending: tx.pending || false,
-    is_recurring: false,
-    is_subscription: false,
   }))
 
   const { error: transactionsError } = await supabase
@@ -178,7 +196,8 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 }
 
 async function injectMockData(supabase: any, userId: string) {
-  // Mock accounts — use deterministic fiskil_account_id to allow upsert
+  // Mock accounts — only columns that exist in the bank_accounts schema
+  // Uses deterministic fiskil_account_id to allow upsert
   const mockAccounts = [
     {
       user_id: userId,
@@ -186,12 +205,8 @@ async function injectMockData(supabase: any, userId: string) {
       institution_name: "Commonwealth Bank",
       account_name: "Smart Access",
       account_type: "transaction",
-      account_number_masked: "****1234",
-      bsb: "062-000",
       balance: 4825.67,
-      available_balance: 4825.67,
       currency: "AUD",
-      is_primary: true,
       last_synced_at: new Date().toISOString(),
     },
     {
@@ -200,12 +215,8 @@ async function injectMockData(supabase: any, userId: string) {
       institution_name: "Commonwealth Bank",
       account_name: "GoalSaver",
       account_type: "savings",
-      account_number_masked: "****5678",
-      bsb: "062-000",
       balance: 12450.00,
-      available_balance: 12450.00,
       currency: "AUD",
-      is_primary: false,
       last_synced_at: new Date().toISOString(),
     },
   ]
@@ -218,7 +229,7 @@ async function injectMockData(supabase: any, userId: string) {
     console.error("Error inserting mock accounts:", accountsError)
   }
 
-  // Mock transactions
+  // Mock transactions — only columns that exist in the transactions schema
   const daysAgo = (days: number) => {
     const date = new Date()
     date.setDate(date.getDate() - days)
@@ -253,10 +264,7 @@ async function injectMockData(supabase: any, userId: string) {
     category: tx.category,
     transaction_type: tx.type,
     transaction_date: tx.date,
-    posted_date: tx.date,
     is_pending: false,
-    is_recurring: false,
-    is_subscription: ["Netflix", "Spotify", "Apple", "Fitness First", "Medibank"].includes(tx.merchant_name),
   }))
 
   const { error: transactionsError } = await supabase
