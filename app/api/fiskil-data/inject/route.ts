@@ -96,6 +96,25 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Ensure the profiles row exists for this user before inserting FK-dependent data.
+    // The profile is normally created by a trigger on auth.users, but it may be missing
+    // if the trigger was not set up, failed silently, or the user was created before the
+    // trigger existed. This upsert is safe: it only inserts if the row is absent.
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .upsert(
+        { id: user_id },
+        { onConflict: "id", ignoreDuplicates: true }
+      )
+
+    if (profileError) {
+      console.error("Error ensuring profile exists:", profileError)
+      return NextResponse.json(
+        { error: `Profile creation failed: ${profileError.message}` },
+        { status: 500 }
+      )
+    }
+
     // Check if Fiskil is configured - if not, use mock data
     if (!fiskilBaseUrl || !fiskilClientId || !fiskilClientSecret || !end_user_id) {
       console.log("Fiskil not fully configured or no end_user_id, using mock data")
