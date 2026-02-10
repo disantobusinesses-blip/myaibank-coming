@@ -15,6 +15,64 @@ const toV1 = (base: string) => {
 }
 const fiskilV1Base = toV1(fiskilBaseUrl)
 
+/**
+ * Upsert rows into a table. If the UNIQUE constraint for onConflict is missing
+ * (Postgres error 42P10), fall back to delete-then-insert for the matching rows.
+ */
+async function safeUpsert(
+  supabase: any,
+  table: string,
+  rows: Record<string, any>[],
+  onConflict: string,
+  userId: string
+) {
+  if (rows.length === 0) return { error: null }
+
+  // Try the upsert first — works if the UNIQUE constraint exists
+  const { error } = await supabase
+    .from(table)
+    .upsert(rows, { onConflict })
+
+  if (!error) return { error: null }
+
+  // If error is NOT 42P10, return it as-is
+  if (error.code !== "42P10") {
+    return { error }
+  }
+
+  // Fallback: constraint is missing. Delete only the matching fiskil rows, then insert.
+  console.warn(
+    `UNIQUE constraint missing for ${table} (${onConflict}). ` +
+    `Falling back to delete + insert. Run scripts/002_add_unique_constraints.sql to fix permanently.`
+  )
+
+  // Determine the fiskil ID column from the onConflict spec (e.g. "user_id,fiskil_account_id")
+  const conflictCols = onConflict.split(",").map((c) => c.trim())
+  const fiskilIdCol = conflictCols.find((c) => c.startsWith("fiskil_"))
+  if (fiskilIdCol) {
+    // Delete only rows whose fiskil IDs are in the incoming set
+    const incomingIds = rows.map((r) => r[fiskilIdCol]).filter(Boolean)
+    if (incomingIds.length > 0) {
+      const { error: deleteError } = await supabase
+        .from(table)
+        .delete()
+        .eq("user_id", userId)
+        .in(fiskilIdCol, incomingIds)
+
+      if (deleteError) {
+        console.error(`Error deleting from ${table}:`, deleteError)
+        return { error: deleteError }
+      }
+    }
+  }
+
+  const { error: insertError } = await supabase
+    .from(table)
+    .insert(rows)
+
+  return { error: insertError }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -180,9 +238,9 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     last_synced_at: new Date().toISOString(),
   }))
 
-  const { error: accountsError } = await supabase
-    .from("bank_accounts")
-    .upsert(accountsToInsert, { onConflict: "user_id,fiskil_account_id" })
+  const { error: accountsError } = await safeUpsert(
+    supabase, "bank_accounts", accountsToInsert, "user_id,fiskil_account_id", userId
+  )
 
   if (accountsError) {
     console.error("Error inserting accounts:", accountsError)
@@ -221,9 +279,9 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     }
   })
 
-  const { error: transactionsError } = await supabase
-    .from("transactions")
-    .upsert(transactionsToInsert, { onConflict: "user_id,fiskil_transaction_id" })
+  const { error: transactionsError } = await safeUpsert(
+    supabase, "transactions", transactionsToInsert, "user_id,fiskil_transaction_id", userId
+  )
 
   if (transactionsError) {
     console.error("Error inserting transactions:", transactionsError)
@@ -263,9 +321,9 @@ async function injectMockData(supabase: any, userId: string) {
     },
   ]
 
-  const { error: accountsError } = await supabase
-    .from("bank_accounts")
-    .upsert(mockAccounts, { onConflict: "user_id,fiskil_account_id" })
+  const { error: accountsError } = await safeUpsert(
+    supabase, "bank_accounts", mockAccounts, "user_id,fiskil_account_id", userId
+  )
 
   if (accountsError) {
     console.error("Error inserting mock accounts:", accountsError)
@@ -309,9 +367,9 @@ async function injectMockData(supabase: any, userId: string) {
     is_pending: false,
   }))
 
-  const { error: transactionsError } = await supabase
-    .from("transactions")
-    .upsert(transactionsToInsert, { onConflict: "user_id,fiskil_transaction_id" })
+  const { error: transactionsError } = await safeUpsert(
+    supabase, "transactions", transactionsToInsert, "user_id,fiskil_transaction_id", userId
+  )
 
   if (transactionsError) {
     console.error("Error inserting mock transactions:", transactionsError)
