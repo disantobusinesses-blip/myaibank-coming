@@ -41,7 +41,8 @@ export default function LoginPage() {
       setError(signInError.message || "Invalid email or password")
       setIsLoading(false)
     } else {
-      router.push("/subscribe")
+      // Redirect to home which routes to dashboard or onboarding based on profile state
+      router.push("/")
     }
   }
 

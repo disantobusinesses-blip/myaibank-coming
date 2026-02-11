@@ -30,10 +30,10 @@ function buildSystemPrompt(
   contextJson: string | null
 ): string {
   const verbosityGuide: Record<string, string> = {
-    brief: "Keep answers concise — 2–4 sentences max, use bullet points.",
-    normal: "Provide clear, moderately detailed answers with actionable steps.",
+    brief: "Keep answers to 1–3 sentences. Use bullet points where possible.",
+    normal: "Keep answers concise — 2–4 sentences with actionable steps. No padding or filler.",
     detailed:
-      "Give thorough, well-structured answers with explanations, examples, and next steps.",
+      "Give structured answers with explanations and next steps, but stay focused.",
   }
 
   const toneGuide: Record<string, string> = {
@@ -62,7 +62,10 @@ function buildSystemPrompt(
     `- Verbosity: ${verbosityGuide[v]}`,
     `- Risk approach: ${riskGuide[r]}`,
     `- Locale: ${locale}. Use ${locale === "AU" ? "AUD ($)" : locale} currency formatting.`,
-    "- When you reference the user's data, cite specifics (e.g. 'I noticed you spent $X at Y this month').",
+    "- Keep responses concise and direct. Avoid filler phrases like 'That's a great question!'",
+    "- When the user asks about their spending, transactions, or finances, ALWAYS reference the actual transaction data provided below.",
+    "- Quote specific amounts, merchant names, dates, and categories from the data.",
+    "- If the user asks about a specific merchant or category, search the transaction list and provide exact figures.",
     "- Provide actionable next steps when relevant.",
     "- NEVER claim to be a licensed financial adviser or provide specific investment, tax, or legal advice.",
     "- If the user asks for specific investment or tax advice, politely decline and recommend consulting a qualified professional.",
@@ -120,7 +123,7 @@ export async function POST(req: Request) {
       }
       const summary = buildTransactionSummary(txs)
       contextJson = JSON.stringify(
-        { ...summary, transactions: txs.slice(0, 100) },
+        { ...summary, recentTransactions: txs.slice(0, 200) },
         null,
         2
       )

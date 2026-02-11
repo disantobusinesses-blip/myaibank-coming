@@ -27,12 +27,25 @@ export async function POST(request: NextRequest) {
       return acc
     }, {} as Record<string, number>)
 
-    // Classify into needs/wants
-    const needsCategories = ["Housing", "Groceries", "Transport", "Utilities", "Insurance"]
-    const needs = Object.entries(categories).reduce((sum, [cat, amount]) => {
-      return needsCategories.includes(cat) ? sum + (amount as number) : sum
-    }, 0)
-    const wants = totalExpenses - needs
+    // Classify into needs/wants using expanded category lists
+    const needsCategories = ["Housing", "Groceries", "Transport", "Utilities", "Insurance", "Health & Fitness"]
+    const savingsCategories = ["Transfer", "Savings", "Investment"]
+    
+    let needs = 0
+    let wants = 0
+    
+    for (const [cat, amount] of Object.entries(categories)) {
+      const catLower = cat.toLowerCase()
+      if (savingsCategories.some((c) => catLower.includes(c.toLowerCase()))) {
+        continue // Exclude transfers/savings from needs/wants
+      }
+      if (needsCategories.some((c) => catLower.includes(c.toLowerCase()))) {
+        needs += amount as number
+      } else {
+        wants += amount as number
+      }
+    }
+    
     const savings = income - totalExpenses
 
     // 50/30/20 targets

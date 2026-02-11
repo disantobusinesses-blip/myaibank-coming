@@ -19,10 +19,10 @@ import { useAppData } from "@/contexts/app-data-context"
 import { normalizeTransactions } from "@/lib/transactions-provider"
 
 const suggestedQuestions = [
-  "How can I save more money?",
-  "Explain the 50/30/20 budget rule",
-  "What subscriptions should I cancel?",
-  "Help me create a budget",
+  "What are my top spending categories?",
+  "How much did I spend on dining?",
+  "Show my biggest expenses this month",
+  "Do I have any recurring subscriptions?",
 ]
 
 const DEMO_AI_LIMIT = 3
@@ -99,7 +99,7 @@ export function AIAssistant() {
       {
         id: "welcome",
         role: "assistant",
-        parts: [{ type: "text", text: "Hi! I'm your AI Financial Assistant. I can help you analyse your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
+        parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
       },
     ],
   })

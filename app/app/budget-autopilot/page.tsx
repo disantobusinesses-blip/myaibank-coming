@@ -24,28 +24,46 @@ export default function BudgetAutopilotPage() {
     .filter((t) => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
+  // Map transaction categories to 50/30/20 buckets
+  const needsCategories = ["Housing", "Groceries", "Transport", "Utilities", "Insurance", "Health & Fitness"]
+  const savingsCategories = ["Transfer", "Savings", "Investment"]
+
+  let needsActual = 0
+  let wantsActual = 0
+
+  for (const t of transactions) {
+    if (t.amount >= 0) continue
+    const absAmt = Math.abs(t.amount)
+    const catLower = (t.category || "").toLowerCase()
+    if (savingsCategories.some((c) => catLower.includes(c.toLowerCase()))) {
+      continue
+    }
+    if (needsCategories.some((c) => catLower.includes(c.toLowerCase()))) {
+      needsActual += absAmt
+    } else {
+      wantsActual += absAmt
+    }
+  }
+
+  const actualSavings = income - expenses
+
   // 50/30/20 rule
   const needsTarget = income * 0.5
   const wantsTarget = income * 0.3
   const savingsTarget = income * 0.2
 
-  // Categorize actual spending (simplified)
-  const housingExpenses = expenses * 0.4 // Rent, utilities
-  const wantsExpenses = expenses * 0.35 // Entertainment, dining
-  const actualSavings = income - expenses
-
   const categories: BudgetCategory[] = [
     {
       name: "Needs",
       target: needsTarget,
-      actual: housingExpenses,
+      actual: needsActual,
       icon: <Home className="w-5 h-5" />,
       color: "#22c55e",
     },
     {
       name: "Wants",
       target: wantsTarget,
-      actual: wantsExpenses,
+      actual: wantsActual,
       icon: <ShoppingBag className="w-5 h-5" />,
       color: "#8b5cf6",
     },
