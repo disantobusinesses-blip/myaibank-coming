@@ -34,7 +34,7 @@ export default function WelcomePage() {
     }
 
     if (!loading && user) {
-      if (profile?.is_onboarded) {
+      if (profile?.is_onboarded || profile?.has_bank_connection) {
         router.push("/app/dashboard")
       } else {
         router.push("/subscribe")

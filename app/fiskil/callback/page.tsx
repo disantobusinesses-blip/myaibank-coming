@@ -9,9 +9,10 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 function FiskilCallbackInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, updateProfile } = useAuth()
+  const { user, loading, updateProfile } = useAuth()
   const [status, setStatus] = useState<"pending" | "success" | "error">("pending")
   const [message, setMessage] = useState<string>("Confirming your bank connection...")
+  const [hasRun, setHasRun] = useState(false)
 
   const endUserId = useMemo(() => {
     // Accept common variations
@@ -24,6 +25,11 @@ function FiskilCallbackInner() {
   }, [searchParams])
 
   useEffect(() => {
+    // Wait for auth to finish loading before doing anything
+    if (loading) return
+    // Prevent double execution
+    if (hasRun) return
+
     const finalize = async () => {
       try {
         if (!user) {
@@ -82,9 +88,10 @@ function FiskilCallbackInner() {
       }
     }
 
+    setHasRun(true)
     finalize()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, endUserId])
+  }, [user, loading, hasRun, endUserId])
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6">

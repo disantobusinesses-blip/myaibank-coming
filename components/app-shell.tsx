@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // Only redirect if NOT in demo mode
     if (!loading && !user) {
       router.push("/login")
-    } else if (!loading && user && profile && !profile.is_onboarded) {
+    } else if (!loading && user && profile && !profile.is_onboarded && !profile.has_bank_connection) {
       router.push("/onboarding")
     }
   }, [user, profile, loading, router, isDemoMode])
