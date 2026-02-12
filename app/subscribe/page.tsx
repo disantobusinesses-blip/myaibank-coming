@@ -80,7 +80,7 @@ export default function SubscribePage() {
           Start your free trial
         </h1>
         <p className="text-muted-foreground text-center mb-8">
-          Try MyAiBank free for 7 days, then $9.99/month
+          Try MyAiBank free for 7 days, then $14.99/month
         </p>
 
         {/* Plan card */}
@@ -97,7 +97,7 @@ export default function SubscribePage() {
           </p>
 
           <div className="flex items-baseline gap-1 mb-4">
-            <span className="text-2xl font-bold text-foreground">$9.99</span>
+            <span className="text-2xl font-bold text-foreground">$14.99</span>
             <span className="text-sm text-muted-foreground">/month</span>
           </div>
 

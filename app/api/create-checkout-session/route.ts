@@ -76,6 +76,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error creating checkout session:", error)
+    const stripeErr = error as { code?: string; param?: string }
+    if (stripeErr.code === "resource_missing" && stripeErr.param?.includes("price")) {
+      return NextResponse.json(
+        { error: "The configured Stripe price ID does not exist. Check that STRIPE_PRICE_ID is correct and matches your Stripe mode (test vs live)." },
+        { status: 500 }
+      )
+    }
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 500 }
