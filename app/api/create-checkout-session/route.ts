@@ -4,41 +4,18 @@ import Stripe from "stripe"
 // ENV VARS needed:
 // - STRIPE_SECRET_KEY
 // - NEXT_PUBLIC_APP_URL
-// - STRIPE_PRICE_ID (the Stripe Price ID for the monthly plan)
+// - STRIPE_PRICE_ID — accepts either a price ID (price_xxx) or a product ID (prod_xxx).
+//   If a product ID is provided, the default price is looked up automatically.
 
 export async function POST(request: NextRequest) {
   try {
     const stripeKey = process.env.STRIPE_SECRET_KEY
     const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    const priceId = process.env.STRIPE_PRICE_ID
+    const configuredId = process.env.STRIPE_PRICE_ID
 
-    if (!stripeKey || !appUrl || !priceId) {
+    if (!stripeKey || !appUrl || !configuredId) {
       return NextResponse.json(
         { error: "Stripe is not configured. Ensure STRIPE_SECRET_KEY, NEXT_PUBLIC_APP_URL, and STRIPE_PRICE_ID are set." },
-        { status: 500 }
-      )
-    }
-
-    // Validate that STRIPE_PRICE_ID is actually a price ID, not a product ID
-    if (priceId.startsWith("prod_")) {
-      console.error(
-        "STRIPE_PRICE_ID is set to a product ID (starts with 'prod_'). " +
-        "It must be a price ID (starts with 'price_'). " +
-        "Find the correct price ID in Stripe Dashboard → Products → select the product → copy the price ID."
-      )
-      return NextResponse.json(
-        { error: "Stripe misconfigured: STRIPE_PRICE_ID must be a price ID (starts with 'price_'), not a product ID. Check your Stripe Dashboard." },
-        { status: 500 }
-      )
-    }
-
-    if (!priceId.startsWith("price_")) {
-      console.error(
-        `STRIPE_PRICE_ID has unexpected format: '${priceId.substring(0, 10)}...'. ` +
-        "It should start with 'price_'. Find the correct ID in Stripe Dashboard → Products."
-      )
-      return NextResponse.json(
-        { error: "Stripe misconfigured: STRIPE_PRICE_ID should start with 'price_'. Check your Stripe Dashboard." },
         { status: 500 }
       )
     }
@@ -53,6 +30,31 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = new Stripe(stripeKey)
+
+    // Resolve the price ID — if a product ID was provided, look up its default price
+    let priceId = configuredId
+    if (configuredId.startsWith("prod_")) {
+      try {
+        const product = await stripe.products.retrieve(configuredId)
+        const dp = product.default_price
+        if (typeof dp === "string") {
+          priceId = dp
+        } else if (dp && typeof dp === "object") {
+          priceId = (dp as Stripe.Price).id
+        } else {
+          return NextResponse.json(
+            { error: "The configured Stripe product has no default price. Set STRIPE_PRICE_ID to a price ID (starts with 'price_') or add a default price to your product in the Stripe Dashboard." },
+            { status: 500 }
+          )
+        }
+      } catch (productErr) {
+        console.error("Failed to resolve product ID to price:", productErr)
+        return NextResponse.json(
+          { error: "Invalid Stripe product ID or failed to look up its price. Check STRIPE_PRICE_ID in your env vars." },
+          { status: 500 }
+        )
+      }
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
