@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { Building2, Shield, Loader2, ArrowRight, CheckCircle, AlertCircle } from "lucide-react"
 
 // ENV VARS needed:
@@ -17,8 +18,9 @@ export default function OnboardingPage() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState("")
-  const { user, updateProfile } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleConnectBank = async () => {
     setIsConnecting(true)
@@ -57,7 +59,17 @@ export default function OnboardingPage() {
     await updateProfile({
       is_onboarded: true,
     })
-    router.push("/app/dashboard")
+    const state = buildRoutingState({
+      loading: false,
+      user,
+      profile: {
+        ...(profile ?? {}),
+        is_onboarded: true,
+      },
+      demoMode: false,
+    })
+    const dest = getNextRoute(state, pathname) ?? "/app/dashboard"
+    router.push(dest)
   }
 
   if (!user) {

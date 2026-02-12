@@ -1,19 +1,36 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState, ROUTES } from "@/lib/routing"
 import { CheckCircle, ArrowRight, Loader2 } from "lucide-react"
 
 function SubscriptionSuccessInner() {
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying")
   const [countdown, setCountdown] = useState(5)
-  const { user, updateProfile } = useAuth()
+  const { user, profile, loading, updateProfile } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get("session_id")
+
+  // Derive the next destination via the routing guard
+  const getDestination = () => {
+    const state = buildRoutingState({
+      loading: false,
+      user,
+      profile: {
+        ...(profile ?? {}),
+        // After verification, subscription is active/trialing
+        subscription_status: "trialing",
+      },
+      demoMode: false,
+    })
+    return getNextRoute(state, pathname) ?? ROUTES.ONBOARDING
+  }
 
   useEffect(() => {
     if (!user) {
@@ -71,11 +88,12 @@ function SubscriptionSuccessInner() {
   useEffect(() => {
     if (status !== "success") return
 
+    const dest = getDestination()
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          router.push("/onboarding")
+          router.push(dest)
           return 0
         }
         return prev - 1
@@ -83,6 +101,7 @@ function SubscriptionSuccessInner() {
     }, 1000)
 
     return () => clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, router])
 
   if (status === "verifying") {
@@ -132,7 +151,7 @@ function SubscriptionSuccessInner() {
 
         {/* Continue Button */}
         <Button
-          onClick={() => router.push("/onboarding")}
+          onClick={() => router.push(getDestination())}
           className="w-full h-14 rounded-2xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold"
         >
           Continue to Bank Connection

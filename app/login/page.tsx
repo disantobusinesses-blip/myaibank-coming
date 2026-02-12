@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react"
 
 export default function LoginPage() {

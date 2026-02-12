@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/contexts/auth-context"
 import { AppDataProvider, useAppData } from "@/contexts/app-data-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
   LayoutDashboard,
   CreditCard,
@@ -63,13 +64,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     // Skip ALL auth redirects if in demo mode
     if (isDemoMode === true) return
 
-    // Only redirect if NOT in demo mode
-    if (!loading && !user) {
-      router.push("/login")
-    } else if (!loading && user && profile && !profile.is_onboarded && !profile.has_bank_connection) {
-      router.push("/onboarding")
-    }
-  }, [user, profile, loading, router, isDemoMode])
+    if (loading) return
+
+    const state = buildRoutingState({
+      loading,
+      user,
+      profile,
+      demoMode: isDemoMode,
+    })
+    const dest = getNextRoute(state, pathname)
+    if (dest) router.push(dest)
+  }, [user, profile, loading, router, isDemoMode, pathname])
 
   const handleSignOut = async () => {
     await signOut()

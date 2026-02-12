@@ -3,17 +3,19 @@
 import React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { ArrowRight, Sparkles, Shield, TrendingUp, Play } from "lucide-react"
 
 export default function WelcomePage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -21,26 +23,17 @@ export default function WelcomePage() {
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || loading) return
 
-    // Check if demo mode is active in sessionStorage or cookie
+    // Check if demo mode is active
     const isDemoMode = typeof window !== "undefined" && 
       (sessionStorage.getItem("myaibank_demo_mode") === "true" ||
        document.cookie.includes("myaibank_demo_mode=true"))
-    
-    if (isDemoMode) {
-      router.push("/app/dashboard")
-      return
-    }
 
-    if (!loading && user) {
-      if (profile?.is_onboarded || profile?.has_bank_connection) {
-        router.push("/app/dashboard")
-      } else {
-        router.push("/subscribe")
-      }
-    }
-  }, [user, profile, loading, router, mounted])
+    const state = buildRoutingState({ loading, user, profile, demoMode: isDemoMode })
+    const dest = getNextRoute(state, pathname)
+    if (dest) router.push(dest)
+  }, [user, profile, loading, router, mounted, pathname])
 
   const handleDemoMode = () => {
     try {

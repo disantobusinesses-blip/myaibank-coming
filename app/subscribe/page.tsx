@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { Check, Sparkles, Loader2, Shield } from "lucide-react"
 
 const plans = [
@@ -63,15 +64,27 @@ export default function SubscribePage() {
   const [selectedPlan, setSelectedPlan] = useState("pro")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleContinue = async () => {
     setIsLoading(true)
     setError("")
     
     if (selectedPlan === "free") {
-      router.push("/onboarding")
+      // Free plan — route via guard (likely onboarding)
+      const state = buildRoutingState({
+        loading: false,
+        user,
+        profile: {
+          ...(profile ?? {}),
+          subscription_status: "active",
+        },
+        demoMode: false,
+      })
+      const dest = getNextRoute(state, pathname) ?? "/onboarding"
+      router.push(dest)
       return
     }
 
