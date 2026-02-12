@@ -6,11 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
-import { Check, Sparkles, Loader2 } from "lucide-react"
-
-// ENV VARS needed:
-// - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-// - STRIPE_SECRET_KEY
+import { Check, Sparkles, Loader2, Shield } from "lucide-react"
 
 const plans = [
   {
@@ -43,6 +39,7 @@ const plans = [
       "Priority support",
     ],
     popular: true,
+    trial: true,
   },
   {
     id: "business",
@@ -65,27 +62,43 @@ const plans = [
 export default function SubscribePage() {
   const [selectedPlan, setSelectedPlan] = useState("pro")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const { user } = useAuth()
   const router = useRouter()
 
   const handleContinue = async () => {
     setIsLoading(true)
+    setError("")
     
     if (selectedPlan === "free") {
-      // Skip payment for free plan
       router.push("/onboarding")
       return
     }
 
-    // In production, this would create a Stripe checkout session
-    // For now, simulate and redirect
     try {
-      // Simulating Stripe checkout
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      router.push("/subscription-success")
-    } catch (error) {
-      console.error("Checkout error:", error)
-    } finally {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id,
+          email: user?.email,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to start checkout")
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error("No checkout URL returned")
+      }
+    } catch (err) {
+      console.error("Checkout error:", err)
+      setError(err instanceof Error ? err.message : "Something went wrong")
       setIsLoading(false)
     }
   }
@@ -94,6 +107,8 @@ export default function SubscribePage() {
     router.push("/login")
     return null
   }
+
+  const selectedPlanData = plans.find((p) => p.id === selectedPlan)
 
   return (
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
@@ -177,6 +192,13 @@ export default function SubscribePage() {
           ))}
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
+        )}
+
         {/* Continue Button */}
         <Button
           onClick={handleContinue}
@@ -188,9 +210,17 @@ export default function SubscribePage() {
           ) : selectedPlan === "free" ? (
             "Continue with Free"
           ) : (
-            "Continue to Payment"
+            "Start 7-day free trial"
           )}
         </Button>
+
+        {/* Trial copy */}
+        {selectedPlanData && selectedPlanData.id !== "free" && (
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Card required. No charge today. Cancel anytime before day 7.</span>
+          </div>
+        )}
       </div>
 
       <LegalFooter />

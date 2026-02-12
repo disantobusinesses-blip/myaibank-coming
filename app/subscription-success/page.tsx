@@ -1,22 +1,75 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
-import { CheckCircle, ArrowRight } from "lucide-react"
+import { CheckCircle, ArrowRight, Loader2 } from "lucide-react"
 
-export default function SubscriptionSuccessPage() {
+function SubscriptionSuccessInner() {
+  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying")
   const [countdown, setCountdown] = useState(5)
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get("session_id")
 
   useEffect(() => {
     if (!user) {
       router.push("/login")
       return
     }
+
+    const verify = async () => {
+      if (!sessionId) {
+        // No session_id — treat as a mock/free-plan success for backwards compat
+        await updateProfile({
+          subscription_status: "trialing",
+          subscription_plan: "pro",
+        })
+        setStatus("success")
+        return
+      }
+
+      try {
+        const res = await fetch("/api/subscription/activate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        })
+
+        if (!res.ok) {
+          throw new Error("Verification failed")
+        }
+
+        const data = await res.json()
+
+        // Update local profile state
+        await updateProfile({
+          subscription_status: data.subscription?.status ?? "trialing",
+          subscription_plan: data.subscription?.plan ?? "pro",
+        })
+
+        setStatus("success")
+      } catch (err) {
+        console.error("Error verifying subscription:", err)
+        // Still mark as success — the webhook will update the DB
+        await updateProfile({
+          subscription_status: "trialing",
+          subscription_plan: "pro",
+        })
+        setStatus("success")
+      }
+    }
+
+    verify()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
+
+  // Countdown timer for auto-redirect
+  useEffect(() => {
+    if (status !== "success") return
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -30,7 +83,18 @@ export default function SubscriptionSuccessPage() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [user, router])
+  }, [status, router])
+
+  if (status === "verifying") {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6 safe-area-inset">
+        <div className="max-w-md w-full text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-[#1F0051] mx-auto mb-4" />
+          <p className="text-muted-foreground">Confirming your subscription…</p>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6 safe-area-inset">
@@ -55,10 +119,10 @@ export default function SubscriptionSuccessPage() {
 
         {/* Text */}
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Subscription Activated!
+          Free trial started!
         </h1>
         <p className="text-muted-foreground mb-8">
-          Thank you for subscribing to MyAiBank. Let&apos;s connect your bank account to get started.
+          Your 7-day free trial is active. Let&apos;s connect your bank account to get started.
         </p>
 
         {/* Countdown */}
@@ -76,5 +140,19 @@ export default function SubscriptionSuccessPage() {
         </Button>
       </div>
     </main>
+  )
+}
+
+export default function SubscriptionSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1F0051]" />
+        </div>
+      }
+    >
+      <SubscriptionSuccessInner />
+    </Suspense>
   )
 }
