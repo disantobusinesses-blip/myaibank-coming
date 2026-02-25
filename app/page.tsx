@@ -3,17 +3,20 @@
 import React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { ArrowRight, Sparkles, Shield, TrendingUp, Play } from "lucide-react"
+import FloatingLines from "@/components/FloatingLines"
 
 export default function WelcomePage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -21,26 +24,17 @@ export default function WelcomePage() {
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || loading) return
 
-    // Check if demo mode is active in sessionStorage or cookie
+    // Check if demo mode is active
     const isDemoMode = typeof window !== "undefined" && 
       (sessionStorage.getItem("myaibank_demo_mode") === "true" ||
        document.cookie.includes("myaibank_demo_mode=true"))
-    
-    if (isDemoMode) {
-      router.push("/app/dashboard")
-      return
-    }
 
-    if (!loading && user) {
-      if (profile?.is_onboarded) {
-        router.push("/app/dashboard")
-      } else {
-        router.push("/subscribe")
-      }
-    }
-  }, [user, profile, loading, router, mounted])
+    const state = buildRoutingState({ loading, user, profile, demoMode: isDemoMode })
+    const dest = getNextRoute(state, pathname)
+    if (dest) router.push(dest)
+  }, [user, profile, loading, router, mounted, pathname])
 
   const handleDemoMode = () => {
     try {
@@ -76,9 +70,26 @@ export default function WelcomePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-background safe-area-inset">
+    <main className="min-h-screen flex flex-col safe-area-inset relative overflow-hidden" style={{ backgroundColor: '#180D27' }}>
+      {/* Animated background */}
+      <div className="absolute inset-0 z-0">
+        <FloatingLines
+          linesGradient={['#180D27', '#2d1b69', '#6b21a8', '#8b5cf6', '#E947F5']}
+          enabledWaves={['top', 'middle', 'bottom']}
+          lineCount={[8, 10, 6]}
+          lineDistance={[5, 4, 6]}
+          animationSpeed={0.6}
+          interactive={true}
+          bendRadius={4.0}
+          bendStrength={-0.4}
+          parallax={true}
+          parallaxStrength={0.15}
+          mixBlendMode="normal"
+        />
+      </div>
+
       {/* Hero Section */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
         {/* Logo */}
         <div className="mb-8 glow-primary rounded-3xl">
           <Image
@@ -160,7 +171,9 @@ export default function WelcomePage() {
       </div>
 
       {/* Legal Footer */}
-      <LegalFooter />
+      <div className="relative z-10">
+        <LegalFooter />
+      </div>
     </main>
   )
 }

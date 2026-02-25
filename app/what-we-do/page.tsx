@@ -4,36 +4,48 @@ import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 
 export const metadata = {
-  title: "Learn What MyAiBank Does | AI Budgeting and Money Management",
+  title: "AI Money Manager Australia | AI Budgeting App & Finance Tracker — MyAiBank",
   description:
-    "MyAiBank is an AI budgeting and money management app that helps you track spending, spot subscriptions, and build smarter budgets from your transactions.",
+    "MyAiBank is Australia's AI money manager and budgeting app. Track spending, manage cash flow, detect subscriptions, and get AI-powered financial insights. Launching soon in the USA and UK.",
+  keywords:
+    "AI money manager Australia, AI money tracker, AI budgeting app Australia, AI finance app, money management app, AI spending tracker, budgeting tool Australia",
 }
 
 const faqItems = [
   {
-    question: "What is an AI budgeting app?",
+    question: "What is an AI money manager?",
     answer:
-      "An AI budgeting app uses transaction data to automatically categorise spending, highlight patterns, and surface insights that help you budget faster.",
+      "An AI money manager uses your transaction data to automatically categorise spending, highlight patterns, track cash flow, and surface actionable insights — helping you budget smarter and faster than manual spreadsheets.",
   },
   {
-    question: "How does MyAiBank read transactions?",
+    question: "How does MyAiBank work as an AI money tracker?",
     answer:
-      "MyAiBank connects to your accounts with secure providers to pull transaction data and turn it into summaries, trends, and insights.",
+      "MyAiBank connects securely to your bank accounts via trusted providers to pull transaction data. Our AI then categorises every transaction, detects subscriptions, builds spending summaries, and lets you ask questions about your finances through an AI financial assistant.",
   },
   {
-    question: "Can I use the demo?",
+    question: "Is MyAiBank available in Australia?",
     answer:
-      "Yes. The demo lets you explore MyAiBank with realistic sample data so you can see how insights and the assistant work.",
+      "Yes. MyAiBank is built for Australians and supports local banks, categories, merchants, and AUD formatting. We are also planning to launch in the USA and UK to bring AI-powered money management to more users worldwide.",
   },
   {
-    question: "Does it work in Australia?",
+    question: "What tools does MyAiBank include?",
     answer:
-      "Yes. MyAiBank is built for Australians and supports local categories, merchants, and money management needs.",
+      "MyAiBank includes AI-powered budgeting, a cash flow dashboard, spending analytics with category breakdowns, automatic subscription and bill detection, an AI financial assistant you can ask questions, transaction search and filtering, and privacy-first data handling.",
+  },
+  {
+    question: "Can I try MyAiBank before signing up?",
+    answer:
+      "Yes. Our demo mode lets you explore the full experience with realistic sample data — including the AI assistant, spending insights, and subscription detection — so you can see the value before connecting your accounts.",
   },
   {
     question: "Is MyAiBank a bank?",
     answer:
-      "No. MyAiBank is a money management and spending tracker app. We do not hold funds or provide banking services.",
+      "No. MyAiBank is an AI finance app for money management and spending tracking. We do not hold funds, issue cards, or provide banking services. We help you understand and manage the money you already have.",
+  },
+  {
+    question: "Will MyAiBank be available in the USA and UK?",
+    answer:
+      "Yes. We are planning to expand MyAiBank to the USA and UK, bringing our AI budgeting and money management tools to users in those markets. Stay tuned for launch announcements.",
   },
 ]
 
@@ -63,14 +75,14 @@ export default function WhatWeDoPage() {
           href="/"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
-          <span aria-hidden="true">←</span>
+          <span aria-hidden="true">&larr;</span>
           <span>Back</span>
         </Link>
 
         <div className="flex justify-center mb-8">
           <Image
             src="/logo.jpeg"
-            alt="MyAiBank"
+            alt="MyAiBank — AI money manager and budgeting app"
             width={72}
             height={72}
             className="rounded-2xl"
@@ -78,11 +90,12 @@ export default function WhatWeDoPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-foreground text-center mb-3 text-balance">
-          Learn what MyAiBank does
+          Your AI money manager for smarter budgeting
         </h1>
         <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10 text-pretty">
-          MyAiBank turns your transactions into clear insights. Track spending, find subscriptions, and ask our AI
-          financial assistant questions about where your money goes.
+          MyAiBank is an AI finance app that turns your transactions into clear insights.
+          Track spending, manage cash flow, detect subscriptions, and ask our AI financial
+          assistant anything about your money. Built for Australia — launching soon in the USA and UK.
         </p>
 
         <section className="space-y-8 mb-10">
@@ -91,31 +104,75 @@ export default function WhatWeDoPage() {
               AI budgeting that understands your spending
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              See categories, trends, and monthly summaries automatically. Identify overspending and set simple
-              targets that fit your lifestyle.
+              Our AI budgeting app automatically categorises every transaction, highlights
+              spending patterns, and builds monthly summaries. Identify where you overspend
+              and set simple targets that fit your lifestyle.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-card border border-border">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Subscription and bill detection</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Cash flow dashboard and spending analytics
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Find recurring charges fast and see what they cost over time so you can cancel or negotiate.
+              See your income, expenses, and net cash flow at a glance. Break down spending
+              by category, track trends over time, and understand exactly where your money goes
+              each month with our AI money tracker.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-card border border-border">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Ask questions with the AI financial assistant</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Subscription and bill detection
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Ask “What did I spend on food last month?” or “Show my biggest merchants.” The assistant reads your
-              transactions to answer with clear numbers.
+              Automatically find recurring charges, subscriptions, and bills. See what each
+              costs over time so you can cancel unused services, negotiate better rates, or
+              plan ahead for upcoming payments.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-card border border-border">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Built for privacy</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              AI financial assistant — ask anything about your money
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Your data is used to generate insights and answers. We minimise access and never share your
-              information.
+              Ask &ldquo;What did I spend on food last month?&rdquo; or &ldquo;Show my biggest
+              merchants.&rdquo; Our AI financial assistant reads your transactions and
+              answers with real numbers, category breakdowns, and actionable insights.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Transaction search and smart categorisation
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Search, filter, and review every transaction. Our AI automatically assigns
+              categories to merchants so you always know what you spent and where — no
+              manual tagging needed.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Built for privacy and security
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Your financial data is used only to generate insights and answers for you.
+              We minimise data access, use bank-grade encryption, and never sell or share
+              your information with third parties.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-card border border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Available in Australia — expanding to the USA and UK
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              MyAiBank is designed for Australian users with support for local banks,
+              merchants, and AUD formatting. We are planning to launch in the USA and
+              UK soon, bringing AI-powered money management to more users worldwide.
             </p>
           </div>
         </section>

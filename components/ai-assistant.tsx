@@ -16,12 +16,13 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useAppData } from "@/contexts/app-data-context"
+import { normalizeTransactions } from "@/lib/transactions-provider"
 
 const suggestedQuestions = [
-  "How can I save more money?",
-  "Explain the 50/30/20 budget rule",
-  "What subscriptions should I cancel?",
-  "Help me create a budget",
+  "What are my top spending categories?",
+  "How much did I spend on dining?",
+  "Show my biggest expenses this month",
+  "Do I have any recurring subscriptions?",
 ]
 
 const DEMO_AI_LIMIT = 3
@@ -79,61 +80,26 @@ export function AIAssistant() {
   }, [])
 
   const aiContext = useMemo(() => {
-    const normalizedTransactions = transactions.map((t) => ({
-      date: t.transaction_date,
-      amount: Number(t.amount),
-      merchant: t.merchant_name ?? t.description ?? "Unknown",
-      description: t.description ?? "",
-      category: t.category ?? t.merchant_category ?? "uncategorized",
-      isSubscription: t.is_subscription,
-    }))
-
-    const income = normalizedTransactions
-      .filter((t) => t.amount > 0)
-      .reduce((sum, t) => sum + t.amount, 0)
-    const expenses = Math.abs(
-      normalizedTransactions
-        .filter((t) => t.amount < 0)
-        .reduce((sum, t) => sum + t.amount, 0)
-    )
-
-    const byCategory = normalizedTransactions.reduce<Record<string, number>>((acc, t) => {
-      if (t.amount >= 0) return acc
-      acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount)
-      return acc
-    }, {})
-
-    const byMerchant = normalizedTransactions.reduce<Record<string, number>>((acc, t) => {
-      if (t.amount >= 0) return acc
-      acc[t.merchant] = (acc[t.merchant] || 0) + Math.abs(t.amount)
-      return acc
-    }, {})
-
-    const subscriptions = normalizedTransactions.filter((t) => t.isSubscription)
-
-    return {
-      totals: {
-        income,
-        expenses,
-        net: income - expenses,
-      },
-      byCategory,
-      byMerchant,
-      subscriptions,
-      transactions: normalizedTransactions,
-    }
+    const normalized = normalizeTransactions(transactions)
+    return { transactions: normalized }
   }, [transactions])
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
     body: {
       context: aiContext,
+      assistantParams: {
+        tone: "advisor",
+        verbosity: "normal",
+        riskSensitivity: "medium",
+        locale: "AU",
+      },
     },
     initialMessages: [
       {
         id: "welcome",
         role: "assistant",
-        parts: [{ type: "text", text: "Hi! I'm your AI Financial Assistant. I can help you analyze your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
+        parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
       },
     ],
   })

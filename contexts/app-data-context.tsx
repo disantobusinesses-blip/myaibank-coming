@@ -249,7 +249,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         .from("bank_accounts")
         .select("*")
         .eq("user_id", user.id)
-        .order("is_primary", { ascending: false })
+        .order("created_at", { ascending: true })
 
       if (accountsError) throw accountsError
       setAccounts(accountsData || [])
