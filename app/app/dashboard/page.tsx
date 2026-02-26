@@ -6,6 +6,7 @@ import { CashflowChart } from "@/components/dashboard/cashflow-chart"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 import { SyncStatusBanner } from "@/components/dashboard/sync-status-banner"
+import FloatingLines from "@/components/FloatingLines"
 import { 
   Wallet, 
   TrendingUp, 
@@ -41,7 +42,25 @@ export default function DashboardPage() {
   const firstName = isDemoMode ? "Demo User" : (profile?.first_name || user?.email?.split("@")[0] || "there")
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="relative min-h-full overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 z-0">
+        <FloatingLines
+          linesGradient={['#180D27', '#2d1b69', '#6b21a8', '#8b5cf6', '#E947F5']}
+          enabledWaves={['top', 'middle', 'bottom']}
+          lineCount={[8, 10, 6]}
+          lineDistance={[5, 4, 6]}
+          animationSpeed={0.6}
+          interactive={true}
+          bendRadius={4.0}
+          bendStrength={-0.4}
+          parallax={true}
+          parallaxStrength={0.15}
+          mixBlendMode="normal"
+        />
+      </div>
+
+      <div className="relative z-10 p-4 lg:p-6 space-y-6 max-w-4xl mx-auto">
       {/* Demo Mode Banner */}
       {isDemoMode && (
         <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
@@ -165,6 +184,7 @@ export default function DashboardPage() {
           <RecentTransactions transactions={transactions.slice(0, 5)} />
         </>
       )}
+      </div>
     </div>
   )
 }
