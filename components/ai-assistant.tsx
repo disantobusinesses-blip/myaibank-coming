@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { Button } from "@/components/ui/button"
@@ -15,12 +15,14 @@ import {
   AlertCircle
 } from "lucide-react"
 import Link from "next/link"
+import { useAppData } from "@/contexts/app-data-context"
+import { normalizeTransactions } from "@/lib/transactions-provider"
 
 const suggestedQuestions = [
-  "How can I save more money?",
-  "Explain the 50/30/20 budget rule",
-  "What subscriptions should I cancel?",
-  "Help me create a budget",
+  "What are my top spending categories?",
+  "How much did I spend on dining?",
+  "Show my biggest expenses this month",
+  "Do I have any recurring subscriptions?",
 ]
 
 const DEMO_AI_LIMIT = 3
@@ -64,6 +66,7 @@ export function AIAssistant() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [demoAiCount, setDemoAiCount] = useState(0)
   const [demoLimitReached, setDemoLimitReached] = useState(false)
+  const { transactions } = useAppData()
 
   // Check demo mode on mount
   useEffect(() => {
@@ -76,13 +79,27 @@ export function AIAssistant() {
     }
   }, [])
 
+  const aiContext = useMemo(() => {
+    const normalized = normalizeTransactions(transactions)
+    return { transactions: normalized }
+  }, [transactions])
+
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
+    body: {
+      context: aiContext,
+      assistantParams: {
+        tone: "advisor",
+        verbosity: "normal",
+        riskSensitivity: "medium",
+        locale: "AU",
+      },
+    },
     initialMessages: [
       {
         id: "welcome",
         role: "assistant",
-        parts: [{ type: "text", text: "Hi! I'm your AI financial assistant. I can help you analyze your spending, create budgets, and provide general financial guidance. How can I help you today?" }],
+        parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
       },
     ],
   })
@@ -130,7 +147,7 @@ export function AIAssistant() {
         className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 ${
           isOpen ? "hidden" : "flex"
         }`}
-        aria-label="Open AI Assistant"
+        aria-label="Open AI Financial Assistant"
       >
         <Sparkles className="w-6 h-6" />
       </button>
@@ -145,8 +162,8 @@ export function AIAssistant() {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">AI Assistant</h3>
-                <p className="text-xs text-white/70">Powered by AI</p>
+                <h3 className="font-semibold text-white">AI Financial Assistant</h3>
+                <p className="text-xs text-white/70">Powered by MyAiBank</p>
               </div>
             </div>
             <button
@@ -229,7 +246,7 @@ export function AIAssistant() {
                 <div className="flex-1">
                   <p className="text-sm font-medium text-amber-800">Demo limit reached</p>
                   <p className="text-xs text-amber-700 mt-0.5">
-                    Sign up to continue using the AI assistant with unlimited questions.
+                    Sign up to continue using the AI Financial Assistant with unlimited questions.
                   </p>
                   <Link
                     href="/signup"

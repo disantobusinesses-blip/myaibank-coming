@@ -1,46 +1,60 @@
 import { NextRequest, NextResponse } from "next/server"
+import Stripe from "stripe"
 
 // ENV VARS needed:
 // - STRIPE_SECRET_KEY
-// - SUPABASE_URL
-// - SUPABASE_SERVICE_ROLE_KEY
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, userId } = await request.json()
-
-    if (!sessionId || !userId) {
+    const stripeKey = process.env.STRIPE_SECRET_KEY
+    if (!stripeKey) {
       return NextResponse.json(
-        { error: "Session ID and User ID are required" },
+        { error: "Stripe not configured" },
+        { status: 500 }
+      )
+    }
+
+    const { sessionId } = await request.json()
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: "Session ID is required" },
         { status: 400 }
       )
     }
 
-    // In production, this would:
-    // 1. Verify the Stripe session
-    // 2. Get subscription details
-    // 3. Update user's subscription status in database
+    const stripe = new Stripe(stripeKey)
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["subscription"],
+    })
 
-    // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-    // const session = await stripe.checkout.sessions.retrieve(sessionId)
-    // if (session.payment_status !== 'paid') {
-    //   return NextResponse.json({ error: 'Payment not completed' }, { status: 400 })
-    // }
+    if (session.status !== "complete") {
+      return NextResponse.json(
+        { error: "Checkout session is not complete" },
+        { status: 400 }
+      )
+    }
 
-    // Mock response
+    const subscription = session.subscription as Stripe.Subscription | null
+
     return NextResponse.json({
       success: true,
       subscription: {
-        id: `sub_${Date.now()}`,
-        status: "active",
+        id: subscription?.id ?? null,
+        status: subscription?.status ?? "trialing",
         plan: "pro",
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        trialEnd: subscription?.trial_end
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null,
+        currentPeriodEnd: subscription?.current_period_end
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null,
       },
     })
   } catch (error) {
-    console.error("Error activating subscription:", error)
+    console.error("Error verifying subscription:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to verify subscription" },
       { status: 500 }
     )
   }

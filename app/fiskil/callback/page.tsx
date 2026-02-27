@@ -1,17 +1,20 @@
 "use client"
 
 import { Suspense, useEffect, useMemo, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import Image from "next/image"
 import { useAuth } from "@/contexts/auth-context"
+import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 
 function FiskilCallbackInner() {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { user, updateProfile } = useAuth()
+  const { user, profile, loading, updateProfile } = useAuth()
   const [status, setStatus] = useState<"pending" | "success" | "error">("pending")
   const [message, setMessage] = useState<string>("Confirming your bank connection...")
+  const [hasRun, setHasRun] = useState(false)
 
   const endUserId = useMemo(() => {
     // Accept common variations
@@ -24,6 +27,11 @@ function FiskilCallbackInner() {
   }, [searchParams])
 
   useEffect(() => {
+    // Wait for auth to finish loading before doing anything
+    if (loading) return
+    // Prevent double execution
+    if (hasRun) return
+
     const finalize = async () => {
       try {
         if (!user) {
@@ -74,7 +82,20 @@ function FiskilCallbackInner() {
 
         setStatus("success")
         setMessage("Connection confirmed. Redirecting you to your dashboard...")
-        setTimeout(() => router.replace("/app/dashboard"), 900)
+
+        // Use routing guard to determine next destination
+        const state = buildRoutingState({
+          loading: false,
+          user,
+          profile: {
+            ...(profile ?? {}),
+            has_bank_connection: true,
+            is_onboarded: true,
+          },
+          demoMode: false,
+        })
+        const dest = getNextRoute(state, pathname) ?? "/app/dashboard"
+        setTimeout(() => router.replace(dest), 900)
       } catch (err: any) {
         setStatus("error")
         setMessage(err?.message || "Unable to confirm your connection.")
@@ -82,9 +103,10 @@ function FiskilCallbackInner() {
       }
     }
 
+    setHasRun(true)
     finalize()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, endUserId])
+  }, [user, loading, hasRun, endUserId])
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
