@@ -13,6 +13,8 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
             <span className="font-semibold text-sm" style={{ color: '#180D27' }}>MyAiBank</span>
           </Link>
           <span style={{ color: '#ccc' }}>|</span>
+          <Link href="/blog" className="text-xs hover:underline" style={{ color: '#666' }}>Blog</Link>
+          <span style={{ color: '#ccc' }}>|</span>
           <Link href="/what-we-do" className="text-xs hover:underline" style={{ color: '#666' }}>Learn More</Link>
         </div>
       </header>

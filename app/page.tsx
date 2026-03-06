@@ -190,14 +190,23 @@ export default function WelcomePage() {
           </Button>
         </div>
 
-        {/* What We Do Link */}
-        <Link
-          href="/what-we-do"
-          className="mt-6 text-sm transition-colors underline underline-offset-4"
-          style={{ color: '#180D27' }}
-        >
-          Learn what we do
-        </Link>
+        {/* What We Do & Blog Links */}
+        <div className="flex items-center gap-4 mt-6">
+          <Link
+            href="/what-we-do"
+            className="text-sm transition-colors underline underline-offset-4"
+            style={{ color: '#180D27' }}
+          >
+            Learn what we do
+          </Link>
+          <Link
+            href="/blog"
+            className="text-sm transition-colors underline underline-offset-4"
+            style={{ color: '#180D27' }}
+          >
+            Blog
+          </Link>
+        </div>
       </div>
 
       {/* Legal Footer */}
