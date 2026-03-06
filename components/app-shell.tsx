@@ -85,6 +85,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("myaibank_demo_mode")
       sessionStorage.removeItem("mab_demo_ai_count")
+      // Clear the demo mode cookie so the homepage doesn't redirect back
+      document.cookie = "myaibank_demo_mode=; path=/; max-age=0; SameSite=Lax"
     }
     setIsDemoMode(false)
     router.push("/")
