@@ -28,6 +28,18 @@ export function LegalFooter() {
         <p className="mt-2">
           ABN 38 693 023 371 | support@myaibank.ai
         </p>
+        <p className="mt-2" style={{ color: '#999' }}>
+          Built by{" "}
+          <a
+            href="https://intelligentaisystem.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+            style={{ color: '#999' }}
+          >
+            Intelligent AI Systems
+          </a>
+        </p>
       </footer>
 
       <LegalModal type="terms" open={termsOpen} onOpenChange={setTermsOpen} />
