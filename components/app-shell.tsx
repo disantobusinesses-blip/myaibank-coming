@@ -156,7 +156,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </aside>
 
           {/* Mobile Header & Bottom Nav */}
-          <div className="flex-1 flex flex-col min-h-screen">
+          <div className="flex-1 flex flex-col min-h-screen min-w-0">
             {/* Mobile Header */}
             <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
               <Link href="/app/dashboard" className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Main Content */}
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 overflow-x-hidden">{children}</main>
 
             {/* AI Assistant */}
             <AIAssistant />
