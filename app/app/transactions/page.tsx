@@ -31,11 +31,14 @@ function getCategoryColor(category: string | null): string {
   return categoryColors[category.toLowerCase()] || defaultColor
 }
 
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+function titleCase(str: string): string {
+  return str
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 }
 
-const categories = ["All", "Groceries", "Income", "Entertainment", "Dining", "Transport", "Housing", "Subscriptions", "Utilities", "Health", "Shopping"]
+const categories = ["All", "Groceries", "Income", "Dining", "Transport", "Housing", "Subscriptions", "Utilities", "Health", "Shopping", "Entertainment", "Insurance", "Travel", "Home", "Pets", "Charity"]
 
 export default function TransactionsPage() {
   const { transactions, connected } = useAppData()
@@ -114,7 +117,7 @@ export default function TransactionsPage() {
                 <div
                   className={`px-2 py-1 rounded-lg text-xs font-medium ${getCategoryColor(transaction.category)}`}
                 >
-                  {transaction.category ? capitalize(transaction.category) : "Other"}
+                  {transaction.category ? titleCase(transaction.category) : "Other"}
                 </div>
                 <div className="min-w-0">
                   <p className="font-medium text-foreground break-words">

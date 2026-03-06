@@ -34,8 +34,11 @@ function getCategoryColor(category: string | null): string {
   return categoryColors[category.toLowerCase()] || defaultColor
 }
 
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+function titleCase(str: string): string {
+  return str
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 }
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
@@ -62,7 +65,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
               <div
                 className={`px-2 py-1 rounded-lg text-xs font-medium ${getCategoryColor(transaction.category)}`}
               >
-                {transaction.category ? capitalize(transaction.category) : "Other"}
+                {transaction.category ? titleCase(transaction.category) : "Other"}
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">
