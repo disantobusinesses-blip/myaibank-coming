@@ -79,7 +79,11 @@ export default function BlogIndexPage() {
                 className="text-xl font-semibold mb-1"
                 style={{ color: "#180D27" }}
               >
-                {post?.title ?? slug.replace(/-/g, " ")}
+                {post?.title ??
+                  slug
+                    .split("-")
+                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(" ")}
               </h2>
               {post?.description && (
                 <p className="text-sm leading-relaxed" style={{ color: "#666" }}>
