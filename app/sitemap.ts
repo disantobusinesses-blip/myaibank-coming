@@ -1,7 +1,27 @@
 import type { MetadataRoute } from "next"
+import fs from "fs"
+import path from "path"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://myaibank.ai"
+
+  // Dynamically discover blog posts by reading the app/blog directory
+  const blogDir = path.join(process.cwd(), "app", "blog")
+  const blogSlugs = fs
+    .readdirSync(blogDir, { withFileTypes: true })
+    .filter(
+      (entry) =>
+        entry.isDirectory() &&
+        fs.existsSync(path.join(blogDir, entry.name, "page.tsx"))
+    )
+    .map((entry) => entry.name)
+
+  const blogEntries: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
+    url: `${baseUrl}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }))
 
   return [
     {
@@ -16,42 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/blog/ai-budget-tracking`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/ai-spending-insights`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/ai-transaction-categorisation`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/financial-health-score`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/subscription-detection`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/mortgage-rate-alerts`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+    ...blogEntries,
     {
       url: `${baseUrl}/login`,
       lastModified: new Date(),
