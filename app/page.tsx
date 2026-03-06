@@ -39,9 +39,16 @@ export default function WelcomePage() {
 
   // Show floating CTA after scrolling ~40% down
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)
-      setShowFloatingCta(scrollPercent >= 0.4)
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const denominator = document.documentElement.scrollHeight - window.innerHeight
+        const scrollPercent = denominator > 0 ? window.scrollY / denominator : 0
+        setShowFloatingCta(scrollPercent >= 0.4)
+        ticking = false
+      })
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
