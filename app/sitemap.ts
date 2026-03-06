@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const blogEntries: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
     url: `${baseUrl}/blog/${slug}`,
-    lastModified: new Date(),
+    lastModified: fs.statSync(path.join(blogDir, slug, "page.tsx")).mtime,
     changeFrequency: "monthly",
     priority: 0.7,
   }))
