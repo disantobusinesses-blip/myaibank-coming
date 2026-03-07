@@ -167,7 +167,7 @@ export default function WhatWeDoPage() {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {tile.description}
               </p>
-              <span className="text-xs mt-2 inline-block" style={{ color: '#180D27' }}>
+              <span className="text-xs mt-2 inline-block text-muted-foreground">
                 Read more →
               </span>
             </Link>
