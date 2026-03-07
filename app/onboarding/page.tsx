@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
@@ -100,12 +99,7 @@ export default function OnboardingPage() {
       <div className="flex-1 flex flex-col px-6 py-8 max-w-md mx-auto w-full">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank"
-            width={120}
-            height={52}
-          />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {/* Header */}

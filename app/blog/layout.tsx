@@ -1,6 +1,5 @@
 import { LegalFooter } from "@/components/legal-footer"
 import Link from "next/link"
-import Image from "next/image"
 import type { ReactNode } from "react"
 
 export default function BlogLayout({ children }: { children: ReactNode }) {
@@ -9,13 +8,7 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
       <header className="px-6 py-4 border-b" style={{ borderColor: '#e5e5e5' }}>
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/mab-logo-white.svg"
-              alt="MyAiBank"
-              width={72}
-              height={30}
-              style={{ filter: 'invert(1)' }}
-            />
+            <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
           </Link>
           <span style={{ color: '#ccc' }}>|</span>
           <Link href="/blog" className="text-xs hover:underline" style={{ color: '#666' }}>Blog</Link>

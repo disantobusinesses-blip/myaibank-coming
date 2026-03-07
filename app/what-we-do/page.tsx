@@ -1,7 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
+import { SplitText } from "@/components/split-text"
+import { AnimatedContent } from "@/components/animated-content"
 
 export const metadata = {
   title: "AI Money Manager Australia | AI Budgeting App & Finance Tracker — MyAiBank",
@@ -137,61 +138,69 @@ export default function WhatWeDoPage() {
         </Link>
 
         <div className="flex justify-center mb-8">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank — AI money manager and budgeting app"
-            width={120}
-            height={52}
-          />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         <h1 className="text-3xl font-bold text-foreground text-center mb-3 text-balance">
-          Your AI money manager for smarter budgeting
+          <SplitText
+            text="Your AI money manager for smarter budgeting"
+            charDelay={20}
+            startDelay={100}
+          />
         </h1>
-        <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10 text-pretty">
-          MyAiBank is an AI finance app that turns your transactions into clear insights.
-          Track spending, manage cash flow, detect subscriptions, and ask our AI financial
-          assistant anything about your money. Built for Australia — launching soon in the USA and UK.
-        </p>
+        <AnimatedContent animation="fade-up" delay={200}>
+          <p className="text-muted-foreground text-center text-lg leading-relaxed mb-10 text-pretty">
+            MyAiBank is an AI finance app that turns your transactions into clear insights.
+            Track spending, manage cash flow, detect subscriptions, and ask our AI financial
+            assistant anything about your money. Built for Australia — launching soon in the USA and UK.
+          </p>
+        </AnimatedContent>
 
         <section className="space-y-8 mb-10">
-          {featureTiles.map((tile) => (
-            <Link
-              key={tile.title}
-              href={tile.href}
-              className="block p-5 rounded-2xl bg-card border border-border hover:border-[#180D27]/30 transition-colors"
-            >
-              <h2 className="text-xl font-semibold text-foreground mb-2">
-                {tile.title}
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {tile.description}
-              </p>
-              <span className="text-xs mt-2 inline-block text-muted-foreground">
-                Read more →
-              </span>
-            </Link>
+          {featureTiles.map((tile, index) => (
+            <AnimatedContent key={tile.title} animation="fade-up" delay={100 + index * 50}>
+              <Link
+                href={tile.href}
+                className="block p-5 rounded-2xl bg-card border border-border hover:border-[#180D27]/30 transition-colors"
+              >
+                <h2 className="text-xl font-semibold text-foreground mb-2">
+                  {tile.title}
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {tile.description}
+                </p>
+                <span className="text-xs mt-2 inline-block text-muted-foreground">
+                  Read more →
+                </span>
+              </Link>
+            </AnimatedContent>
           ))}
         </section>
 
         <section className="mb-10">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Frequently asked questions</h2>
+          <AnimatedContent animation="fade-up" delay={0}>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Frequently asked questions</h2>
+          </AnimatedContent>
           <div className="space-y-4">
-            {faqItems.map((item) => (
-              <div key={item.question} className="p-4 rounded-2xl bg-card border border-border">
-                <h3 className="font-medium text-foreground mb-2">{item.question}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
-              </div>
+            {faqItems.map((item, index) => (
+              <AnimatedContent key={item.question} animation="fade-up" delay={80 + index * 50}>
+                <div className="p-4 rounded-2xl bg-card border border-border">
+                  <h3 className="font-medium text-foreground mb-2">{item.question}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
+                </div>
+              </AnimatedContent>
             ))}
           </div>
         </section>
 
-        <Button
-          asChild
-          className="w-full h-14 rounded-2xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold text-base"
-        >
-          <Link href="/signup">Get Started</Link>
-        </Button>
+        <AnimatedContent animation="fade-up" delay={100}>
+          <Button
+            asChild
+            className="w-full h-14 rounded-2xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold text-base"
+          >
+            <Link href="/signup">Get Started</Link>
+          </Button>
+        </AnimatedContent>
       </div>
 
       <LegalFooter />

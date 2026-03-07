@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AlertCircle, ArrowLeft } from "lucide-react"
@@ -28,13 +27,7 @@ function AuthErrorContent() {
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-md mx-auto w-full">
         {/* Logo */}
-        <Image
-          src="/mab-logo-white.svg"
-          alt="MyAiBank"
-          width={120}
-          height={52}
-          className="mb-8"
-        />
+        <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
 
         {/* Icon */}
         <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-6">

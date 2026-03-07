@@ -206,3 +206,154 @@
     animation: none;
   }
 }
+
+/* ─── Logo placeholder (blank; to be filled in later) ────────────────────── */
+.logo-placeholder {
+  display: inline-block;
+  background: transparent;
+}
+
+/* ─── Font weight utilities (Inter scale) ─────────────────────────────────── */
+.font-heading {
+  font-family: var(--font-sans);
+  font-weight: 600; /* semi-bold */
+}
+.font-subheading {
+  font-family: var(--font-sans);
+  font-weight: 500; /* medium */
+}
+.font-body {
+  font-family: var(--font-sans);
+  font-weight: 400; /* regular */
+}
+.font-number {
+  font-family: var(--font-sans);
+  font-weight: 500; /* medium */
+  letter-spacing: -0.03em; /* tracking-tight */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Aurora background ───────────────────────────────────────────────────── */
+.aurora-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+}
+
+/* Blob 1 — top-left, deep indigo */
+.aurora-blob-1 {
+  width: 60vw;
+  height: 60vw;
+  max-width: 520px;
+  max-height: 520px;
+  top: -15%;
+  left: -20%;
+  background: radial-gradient(ellipse at center, #1F0051 0%, transparent 70%);
+  animation: aurora-drift-1 18s ease-in-out infinite alternate;
+}
+
+/* Blob 2 — bottom-right, violet */
+.aurora-blob-2 {
+  width: 55vw;
+  height: 55vw;
+  max-width: 460px;
+  max-height: 460px;
+  bottom: -10%;
+  right: -15%;
+  background: radial-gradient(ellipse at center, #2d1b69 0%, transparent 70%);
+  animation: aurora-drift-2 22s ease-in-out infinite alternate;
+}
+
+/* Blob 3 — center, subtle purple highlight */
+.aurora-blob-3 {
+  width: 40vw;
+  height: 40vw;
+  max-width: 360px;
+  max-height: 360px;
+  top: 30%;
+  left: 35%;
+  background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.18) 0%, transparent 70%);
+  animation: aurora-drift-3 14s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(6%, 8%) scale(1.08); }
+  100% { transform: translate(-4%, 4%) scale(0.96); }
+}
+
+@keyframes aurora-drift-2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-8%, -6%) scale(1.1); }
+  100% { transform: translate(4%, -3%) scale(0.94); }
+}
+
+@keyframes aurora-drift-3 {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.35; }
+  50%  { transform: translate(-5%, 6%) scale(1.15); opacity: 0.55; }
+  100% { transform: translate(5%, -4%) scale(0.9); opacity: 0.3; }
+}
+
+/* ─── SplitText ───────────────────────────────────────────────────────────── */
+.split-text-wrapper {
+  display: inline;
+}
+
+.split-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.35em);
+  animation: split-char-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-play-state: paused;
+}
+
+@keyframes split-char-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── AnimatedContent ─────────────────────────────────────────────────────── */
+.animated-content {
+  opacity: 0;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.animated-content--fade-up    { transform: translateY(24px); }
+.animated-content--fade-in    { transform: none; }
+.animated-content--fade-left  { transform: translateX(24px); }
+.animated-content--fade-right { transform: translateX(-24px); }
+
+.animated-content--visible {
+  opacity: 1;
+  transform: none !important;
+}
+
+/* ─── CountUp ─────────────────────────────────────────────────────────────── */
+.count-up {
+  display: inline-block;
+}
+
+/* ─── Reduced motion overrides ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .split-char,
+  .animated-content {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

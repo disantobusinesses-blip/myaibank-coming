@@ -4,6 +4,8 @@ import { useState, useMemo } from "react"
 import { useAppData } from "@/contexts/app-data-context"
 import { Input } from "@/components/ui/input"
 import { Search, Filter } from "lucide-react"
+import { AnimatedContent } from "@/components/animated-content"
+import { SplitText } from "@/components/split-text"
 
 const categoryColors: Record<string, string> = {
   groceries: "bg-[#22c55e]/20 text-[#22c55e]",
@@ -70,82 +72,92 @@ export default function TransactionsPage() {
 
   return (
     <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Transactions</h1>
+      <AnimatedContent animation="fade-up" delay={0}>
+        <h1 className="text-2xl font-bold text-foreground">
+          <SplitText text="Transactions" charDelay={40} />
+        </h1>
+      </AnimatedContent>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          placeholder="Search transactions..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 h-12 rounded-xl bg-input border-border"
-        />
-      </div>
+      <AnimatedContent animation="fade-up" delay={60}>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            placeholder="Search transactions..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 h-12 rounded-xl bg-input border-border"
+          />
+        </div>
+      </AnimatedContent>
 
       {/* Category Filter */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-        <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              selectedCategory === category
-                ? "bg-[#1F0051] text-white"
-                : "bg-secondary text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+      <AnimatedContent animation="fade-up" delay={100}>
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === category
+                  ? "bg-[#1F0051] text-white"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </AnimatedContent>
 
       {/* Transactions List */}
-      <div className="rounded-2xl bg-card border border-border divide-y divide-border">
-        {filteredTransactions.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-muted-foreground">No transactions found</p>
-          </div>
-        ) : (
-          filteredTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`px-2 py-1 rounded-lg text-xs font-medium ${getCategoryColor(transaction.category)}`}
-                >
-                  {transaction.category ? titleCase(transaction.category) : "Other"}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground break-words">
-                    {transaction.description}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(transaction.transaction_date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
-              <p
-                className={`font-semibold sm:text-right ${
-                  transaction.amount > 0 ? "text-[#22c55e]" : "text-foreground"
-                }`}
-              >
-                {transaction.amount > 0 ? "+" : ""}
-                ${Math.abs(transaction.amount).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                })}
-              </p>
+      <AnimatedContent animation="fade-up" delay={140}>
+        <div className="rounded-2xl bg-card border border-border divide-y divide-border">
+          {filteredTransactions.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-muted-foreground">No transactions found</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            filteredTransactions.map((transaction) => (
+              <div
+                key={transaction.id}
+                className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`px-2 py-1 rounded-lg text-xs font-medium ${getCategoryColor(transaction.category)}`}
+                  >
+                    {transaction.category ? titleCase(transaction.category) : "Other"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground break-words">
+                      {transaction.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(transaction.transaction_date).toLocaleDateString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <p
+                  className={`font-semibold sm:text-right ${
+                    transaction.amount > 0 ? "text-[#22c55e]" : "text-foreground"
+                  }`}
+                >
+                  {transaction.amount > 0 ? "+" : ""}
+                  ${Math.abs(transaction.amount).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </AnimatedContent>
     </div>
   )
 }

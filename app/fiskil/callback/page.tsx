@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import Image from "next/image"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { CheckCircle, XCircle, Loader2 } from "lucide-react"
@@ -112,7 +111,7 @@ function FiskilCallbackInner() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm text-center">
         <div className="flex justify-center mb-6">
-          <Image src="/mab-logo-white.svg" alt="MyAiBank" width={120} height={52} />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {status === "pending" && (

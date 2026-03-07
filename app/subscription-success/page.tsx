@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState, ROUTES } from "@/lib/routing"
@@ -127,13 +126,7 @@ function SubscriptionSuccessInner() {
 
         {/* Logo */}
         <div className="mb-6">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank"
-            width={80}
-            height={34}
-            className="mx-auto"
-          />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {/* Text */}

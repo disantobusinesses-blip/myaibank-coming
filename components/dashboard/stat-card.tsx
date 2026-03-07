@@ -3,6 +3,7 @@
 import React from "react"
 
 import { ArrowRight } from "lucide-react"
+import { CountUp } from "@/components/count-up"
 
 interface StatCardProps {
   title: string
@@ -53,8 +54,14 @@ export function StatCard({
         )}
       </div>
 
-      <p className={`text-2xl font-bold ${valueColor[variant]} mt-2`}>
-        ${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+      <p className={`text-2xl font-bold font-number ${valueColor[variant]} mt-2`}>
+        <CountUp
+          to={Math.abs(value)}
+          duration={2800}
+          formatter={(v) =>
+            `$${Math.round(v).toLocaleString()}`
+          }
+        />
       </p>
 
       {description && (
