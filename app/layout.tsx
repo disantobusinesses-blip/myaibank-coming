@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     apple: '/logo.jpeg',
   },
   openGraph: {
-    type: 'website',
-    siteName: 'MyAiBank',
-    locale: 'en_AU',
+    type: "website",
+    siteName: "MyAiBank",
+    locale: "en_AU",
   },
   twitter: {
-    card: 'summary',
+    card: "summary",
   },
 }
 
