@@ -41,6 +41,21 @@ const blogPosts: Record<string, { title: string; description: string }> = {
     description:
       "Find out how AI subscription detection automatically identifies recurring charges, unused subscriptions, and hidden costs draining your bank account.",
   },
+  "pay-off-home-loan-faster-australia": {
+    title: "How to Pay Off Your Home Loan Faster in Australia",
+    description:
+      "Practical strategies for paying off your Australian mortgage faster including extra repayments, fortnightly payments, offset accounts, and rate reviews.",
+  },
+  "how-to-save-money-fast-australia": {
+    title: "How to Save Money Fast in Australia With a Budget That Actually Works",
+    description:
+      "A practical guide to saving money fast in Australia with a budget that actually works. Track spending, cut waste, and automate savings.",
+  },
+  "save-for-house-deposit-faster-australia": {
+    title: "How to Save for a House Deposit Faster in Australia",
+    description:
+      "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
+  },
 }
 
 export default function BlogIndexPage() {
