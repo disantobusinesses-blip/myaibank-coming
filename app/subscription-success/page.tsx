@@ -128,11 +128,11 @@ function SubscriptionSuccessInner() {
         {/* Logo */}
         <div className="mb-6">
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank"
-            width={60}
-            height={60}
-            className="rounded-xl mx-auto"
+            width={80}
+            height={34}
+            className="mx-auto"
           />
         </div>
 

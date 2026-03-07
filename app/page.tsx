@@ -8,6 +8,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
+import { ShimmerButton } from "@/components/shimmer-button"
+import { GradientText } from "@/components/gradient-text"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import { ArrowRight, Sparkles, Shield, TrendingUp, Play } from "lucide-react"
@@ -72,14 +74,14 @@ export default function WelcomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#180030' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050508' }}>
         <div className="animate-pulse">
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank"
             width={80}
-            height={80}
-            className="rounded-2xl"
+            height={34}
+            className="opacity-80"
           />
         </div>
       </div>
@@ -87,29 +89,28 @@ export default function WelcomePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col safe-area-inset relative overflow-hidden" style={{ backgroundColor: '#180030' }}>
+    <main className="min-h-screen flex flex-col safe-area-inset relative overflow-hidden" style={{ backgroundColor: '#050508' }}>
       {/* Hero Section */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
-        {/* Logo with floating glow effect */}
+        {/* Logo with subtle purple glow */}
         <div
-          className="mb-8 rounded-3xl"
+          className="mb-8 pulse-glow rounded-2xl p-6"
           style={{
-            boxShadow: '0 0 80px 20px rgba(45, 27, 105, 0.5), 0 0 120px 40px rgba(139, 92, 246, 0.15)',
+            background: 'rgba(139, 92, 246, 0.06)',
           }}
         >
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank"
-            width={120}
-            height={120}
-            className="rounded-3xl"
+            width={140}
+            height={60}
             priority
           />
         </div>
 
-        {/* Welcome Text */}
+        {/* Welcome Text with gradient effect */}
         <h1 className="text-3xl font-bold text-center mb-3 text-balance text-white">
-          Welcome to MyAiBank
+          Welcome to <GradientText>MyAiBank</GradientText>
         </h1>
         <p className="text-center text-base leading-relaxed mb-10 text-pretty" style={{ color: 'rgba(255,255,255,0.65)' }}>
           AI-powered financial insights to help you budget smarter, track spending, and reach your goals.
@@ -134,21 +135,22 @@ export default function WelcomePage() {
           />
         </div>
 
-        {/* Primary CTA - Try Demo (most visually prominent) */}
+        {/* Primary CTA - Try Demo with shimmer effect */}
         <div className="w-full mb-4">
-          <button
+          <ShimmerButton
             onClick={handleDemoMode}
-            className="try-demo-btn w-full h-16 text-lg font-bold rounded-2xl flex items-center justify-center gap-2"
+            shimmerColor="rgba(139, 92, 246, 0.3)"
+            className="w-full h-16 text-lg font-bold rounded-2xl"
             style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #e8e0f0 100%)',
-              color: '#180D27',
-              boxShadow: '0 4px 24px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.15)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f0edf5 100%)',
+              color: '#0a0a0f',
+              boxShadow: '0 4px 24px rgba(139, 92, 246, 0.2), 0 0 40px rgba(139, 92, 246, 0.1)',
               transition: 'transform 220ms ease, box-shadow 220ms ease',
             }}
           >
             <Play className="w-5 h-5" />
             Try the MyAiBank Demo
-          </button>
+          </ShimmerButton>
           <p className="text-center text-sm mt-2" style={{ color: 'rgba(255,255,255,0.5)' }}>
             No signup required. See your AI financial dashboard instantly.
           </p>
@@ -212,19 +214,20 @@ export default function WelcomePage() {
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
           style={{ animation: 'fadeInUp 300ms ease forwards' }}
         >
-          <button
+          <ShimmerButton
             onClick={handleDemoMode}
-            className="try-demo-btn h-12 px-6 text-sm font-semibold rounded-full flex items-center gap-2"
+            shimmerColor="rgba(139, 92, 246, 0.3)"
+            className="h-12 px-6 text-sm font-semibold rounded-full"
             style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #e8e0f0 100%)',
-              color: '#180D27',
-              boxShadow: '0 4px 24px rgba(139, 92, 246, 0.4), 0 0 30px rgba(139, 92, 246, 0.2)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f0edf5 100%)',
+              color: '#0a0a0f',
+              boxShadow: '0 4px 24px rgba(139, 92, 246, 0.3), 0 0 30px rgba(139, 92, 246, 0.15)',
               transition: 'transform 220ms ease, box-shadow 220ms ease',
             }}
           >
             <Play className="w-4 h-4" />
             Try Demo
-          </button>
+          </ShimmerButton>
         </div>
       )}
     </main>

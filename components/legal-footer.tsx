@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { LegalModal } from "./legal-modal"
 
 export function LegalFooter({ variant = "light" }: { variant?: "light" | "dark" }) {
@@ -16,6 +17,16 @@ export function LegalFooter({ variant = "light" }: { variant?: "light" | "dark" 
         className="py-4 px-4 text-center text-xs"
         style={variant === "dark" ? { color: textColor } : undefined}
       >
+        {/* MAB Logo */}
+        <div className="flex justify-center mb-3">
+          <Image
+            src="/mab-logo-white.svg"
+            alt="MAB"
+            width={48}
+            height={20}
+            style={variant === "light" ? { filter: "invert(1)" } : { opacity: 0.5 }}
+          />
+        </div>
         <div className={`flex items-center justify-center gap-4 ${variant === "light" ? "text-muted-foreground" : ""}`}>
           <button
             onClick={() => setTermsOpen(true)}

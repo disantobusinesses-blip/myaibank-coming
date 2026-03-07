@@ -112,7 +112,7 @@ function FiskilCallbackInner() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm text-center">
         <div className="flex justify-center mb-6">
-          <Image src="/logo.jpeg" alt="MyAiBank" width={72} height={72} className="rounded-2xl" />
+          <Image src="/mab-logo-white.svg" alt="MyAiBank" width={120} height={52} />
         </div>
 
         {status === "pending" && (

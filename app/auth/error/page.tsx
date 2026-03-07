@@ -29,11 +29,11 @@ function AuthErrorContent() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-md mx-auto w-full">
         {/* Logo */}
         <Image
-          src="/logo.jpeg"
+          src="/mab-logo-white.svg"
           alt="MyAiBank"
-          width={72}
-          height={72}
-          className="rounded-2xl mb-8"
+          width={120}
+          height={52}
+          className="mb-8"
         />
 
         {/* Icon */}

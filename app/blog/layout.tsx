@@ -9,8 +9,13 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
       <header className="px-6 py-4 border-b" style={{ borderColor: '#e5e5e5' }}>
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.jpeg" alt="MyAiBank" width={36} height={36} className="rounded-lg" />
-            <span className="font-semibold text-sm" style={{ color: '#180D27' }}>MyAiBank</span>
+            <Image
+              src="/mab-logo-white.svg"
+              alt="MyAiBank"
+              width={72}
+              height={30}
+              style={{ filter: 'invert(1)' }}
+            />
           </Link>
           <span style={{ color: '#ccc' }}>|</span>
           <Link href="/blog" className="text-xs hover:underline" style={{ color: '#666' }}>Blog</Link>

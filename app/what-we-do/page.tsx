@@ -138,11 +138,10 @@ export default function WhatWeDoPage() {
 
         <div className="flex justify-center mb-8">
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank — AI money manager and budgeting app"
-            width={72}
-            height={72}
-            className="rounded-2xl"
+            width={120}
+            height={52}
           />
         </div>
 

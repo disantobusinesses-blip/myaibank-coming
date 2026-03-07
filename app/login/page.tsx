@@ -66,11 +66,10 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank"
-            width={72}
-            height={72}
-            className="rounded-2xl"
+            width={120}
+            height={52}
           />
         </div>
 
