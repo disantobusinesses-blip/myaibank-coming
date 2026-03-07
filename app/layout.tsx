@@ -9,12 +9,21 @@ import './globals.css'
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://myaibank.ai'),
   title: 'MyAiBank - AI-Powered Financial Management',
   description: 'AI-assisted budgeting, transaction insights, subscription tracking, and money-management tools.',
   generator: 'MyAiBank',
   icons: {
     icon: '/logo.jpeg',
     apple: '/logo.jpeg',
+  },
+  openGraph: {
+    type: "website",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
   },
 }
 

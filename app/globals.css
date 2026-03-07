@@ -151,3 +151,58 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Try Demo button hover effect */
+.try-demo-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 28px rgba(24, 13, 39, 0.45), 0 0 16px rgba(45, 27, 105, 0.25) !important;
+}
+
+/* Floating CTA slide-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ReactBits-inspired: Shimmer button highlight sweep */
+@keyframes shimmer-sweep {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+.shimmer-btn__highlight {
+  animation: shimmer-sweep 3s ease-in-out infinite;
+}
+
+/* ReactBits-inspired: Animated gradient text */
+@keyframes gradient-text-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-text-animated {
+  animation: gradient-text-flow 6s ease infinite;
+}
+
+/* ReactBits-inspired: Pulse glow for AI elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.35); }
+}
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-btn__highlight,
+  .gradient-text-animated,
+  .pulse-glow {
+    animation: none;
+  }
+}

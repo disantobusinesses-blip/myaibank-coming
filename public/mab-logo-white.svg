@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" fill="none">
+  <!-- M - geometric with sharp angles -->
+  <path d="M0 148V12h18l52 76 52-76h18v136h-24V52L72 120H60L16 52v96H0z" fill="white"/>
+  <!-- A - clean triangle with crossbar -->
+  <path d="M206 148l-56-136h26l43 106 43-106h26l-56 136h-26z" fill="white"/>
+  <rect x="190" y="96" width="76" height="16" rx="2" fill="white"/>
+  <!-- B - modern with rounded bowls -->
+  <path d="M320 12h52c28 0 44 14 44 36 0 16-10 28-26 32 18 4 30 18 30 36 0 24-18 40-48 40h-52V12zm24 56h26c14 0 22-8 22-20s-8-20-22-20h-26v40zm0 64h28c16 0 26-8 26-22s-10-22-26-22h-28v44z" fill="white"/>
+</svg>

@@ -67,11 +67,10 @@ export default function SubscribePage() {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image
-            src="/logo.jpeg"
+            src="/mab-logo-white.svg"
             alt="MyAiBank"
-            width={60}
-            height={60}
-            className="rounded-xl"
+            width={80}
+            height={34}
           />
         </div>
 

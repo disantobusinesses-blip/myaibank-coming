@@ -85,6 +85,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("myaibank_demo_mode")
       sessionStorage.removeItem("mab_demo_ai_count")
+      // Clear the demo mode cookie so the homepage doesn't redirect back
+      document.cookie = "myaibank_demo_mode=; path=/; max-age=0; SameSite=Lax"
     }
     setIsDemoMode(false)
     router.push("/")
@@ -104,18 +106,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {showLoading ? (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <Image src="/logo.jpeg" alt="MyAiBank" width={60} height={60} className="rounded-xl" />
+            <Image src="/mab-logo-white.svg" alt="MyAiBank" width={80} height={34} />
           </div>
         </div>
       ) : showApp ? (
         <div className="min-h-screen bg-background flex">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-sidebar">
-            {/* Logo */}
+            {/* Logo only - no text */}
             <div className="p-6 border-b border-sidebar-border">
-              <Link href="/app/dashboard" className="flex items-center gap-3">
-                <Image src="/logo.jpeg" alt="MyAiBank" width={40} height={40} className="rounded-xl" />
-                <span className="font-semibold text-lg text-sidebar-foreground">MyAiBank</span>
+              <Link href="/app/dashboard" className="flex items-center">
+                <Image src="/mab-logo-white.svg" alt="MyAiBank" width={100} height={42} />
               </Link>
             </div>
 
@@ -154,12 +155,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </aside>
 
           {/* Mobile Header & Bottom Nav */}
-          <div className="flex-1 flex flex-col min-h-screen">
-            {/* Mobile Header */}
+          <div className="flex-1 flex flex-col min-h-screen min-w-0">
+            {/* Mobile Header - logo only, no text */}
             <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
-              <Link href="/app/dashboard" className="flex items-center gap-2">
-                <Image src="/logo.jpeg" alt="MyAiBank" width={32} height={32} className="rounded-lg" />
-                <span className="font-semibold text-foreground">MyAiBank</span>
+              <Link href="/app/dashboard" className="flex items-center">
+                <Image src="/mab-logo-white.svg" alt="MyAiBank" width={80} height={34} />
               </Link>
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -215,7 +215,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Main Content */}
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 overflow-x-hidden">{children}</main>
 
             {/* AI Assistant */}
             <AIAssistant />
@@ -225,7 +225,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <Image src="/logo.jpeg" alt="MyAiBank" width={60} height={60} className="rounded-xl" />
+            <Image src="/mab-logo-white.svg" alt="MyAiBank" width={80} height={34} />
           </div>
         </div>
       )}
