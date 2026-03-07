@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "AI Budget Tracking for Australians | MyAiBank",
   description:
     "Learn how AI powered budget tracking helps Australians understand spending, reduce financial stress and improve savings habits.",
+  alternates: {
+    canonical: "/blog/ai-budget-tracking",
+  },
+  openGraph: {
+    title: "AI Budget Tracking for Australians | MyAiBank",
+    description:
+      "Learn how AI powered budget tracking helps Australians understand spending, reduce financial stress and improve savings habits.",
+    url: "/blog/ai-budget-tracking",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "AI Budget Tracking for Australians | MyAiBank",
+    description:
+      "Learn how AI powered budget tracking helps Australians understand spending, reduce financial stress and improve savings habits.",
+  },
 }
 
 export default function AIBudgetTrackingPage() {

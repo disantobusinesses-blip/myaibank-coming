@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "Mortgage Rate Alerts for Australians | MyAiBank",
   description:
     "Learn how AI mortgage rate alerts help Australians stay informed about interest rate changes and make better home loan decisions.",
+  alternates: {
+    canonical: "/blog/mortgage-rate-alerts",
+  },
+  openGraph: {
+    title: "Mortgage Rate Alerts for Australians | MyAiBank",
+    description:
+      "Learn how AI mortgage rate alerts help Australians stay informed about interest rate changes and make better home loan decisions.",
+    url: "/blog/mortgage-rate-alerts",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "Mortgage Rate Alerts for Australians | MyAiBank",
+    description:
+      "Learn how AI mortgage rate alerts help Australians stay informed about interest rate changes and make better home loan decisions.",
+  },
 }
 
 export default function MortgageRateAlertsPage() {

@@ -7,6 +7,24 @@ export const metadata: Metadata = {
   title: "Blog — AI Money Management Insights | MyAiBank",
   description:
     "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+  alternates: {
+    canonical: "/blog",
+  },
+  openGraph: {
+    title: "Blog — AI Money Management Insights | MyAiBank",
+    description:
+      "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+    url: "/blog",
+    type: "website",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "Blog — AI Money Management Insights | MyAiBank",
+    description:
+      "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+  },
 }
 
 /* Blog post metadata used to render the index cards */

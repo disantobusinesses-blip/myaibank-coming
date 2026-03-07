@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "Financial Health Score for Australians | MyAiBank",
   description:
     "Understand your financial health score and how AI analyses your income, spending, and savings habits to give you a clear picture of your financial wellbeing.",
+  alternates: {
+    canonical: "/blog/financial-health-score",
+  },
+  openGraph: {
+    title: "Financial Health Score for Australians | MyAiBank",
+    description:
+      "Understand your financial health score and how AI analyses your income, spending, and savings habits to give you a clear picture of your financial wellbeing.",
+    url: "/blog/financial-health-score",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "Financial Health Score for Australians | MyAiBank",
+    description:
+      "Understand your financial health score and how AI analyses your income, spending, and savings habits to give you a clear picture of your financial wellbeing.",
+  },
 }
 
 export default function FinancialHealthScorePage() {

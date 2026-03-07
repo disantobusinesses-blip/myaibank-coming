@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "AI Spending Insights for Australians | MyAiBank",
   description:
     "Discover how AI spending insights help Australians identify patterns, reduce waste, and make smarter financial decisions every day.",
+  alternates: {
+    canonical: "/blog/ai-spending-insights",
+  },
+  openGraph: {
+    title: "AI Spending Insights for Australians | MyAiBank",
+    description:
+      "Discover how AI spending insights help Australians identify patterns, reduce waste, and make smarter financial decisions every day.",
+    url: "/blog/ai-spending-insights",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "AI Spending Insights for Australians | MyAiBank",
+    description:
+      "Discover how AI spending insights help Australians identify patterns, reduce waste, and make smarter financial decisions every day.",
+  },
 }
 
 export default function AISpendingInsightsPage() {

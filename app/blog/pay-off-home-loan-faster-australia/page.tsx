@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "How to Pay Off Your Home Loan Faster in Australia | MyAiBank",
   description:
     "Practical strategies for paying off your Australian mortgage faster including extra repayments, fortnightly payments, offset accounts, and rate reviews.",
+  alternates: {
+    canonical: "/blog/pay-off-home-loan-faster-australia",
+  },
+  openGraph: {
+    title: "How to Pay Off Your Home Loan Faster in Australia | MyAiBank",
+    description:
+      "Practical strategies for paying off your Australian mortgage faster including extra repayments, fortnightly payments, offset accounts, and rate reviews.",
+    url: "/blog/pay-off-home-loan-faster-australia",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "How to Pay Off Your Home Loan Faster in Australia | MyAiBank",
+    description:
+      "Practical strategies for paying off your Australian mortgage faster including extra repayments, fortnightly payments, offset accounts, and rate reviews.",
+  },
 }
 
 export default function PayOffHomeLoanFasterPage() {

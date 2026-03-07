@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "AI Transaction Categorisation for Australians | MyAiBank",
   description:
     "Learn how AI transaction categorisation automatically organises your bank transactions into meaningful categories, saving time and revealing spending patterns.",
+  alternates: {
+    canonical: "/blog/ai-transaction-categorisation",
+  },
+  openGraph: {
+    title: "AI Transaction Categorisation for Australians | MyAiBank",
+    description:
+      "Learn how AI transaction categorisation automatically organises your bank transactions into meaningful categories, saving time and revealing spending patterns.",
+    url: "/blog/ai-transaction-categorisation",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "AI Transaction Categorisation for Australians | MyAiBank",
+    description:
+      "Learn how AI transaction categorisation automatically organises your bank transactions into meaningful categories, saving time and revealing spending patterns.",
+  },
 }
 
 export default function AITransactionCategorisationPage() {

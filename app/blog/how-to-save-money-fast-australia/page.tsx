@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "How to Save Money Fast in Australia | MyAiBank",
   description:
     "A practical guide to saving money fast in Australia with a budget that actually works. Track spending, cut waste, and automate savings.",
+  alternates: {
+    canonical: "/blog/how-to-save-money-fast-australia",
+  },
+  openGraph: {
+    title: "How to Save Money Fast in Australia | MyAiBank",
+    description:
+      "A practical guide to saving money fast in Australia with a budget that actually works. Track spending, cut waste, and automate savings.",
+    url: "/blog/how-to-save-money-fast-australia",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "How to Save Money Fast in Australia | MyAiBank",
+    description:
+      "A practical guide to saving money fast in Australia with a budget that actually works. Track spending, cut waste, and automate savings.",
+  },
 }
 
 export default function HowToSaveMoneyFastPage() {

@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "AI Subscription Detection for Australians | MyAiBank",
   description:
     "Find out how AI subscription detection automatically identifies recurring charges, unused subscriptions, and hidden costs draining your bank account.",
+  alternates: {
+    canonical: "/blog/subscription-detection",
+  },
+  openGraph: {
+    title: "AI Subscription Detection for Australians | MyAiBank",
+    description:
+      "Find out how AI subscription detection automatically identifies recurring charges, unused subscriptions, and hidden costs draining your bank account.",
+    url: "/blog/subscription-detection",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "AI Subscription Detection for Australians | MyAiBank",
+    description:
+      "Find out how AI subscription detection automatically identifies recurring charges, unused subscriptions, and hidden costs draining your bank account.",
+  },
 }
 
 export default function SubscriptionDetectionPage() {

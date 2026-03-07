@@ -5,6 +5,24 @@ export const metadata: Metadata = {
   title: "How to Save for a House Deposit Faster in Australia | MyAiBank",
   description:
     "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
+  alternates: {
+    canonical: "/blog/save-for-house-deposit-faster-australia",
+  },
+  openGraph: {
+    title: "How to Save for a House Deposit Faster in Australia | MyAiBank",
+    description:
+      "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
+    url: "/blog/save-for-house-deposit-faster-australia",
+    type: "article",
+    siteName: "MyAiBank",
+    locale: "en_AU",
+  },
+  twitter: {
+    card: "summary",
+    title: "How to Save for a House Deposit Faster in Australia | MyAiBank",
+    description:
+      "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
+  },
 }
 
 export default function SaveForHouseDepositPage() {
