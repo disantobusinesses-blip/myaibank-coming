@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
@@ -137,12 +136,7 @@ export default function WhatWeDoPage() {
         </Link>
 
         <div className="flex justify-center mb-8">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank — AI money manager and budgeting app"
-            width={120}
-            height={52}
-          />
+          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
         </div>
 
         <h1 className="text-3xl font-bold text-foreground text-center mb-3 text-balance">

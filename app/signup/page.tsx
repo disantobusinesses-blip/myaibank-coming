@@ -4,7 +4,6 @@ import React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -98,12 +97,7 @@ export default function SignupPage() {
 
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank"
-            width={120}
-            height={52}
-          />
+          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
         </div>
 
         {/* Header */}

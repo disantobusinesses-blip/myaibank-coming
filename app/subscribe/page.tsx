@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
@@ -66,12 +65,7 @@ export default function SubscribePage() {
       <div className="flex-1 px-4 py-8 max-w-lg mx-auto w-full">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <Image
-            src="/mab-logo-white.svg"
-            alt="MyAiBank"
-            width={80}
-            height={34}
-          />
+          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
         </div>
 
         {/* Header */}
