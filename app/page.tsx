@@ -114,21 +114,21 @@ export default function WelcomePage() {
           <div className="flex items-center justify-center gap-8 mb-10 w-full">
             <div className="text-center">
               <div className="font-number text-2xl text-white">
-                <CountUp to={500} suffix="+" duration={1600} />
+                <CountUp to={500} suffix="+" duration={3000} />
               </div>
               <div className="font-body text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>Transactions</div>
             </div>
             <div className="w-px h-8" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
             <div className="text-center">
               <div className="font-number text-2xl text-white">
-                <CountUp to={98} suffix="%" duration={1800} />
+                <CountUp to={98} suffix="%" duration={3200} />
               </div>
               <div className="font-body text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>Accuracy</div>
             </div>
             <div className="w-px h-8" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
             <div className="text-center">
               <div className="font-number text-2xl text-white">
-                <CountUp to={24} suffix="/7" duration={1400} />
+                <CountUp to={24} suffix="/7" duration={2600} />
               </div>
               <div className="font-body text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>AI Support</div>
             </div>

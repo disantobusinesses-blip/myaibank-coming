@@ -7,14 +7,16 @@ interface CountUpProps {
   to: number
   /** Number to start counting from (default 0) */
   from?: number
-  /** Duration of the animation in ms (default 1800) */
+  /** Duration of the animation in ms (default 2800) */
   duration?: number
-  /** Decimal places to show (default 0) */
+  /** Decimal places to show (default 0) — ignored when formatter is provided */
   decimals?: number
-  /** Optional suffix string, e.g. "%" or "+" */
+  /** Optional suffix string, e.g. "%" or "+" — ignored when formatter is provided */
   suffix?: string
-  /** Optional prefix string, e.g. "$" */
+  /** Optional prefix string, e.g. "$" — ignored when formatter is provided */
   prefix?: string
+  /** Optional custom formatter, receives the raw current number */
+  formatter?: (value: number) => string
   /** CSS class applied to the outer span */
   className?: string
 }
@@ -31,10 +33,11 @@ function easeOutCubic(t: number): number {
 export function CountUp({
   to,
   from = 0,
-  duration = 1800,
+  duration = 2800,
   decimals = 0,
   suffix = "",
   prefix = "",
+  formatter,
   className = "",
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -83,11 +86,11 @@ export function CountUp({
     return () => cancelAnimationFrame(rafId)
   }, [started, from, to, duration])
 
-  const formatted = value.toFixed(decimals)
+  const display = formatter ? formatter(value) : `${prefix}${value.toFixed(decimals)}${suffix}`
 
   return (
     <span ref={ref} className={`count-up ${className}`}>
-      {prefix}{formatted}{suffix}
+      {display}
     </span>
   )
 }
