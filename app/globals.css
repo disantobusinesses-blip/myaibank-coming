@@ -189,16 +189,6 @@
   animation: gradient-text-flow 6s ease infinite;
 }
 
-/* ReactBits-inspired: Star border animation */
-@keyframes star-movement-bottom {
-  0% { transform: translate(0%, 0%); opacity: 1; }
-  100% { transform: translate(-100%, 0%); opacity: 0; }
-}
-@keyframes star-movement-top {
-  0% { transform: translate(0%, 0%); opacity: 1; }
-  100% { transform: translate(100%, 0%); opacity: 0; }
-}
-
 /* ReactBits-inspired: Pulse glow for AI elements */
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
@@ -206,4 +196,13 @@
 }
 .pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-btn__highlight,
+  .gradient-text-animated,
+  .pulse-glow {
+    animation: none;
+  }
 }

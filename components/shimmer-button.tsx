@@ -17,7 +17,7 @@ export function ShimmerButton({
 }) {
   return (
     <button
-      className={`shimmer-btn relative overflow-hidden ${className}`}
+      className={`shimmer-btn relative overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-400 ${className}`}
       {...props}
     >
       <span
