@@ -65,7 +65,7 @@ export default function SubscribePage() {
       <div className="flex-1 px-4 py-8 max-w-lg mx-auto w-full">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {/* Header */}

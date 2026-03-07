@@ -111,7 +111,7 @@ function FiskilCallbackInner() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm text-center">
         <div className="flex justify-center mb-6">
-          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {status === "pending" && (

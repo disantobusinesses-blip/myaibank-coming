@@ -8,7 +8,7 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
       <header className="px-6 py-4 border-b" style={{ borderColor: '#e5e5e5' }}>
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+            <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
           </Link>
           <span style={{ color: '#ccc' }}>|</span>
           <Link href="/blog" className="text-xs hover:underline" style={{ color: '#666' }}>Blog</Link>

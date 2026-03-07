@@ -136,7 +136,7 @@ export default function WhatWeDoPage() {
         </Link>
 
         <div className="flex justify-center mb-8">
-          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         <h1 className="text-3xl font-bold text-foreground text-center mb-3 text-balance">

@@ -27,7 +27,7 @@ function AuthErrorContent() {
     <main className="min-h-screen flex flex-col bg-background safe-area-inset">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 max-w-md mx-auto w-full">
         {/* Logo */}
-        <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+        <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
 
         {/* Icon */}
         <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-6">

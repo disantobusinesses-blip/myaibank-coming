@@ -78,7 +78,7 @@ export default function WelcomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050508' }}>
         {/* Blank placeholder — logo to be added later */}
-        <div className="w-20 h-8 rounded opacity-20 animate-pulse" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+        <div className="w-20 h-8 rounded opacity-20 animate-pulse" role="img" aria-label="Logo placeholder" />
       </div>
     )
   }
@@ -91,7 +91,7 @@ export default function WelcomePage() {
       {/* Hero Section */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
         {/* Logo placeholder — blank for now, to be filled in later */}
-        <div className="mb-8 w-[140px] h-[60px]" aria-hidden="true" />
+        <div className="mb-8 w-[140px] h-[60px] logo-placeholder" role="img" aria-label="Logo placeholder" />
 
         {/* Welcome heading — SplitText animation */}
         <h1 className="font-heading text-3xl text-center mb-3 text-balance text-white leading-tight">

@@ -105,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {showLoading ? (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <div className="w-20 h-8 rounded opacity-20" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+            <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
           </div>
         </div>
       ) : showApp ? (
@@ -115,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {/* Logo only - no text */}
             <div className="p-6 border-b border-sidebar-border">
               <Link href="/app/dashboard" className="flex items-center">
-                <div className="w-24 h-10 rounded opacity-20" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+                <div className="w-24 h-10 rounded opacity-20" role="img" aria-label="Logo placeholder" />
               </Link>
             </div>
 
@@ -158,7 +158,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {/* Mobile Header - logo only, no text */}
             <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
               <Link href="/app/dashboard" className="flex items-center">
-                <div className="w-20 h-8 rounded opacity-20" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+                <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
               </Link>
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -224,7 +224,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <div className="w-20 h-8 rounded opacity-20" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+            <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
           </div>
         </div>
       )}

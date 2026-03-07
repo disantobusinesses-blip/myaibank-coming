@@ -207,6 +207,12 @@
   }
 }
 
+/* ─── Logo placeholder (blank; to be filled in later) ────────────────────── */
+.logo-placeholder {
+  display: inline-block;
+  background: transparent;
+}
+
 /* ─── Font weight utilities (Inter scale) ─────────────────────────────────── */
 .font-heading {
   font-family: var(--font-sans);
@@ -349,8 +355,5 @@
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
-  }
-  .split-char {
-    animation-play-state: running !important;
   }
 }

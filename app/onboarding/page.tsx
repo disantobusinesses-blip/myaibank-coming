@@ -99,7 +99,7 @@ export default function OnboardingPage() {
       <div className="flex-1 flex flex-col px-6 py-8 max-w-md mx-auto w-full">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="h-10 w-24 rounded opacity-20" aria-hidden="true" style={{ backgroundColor: 'rgba(139,92,246,0.4)' }} />
+          <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
         </div>
 
         {/* Header */}
