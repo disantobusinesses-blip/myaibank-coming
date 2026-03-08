@@ -22,6 +22,7 @@ import {
   LogOut,
 } from "lucide-react"
 import { AIAssistant } from "@/components/ai-assistant"
+import Image from "next/image"
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -105,17 +106,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {showLoading ? (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
+            <Image
+              src="/MABtransparent.png"
+              alt="MAB logo"
+              width={80}
+              height={32}
+              className="object-contain opacity-40"
+            />
           </div>
         </div>
       ) : showApp ? (
         <div className="min-h-screen bg-background flex">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-sidebar">
-            {/* Logo only - no text */}
+            {/* Logo */}
             <div className="p-6 border-b border-sidebar-border">
               <Link href="/app/dashboard" className="flex items-center">
-                <div className="w-24 h-10 rounded opacity-20" role="img" aria-label="Logo placeholder" />
+                <Image
+                  src="/MABtransparent.png"
+                  alt="MAB logo"
+                  width={96}
+                  height={40}
+                  className="object-contain"
+                  priority
+                />
               </Link>
             </div>
 
@@ -158,7 +172,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {/* Mobile Header - logo only, no text */}
             <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
               <Link href="/app/dashboard" className="flex items-center">
-                <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
+                <Image
+                  src="/MABtransparent.png"
+                  alt="MAB logo"
+                  width={80}
+                  height={32}
+                  className="object-contain"
+                  priority
+                />
               </Link>
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -224,7 +245,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse">
-            <div className="w-20 h-8 rounded opacity-20" role="img" aria-label="Logo placeholder" />
+            <Image
+              src="/MABtransparent.png"
+              alt="MAB logo"
+              width={80}
+              height={32}
+              className="object-contain opacity-40"
+            />
           </div>
         </div>
       )}
