@@ -85,6 +85,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
+    // Safety net: if Supabase auth (or a stale token refresh) hangs for any
+    // reason, force-clear the loading gate after 5 s so users are never
+    // permanently stuck on the logo screen.
+    const AUTH_INIT_TIMEOUT_MS = 5000
+    let initCompleted = false
+    const safetyTimer = setTimeout(() => {
+      if (!initCompleted) {
+        console.warn("[auth] init timeout — proceeding as unauthenticated")
+        setLoading(false)
+      }
+    }, AUTH_INIT_TIMEOUT_MS)
+
     const initAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession()
@@ -98,6 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Error initializing auth:", error)
       } finally {
+        initCompleted = true
+        clearTimeout(safetyTimer)
         setLoading(false)
       }
     }
@@ -121,6 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     return () => {
+      initCompleted = true
+      clearTimeout(safetyTimer)
       subscription.unsubscribe()
     }
   }, [supabase, fetchProfile])

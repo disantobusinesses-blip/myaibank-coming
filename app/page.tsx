@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -23,23 +23,41 @@ export default function WelcomePage() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
   const [showFloatingCta, setShowFloatingCta] = useState(false)
+  // Page-level safety net: if auth hasn't resolved after 6 s, unblock the UI
+  // regardless. Acts as a second layer of defence against hung token refreshes.
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false)
+
+  // True only while we should actually show the loading screen
+  const effectiveLoading = useMemo(() => loading && !loadingTimedOut, [loading, loadingTimedOut])
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  // Page-level timeout: if still loading after 6 s, treat as unauthenticated
+  // and show the landing page so users are never stuck on the logo.
   useEffect(() => {
-    if (!mounted || loading) return
+    if (!loading) {
+      // Loading cleared normally — reset the timeout flag for any future re-mount
+      setLoadingTimedOut(false)
+      return
+    }
+    const id = setTimeout(() => setLoadingTimedOut(true), 6000)
+    return () => clearTimeout(id)
+  }, [loading])
+
+  useEffect(() => {
+    if (!mounted || effectiveLoading) return
 
     // Check if demo mode is active
     const isDemoMode = typeof window !== "undefined" && 
       (sessionStorage.getItem("myaibank_demo_mode") === "true" ||
        document.cookie.includes("myaibank_demo_mode=true"))
 
-    const state = buildRoutingState({ loading, user, profile, demoMode: isDemoMode })
+    const state = buildRoutingState({ loading: effectiveLoading, user, profile, demoMode: isDemoMode })
     const dest = getNextRoute(state, pathname)
     if (dest) router.push(dest)
-  }, [user, profile, loading, router, mounted, pathname])
+  }, [user, profile, effectiveLoading, router, mounted, pathname])
 
   // Show floating CTA after scrolling ~40% down
   useEffect(() => {
@@ -75,7 +93,7 @@ export default function WelcomePage() {
     }
   }, [router])
 
-  if (loading) {
+  if (effectiveLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050508' }}>
         <div className="animate-pulse">

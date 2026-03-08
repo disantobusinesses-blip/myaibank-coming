@@ -74,6 +74,11 @@ const blogPosts: Record<string, { title: string; description: string }> = {
     description:
       "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
   },
+  "ai-future-balance-forecasting": {
+    title: "How AI Future Balance Forecasting Helps You See Where Your Money Is Heading",
+    description:
+      "AI future balance forecasting combines your transactions, subscriptions, and cashflow patterns to predict your account balance ahead — so you can act before problems happen.",
+  },
 }
 
 export default function BlogIndexPage() {
