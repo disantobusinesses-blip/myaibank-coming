@@ -43,13 +43,28 @@ export async function GET(request: Request) {
       },
     })
 
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!exchangeError) {
-      return NextResponse.redirect(`${origin}${next}`)
+    if (!exchangeError && data.user) {
+      // Auto-activate free account for the user (first 500 users get free access)
+      try {
+        await fetch(`${origin}/api/activate-free-account`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: data.user.id }),
+        })
+      } catch (activateError) {
+        console.error("[v0] Error activating free account:", activateError)
+        // Continue anyway - the user can still access the app
+      }
+
+      // Redirect to onboarding instead of subscribe
+      return NextResponse.redirect(`${origin}/onboarding`)
     }
 
-    console.error("[v0] Code exchange error:", exchangeError.message)
+    if (exchangeError) {
+      console.error("[v0] Code exchange error:", exchangeError.message)
+    }
   }
 
   // Return to error page on failure

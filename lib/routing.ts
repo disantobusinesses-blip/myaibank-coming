@@ -84,18 +84,11 @@ export function getNextRoute(
     return loopGuard(ROUTES.SIGNIN, currentPath)
   }
 
-  // ── 3) Session exists — determine access ──
-  const hasAccess = state.subscriptionStatus === "trialing" ||
-                    state.subscriptionStatus === "active"
-
+  // ── 3) Session exists — all users have free access (first 500 users) ──
   // Transition pages manage their own next-step
   if (TRANSITION_ROUTES.has(currentPath)) return null
 
-  if (!hasAccess) {
-    // No active subscription → subscribe page
-    // (unless they are already on subscribe)
-    return loopGuard(ROUTES.SUBSCRIBE, currentPath)
-  }
+  // No subscription check needed - free access for early adopters
 
   // ── 4) Has access — check onboarding / bank connection ──
   if (!state.onboardingCompleted) {

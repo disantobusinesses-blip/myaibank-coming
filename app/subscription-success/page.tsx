@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState, ROUTES } from "@/lib/routing"
@@ -10,11 +10,9 @@ import { CheckCircle, ArrowRight, Loader2 } from "lucide-react"
 function SubscriptionSuccessInner() {
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying")
   const [countdown, setCountdown] = useState(5)
-  const { user, profile, loading, updateProfile } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const sessionId = searchParams.get("session_id")
 
   // Derive the next destination via the routing guard
   const getDestination = () => {
@@ -23,8 +21,7 @@ function SubscriptionSuccessInner() {
       user,
       profile: {
         ...(profile ?? {}),
-        // After verification, subscription is active/trialing
-        subscription_status: "trialing",
+        subscription_status: "active",
       },
       demoMode: false,
     })
@@ -37,49 +34,37 @@ function SubscriptionSuccessInner() {
       return
     }
 
-    const verify = async () => {
-      if (!sessionId) {
-        // No session_id — treat as a mock/free-plan success for backwards compat
-        await updateProfile({
-          subscription_status: "trialing",
-          subscription_plan: "pro",
-        })
-        setStatus("success")
-        return
-      }
-
+    const activateFreeAccount = async () => {
       try {
-        const res = await fetch("/api/subscription/activate", {
+        // Activate free account for early adopters
+        const res = await fetch("/api/activate-free-account", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId }),
+          body: JSON.stringify({ userId: user.id }),
         })
-
-        if (!res.ok) {
-          throw new Error("Verification failed")
-        }
 
         const data = await res.json()
 
-        // Update local profile state
-        await updateProfile({
-          subscription_status: data.subscription?.status ?? "trialing",
-          subscription_plan: data.subscription?.plan ?? "pro",
-        })
+        if (data.success) {
+          await updateProfile({
+            subscription_status: data.subscription_status ?? "active",
+            subscription_plan: data.subscription_plan ?? "free_early_adopter",
+          })
+        }
 
         setStatus("success")
       } catch (err) {
-        console.error("Error verifying subscription:", err)
-        // Still mark as success — the webhook will update the DB
+        console.error("Error activating free account:", err)
+        // Still mark as success and continue
         await updateProfile({
-          subscription_status: "trialing",
-          subscription_plan: "pro",
+          subscription_status: "active",
+          subscription_plan: "free_early_adopter",
         })
         setStatus("success")
       }
     }
 
-    verify()
+    activateFreeAccount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
@@ -108,7 +93,7 @@ function SubscriptionSuccessInner() {
       <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6 safe-area-inset">
         <div className="max-w-md w-full text-center">
           <Loader2 className="w-10 h-10 animate-spin text-[#1F0051] mx-auto mb-4" />
-          <p className="text-muted-foreground">Confirming your subscription…</p>
+          <p className="text-muted-foreground">Setting up your account...</p>
         </div>
       </main>
     )
@@ -131,10 +116,10 @@ function SubscriptionSuccessInner() {
 
         {/* Text */}
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Free trial started!
+          Account activated!
         </h1>
         <p className="text-muted-foreground mb-8">
-          Your 7-day free trial is active. Let&apos;s connect your bank account to get started.
+          Your account is ready. Let&apos;s connect your bank account to get started.
         </p>
 
         {/* Countdown */}
