@@ -40,7 +40,7 @@ function generateForecastData() {
   const today = new Date()
 
   for (let i = 0; i < 6; i++) {
-    const date = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1)
+    const date = new Date(today.getFullYear(), today.getMonth() + i, 1)
 
     const baseIncome = 4200 + Math.sin(i * 0.8) * 1200
     const baseExpenses = 2800 + Math.cos(i * 0.6) * 900
