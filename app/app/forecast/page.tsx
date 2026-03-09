@@ -2,6 +2,7 @@
 
 import { useAppData } from "@/contexts/app-data-context"
 import { CashflowChart } from "@/components/dashboard/cashflow-chart"
+import { ForecastAreaChart } from "@/components/dashboard/forecast-area-chart"
 import { TrendingUp, TrendingDown, Calendar } from "lucide-react"
 
 export default function ForecastPage() {
@@ -32,7 +33,10 @@ export default function ForecastPage() {
     <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Cashflow Forecast</h1>
 
-      {/* Main Chart */}
+      {/* Forecast Area Chart — Bklit-inspired */}
+      <ForecastAreaChart />
+
+      {/* Cashflow Chart */}
       <CashflowChart />
 
       {/* Forecast Summary */}
