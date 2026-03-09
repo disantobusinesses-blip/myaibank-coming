@@ -82,7 +82,7 @@ export function detectRecurringTransactions(
   // Group by merchant + amount sign + rounded amount
   const groups = new Map<
     string,
-    { dates: Date[]; amounts: number[]; categories: string[] }
+    { dates: Date[]; amounts: number[]; categories: string[]; merchant: string }
   >()
 
   for (const t of transactions) {
@@ -97,7 +97,7 @@ export function detectRecurringTransactions(
     if (isNaN(txDate.getTime())) continue
 
     if (!groups.has(key)) {
-      groups.set(key, { dates: [], amounts: [], categories: [] })
+      groups.set(key, { dates: [], amounts: [], categories: [], merchant })
     }
     const group = groups.get(key)!
     group.dates.push(txDate)
@@ -168,33 +168,8 @@ export function detectRecurringTransactions(
     const nextDate = new Date(lastDate)
     nextDate.setDate(nextDate.getDate() + freq.target)
 
-    const merchant = normaliseMerchantName(
-      transactions.find(
-        (t) =>
-          normaliseMerchantName(t.merchant_name).toLowerCase() ===
-          normaliseMerchantName(group.categories.length > 0 ? null : null)
-            .toLowerCase()
-      )?.merchant_name ?? null
-    )
-
-    // Re-derive merchant from the first transaction in the group
-    // (we lost the direct reference in grouping)
-    const merchantFromAmount = transactions.find((t) => {
-      const m = normaliseMerchantName(t.merchant_name)
-      const amt = Number(t.amount)
-      const sign = amt >= 0 ? "+" : "-"
-      const rounded = Math.round(Math.abs(amt))
-      const key = `${m.toLowerCase()}|${sign}|${rounded}`
-      return (
-        group.dates.some(
-          (d) => d.getTime() === new Date(t.transaction_date).getTime()
-        ) &&
-        key.startsWith(m.toLowerCase())
-      )
-    })
-
     results.push({
-      merchant: normaliseMerchantName(merchantFromAmount?.merchant_name ?? null),
+      merchant: group.merchant,
       amount: Math.round(avgAmount * 100) / 100,
       frequencyDays: freq.target,
       frequency: freq.label,

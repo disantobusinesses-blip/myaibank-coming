@@ -91,12 +91,10 @@ export async function POST(req: Request) {
     const body = await req.json()
     const {
       messages,
-      userId,
       filters,
       assistantParams,
     }: {
       messages: UIMessage[]
-      userId?: string
       filters?: TransactionFilters
       assistantParams?: AssistantParams
     } = body
@@ -112,11 +110,28 @@ export async function POST(req: Request) {
       apiKey: process.env.OPENAI_API_KEY,
     })
 
-    // Fetch transactions server-side from Supabase — never trust client
-    let contextJson: string | null = null
-
+    // Derive userId from the auth header — never trust client-submitted IDs
+    let userId: string | null = null
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (supabaseUrl && supabaseServiceKey) {
+      const authHeader = req.headers.get("authorization")
+      if (authHeader?.startsWith("Bearer ")) {
+        try {
+          const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+          const { data: { user } } = await supabaseAdmin.auth.getUser(
+            authHeader.replace("Bearer ", "")
+          )
+          userId = user?.id ?? null
+        } catch {
+          // Auth failed — continue without user context
+        }
+      }
+    }
+
+    // Fetch transactions server-side from Supabase — never trust client
+    let contextJson: string | null = null
 
     if (userId && supabaseUrl && supabaseServiceKey) {
       try {

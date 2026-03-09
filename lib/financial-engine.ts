@@ -237,6 +237,7 @@ export function generateForecast(
   }
 
   // If today didn't land exactly on a generated weekly point, snap to closest
+  // by flagging it as the "today" marker without overwriting its rawDate.
   if (!todayLabel && data.length > 0) {
     let closest = data[0]
     let minDiff = Math.abs(new Date(data[0].rawDate).getTime() - today.getTime())
@@ -248,14 +249,11 @@ export function generateForecast(
       }
     }
     closest.isToday = true
-    closest.rawDate = todayStr
-    closest.date = today.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    })
     todayLabel = closest.date
+    // Recalculate isFuture based on the snapped today position
+    const closestTime = new Date(closest.rawDate).getTime()
     for (const pt of data) {
-      pt.isFuture = pt.rawDate > todayStr
+      pt.isFuture = new Date(pt.rawDate).getTime() > closestTime
     }
   }
 
