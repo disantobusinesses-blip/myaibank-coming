@@ -56,7 +56,7 @@ export default function WelcomePage() {
 
     const state = buildRoutingState({ loading: effectiveLoading, user, profile, demoMode: isDemoMode })
     const dest = getNextRoute(state, pathname)
-    if (dest) router.push(dest)
+    if (dest) router.replace(dest)
   }, [user, profile, effectiveLoading, router, mounted, pathname])
 
   // Show floating CTA after scrolling ~40% down
