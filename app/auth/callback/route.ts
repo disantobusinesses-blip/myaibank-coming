@@ -7,7 +7,6 @@ export async function GET(request: Request) {
   const code = searchParams.get("code")
   const error = searchParams.get("error")
   const errorDescription = searchParams.get("error_description")
-  const next = searchParams.get("next") ?? "/"
 
   // Handle OAuth errors from provider
   if (error) {
@@ -58,8 +57,22 @@ export async function GET(request: Request) {
         // Continue anyway - the user can still access the app
       }
 
-      // Redirect to onboarding instead of subscribe
-      return NextResponse.redirect(`${origin}/onboarding`)
+      // Mark user as onboarded on first Google OAuth (no email verification needed)
+      try {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ is_onboarded: true, updated_at: new Date().toISOString() })
+          .eq("id", data.user.id)
+
+        if (updateError) {
+          console.error("[v0] Error marking user as onboarded:", updateError)
+        }
+      } catch (err) {
+        console.error("[v0] Error in onboarding update:", err)
+      }
+
+      // Redirect to home which will route based on auth state
+      return NextResponse.redirect(`${origin}/`)
     }
 
     if (exchangeError) {

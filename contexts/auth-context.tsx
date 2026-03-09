@@ -26,8 +26,6 @@ interface AuthContextType {
   session: Session | null
   profile: Profile | null
   loading: boolean
-  signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<{ error: Error | null }>
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
   signInWithGoogle: () => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>
@@ -141,32 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [supabase, fetchProfile])
 
-  const signUp = async (email: string, password: string, metadata?: Record<string, unknown>) => {
-    if (!supabase) return { error: new Error("Supabase not configured") }
-    
-    const origin = typeof window !== "undefined" ? window.location.origin : ""
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${origin}/auth/callback`,
-      },
-    })
-    return { error: error ? new Error(error.message) : null }
-  }
 
-  const signIn = async (email: string, password: string) => {
-    if (!supabase) return { error: new Error("Supabase not configured") }
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    return { error: error ? new Error(error.message) : null }
-  }
 
   const signInWithGoogle = async () => {
     if (!supabase) return { error: new Error("Supabase not configured") }
@@ -214,8 +187,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         profile,
         loading,
-        signUp,
-        signIn,
         signInWithGoogle,
         signOut,
         updateProfile,

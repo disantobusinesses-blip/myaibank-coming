@@ -11,12 +11,9 @@ export const ROUTES = {
   LANDING: "/",
   SIGNIN: "/login",
   SIGNUP: "/signup",
-  SUBSCRIBE: "/subscribe",
-  SUBSCRIPTION_SUCCESS: "/subscription-success",
   ONBOARDING: "/onboarding",
   DASHBOARD: "/app/dashboard",
   AUTH_CALLBACK: "/auth/callback",
-  AUTH_SIGNUP_SUCCESS: "/auth/sign-up-success",
   AUTH_ERROR: "/auth/error",
   FISKIL_CALLBACK: "/fiskil/callback",
   WHAT_WE_DO: "/what-we-do",
@@ -28,7 +25,6 @@ const PUBLIC_ROUTES: Set<string> = new Set([
   ROUTES.SIGNIN,
   ROUTES.SIGNUP,
   ROUTES.AUTH_CALLBACK,
-  ROUTES.AUTH_SIGNUP_SUCCESS,
   ROUTES.AUTH_ERROR,
   ROUTES.WHAT_WE_DO,
 ])
@@ -90,15 +86,13 @@ export function getNextRoute(
 
   // No subscription check needed - free access for early adopters
 
-  // ── 4) Has access — check onboarding / bank connection ──
+  // ── 4) Has access — check onboarding ──
   if (!state.onboardingCompleted) {
     return loopGuard(ROUTES.ONBOARDING, currentPath)
   }
 
-  if (!state.bankConnected) {
-    // Onboarding page is where they connect the bank
-    return loopGuard(ROUTES.ONBOARDING, currentPath)
-  }
+  // Bank connection is optional - users can connect anytime from the settings page
+  // No longer requires bank connection to proceed to dashboard
 
   // ── 5) Fully set up — should be in /app/* ──
   if (currentPath.startsWith("/app")) return null // already there

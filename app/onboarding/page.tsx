@@ -55,20 +55,18 @@ export default function OnboardingPage() {
   }
 
   const handleSkip = async () => {
-    await updateProfile({
-      is_onboarded: true,
-    })
-    const state = buildRoutingState({
-      loading: false,
-      user,
-      profile: {
-        ...(profile ?? {}),
+    // User already marked as onboarded by auth callback, but ensure consistency
+    if (!profile?.is_onboarded) {
+      await updateProfile({
         is_onboarded: true,
-      },
-      demoMode: false,
-    })
-    const dest = getNextRoute(state, pathname) ?? "/app/dashboard"
-    router.push(dest)
+      })
+    }
+    router.push("/app/dashboard")
+  }
+
+  const handleConnectLater = () => {
+    // Skip bank connection and go directly to dashboard
+    router.push("/app/dashboard")
   }
 
   if (!user) {
@@ -173,10 +171,10 @@ export default function OnboardingPage() {
 
         {/* Skip Button */}
         <button
-          onClick={handleSkip}
+          onClick={handleConnectLater}
           className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
         >
-          Skip for now
+          Connect bank later
         </button>
       </div>
 
