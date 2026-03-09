@@ -7,24 +7,6 @@ import { NextRequest, NextResponse } from "next/server"
 // - SUPABASE_URL
 // - SUPABASE_SERVICE_ROLE_KEY
 
-// Mock data for demonstration
-const mockAccounts = [
-  { id: "1", name: "Everyday Account", type: "transaction", balance: 2847.5, institution: "CommBank" },
-  { id: "2", name: "Savings Account", type: "savings", balance: 15420.0, institution: "CommBank" },
-  { id: "3", name: "Credit Card", type: "credit", balance: -1250.0, institution: "ANZ" },
-]
-
-const mockTransactions = [
-  { id: "1", date: "2026-01-30", description: "Woolworths", amount: -85.42, category: "Groceries", merchant: "Woolworths" },
-  { id: "2", date: "2026-01-30", description: "Salary", amount: 3500.0, category: "Income", merchant: "Employer" },
-  { id: "3", date: "2026-01-29", description: "Netflix", amount: -22.99, category: "Entertainment", merchant: "Netflix" },
-  { id: "4", date: "2026-01-29", description: "Uber Eats", amount: -45.0, category: "Food & Dining", merchant: "Uber Eats" },
-  { id: "5", date: "2026-01-28", description: "Shell", amount: -78.5, category: "Transport", merchant: "Shell" },
-  { id: "6", date: "2026-01-28", description: "Spotify", amount: -12.99, category: "Entertainment", merchant: "Spotify" },
-  { id: "7", date: "2026-01-27", description: "Rent Transfer", amount: -1500.0, category: "Housing", merchant: "Property Manager" },
-  { id: "8", date: "2026-01-26", description: "Coffee Club", amount: -6.5, category: "Food & Dining", merchant: "Coffee Club" },
-]
-
 export async function GET(request: NextRequest) {
   try {
     // Get authorization header
@@ -42,20 +24,36 @@ export async function GET(request: NextRequest) {
     // 3. Fetch accounts and transactions from Fiskil API
     // 4. Return the data
 
-    // Mock response
-    return NextResponse.json({
-      connected: true,
-      accounts: mockAccounts,
-      transactions: mockTransactions,
-      last_updated: new Date().toISOString(),
-      syncStatus: {
-        stage: "complete",
-        progress: 100,
-        message: "Data synced successfully",
+    // Return a clear error when Fiskil is not yet configured —
+    // never inject fabricated financial data.
+    const fiskilConfigured =
+      process.env.FISKIL_BASE_URL &&
+      process.env.FISKIL_CLIENT_ID &&
+      process.env.FISKIL_CLIENT_SECRET
+
+    if (!fiskilConfigured) {
+      return NextResponse.json(
+        {
+          error: "Fiskil integration not configured",
+          message:
+            "Set FISKIL_BASE_URL, FISKIL_CLIENT_ID and FISKIL_CLIENT_SECRET environment variables to enable bank data.",
+        },
+        { status: 503 }
+      )
+    }
+
+    // Placeholder for real Fiskil API call — the actual implementation
+    // lives in the /fiskil-data/inject route which writes to Supabase.
+    return NextResponse.json(
+      {
+        error: "Not implemented",
+        message:
+          "Use the Fiskil consent flow to connect a bank.  Data is written directly to Supabase via the inject route.",
       },
-    })
+      { status: 501 }
+    )
   } catch (error) {
-    console.error("Error fetching Fiskil data:", error)
+    console.error("Error in fiskil-data route:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

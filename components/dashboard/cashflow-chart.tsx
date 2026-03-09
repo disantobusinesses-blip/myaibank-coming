@@ -4,40 +4,64 @@ import { useMemo } from "react"
 import {
   Area,
   AreaChart,
-  ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine,
   XAxis,
   YAxis,
-  Tooltip,
 } from "recharts"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+import { useAppData } from "@/contexts/app-data-context"
+import { generateForecast } from "@/lib/financial-engine"
 
-// Generate mock forecast data
-function generateForecastData() {
-  const data = []
-  const baseValue = 2500
-  const today = new Date()
-  
-  for (let i = -14; i <= 14; i++) {
-    const date = new Date(today)
-    date.setDate(date.getDate() + i)
-    
-    const variance = Math.sin(i * 0.3) * 800 + Math.random() * 400
-    const value = baseValue + variance + (i > 0 ? i * 50 : 0)
-    
-    data.push({
-      date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      value: Math.round(value),
-      isFuture: i > 0,
-    })
-  }
-  
-  return data
-}
+/**
+ * Unified Cashflow Forecast Chart
+ *
+ * Combines historical actuals with a 6-month forward forecast in a single
+ * Bklit-inspired area chart.  A vertical "Today" marker is rendered at the
+ * data point whose normalised date matches the user's current local date.
+ *
+ * How the "Today" marker works:
+ * 1. Each data point stores a `rawDate` string in YYYY-MM-DD format.
+ * 2. The user's current local date is normalised to the same YYYY-MM-DD
+ *    format via the `toDateKey()` helper in financial-engine.ts.
+ * 3. The point whose `rawDate === todayStr` is flagged `isToday: true`.
+ * 4. A Recharts `<ReferenceLine>` is placed at that point's `date` label
+ *    to draw the vertical line + "Today" label.
+ *
+ * Data source:
+ * - Historical points use actual income/expense aggregates from the user's
+ *   real transaction data (via useAppData context).
+ * - Future points project forward using computed weekly averages plus
+ *   known recurring subscription amounts.
+ * - No synthetic or randomly generated data is used.
+ */
+
+const chartConfig = {
+  income: {
+    label: "Income",
+    color: "var(--chart-1, #8b5cf6)",
+  },
+  expenses: {
+    label: "Expenses",
+    color: "var(--chart-2, #06b6d4)",
+  },
+} satisfies ChartConfig
 
 export function CashflowChart() {
-  const data = useMemo(() => generateForecastData(), [])
-  const currentValue = data.find((d) => !d.isFuture && data.indexOf(d) === data.findIndex((x) => x.isFuture) - 1)?.value || 0
-  const projectedValue = data[data.length - 1]?.value || 0
-  const projectedDate = data[data.length - 1]?.date || ""
+  const { transactions, subscriptions } = useAppData()
+
+  const { data, todayLabel, projectedIncome, projectedExpenses, projectedDate } =
+    useMemo(
+      () => generateForecast(transactions, subscriptions),
+      [transactions, subscriptions]
+    )
+
+  const netProjected = projectedIncome - projectedExpenses
 
   return (
     <div className="rounded-2xl bg-card border border-border p-4 lg:p-6">
@@ -46,84 +70,155 @@ export function CashflowChart() {
           Cashflow Forecast
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Forecasted cashflow based on recent income and expenses
+          Historical &amp; projected income vs expenses — 6 month outlook
         </p>
       </div>
 
       {/* Chart */}
-      <div className="h-48 lg:h-64 relative">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="date"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "#8b8b9a", fontSize: 10 }}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "#8b8b9a", fontSize: 10 }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-card border border-border rounded-lg p-2 shadow-lg">
-                      <p className="text-xs text-muted-foreground">{payload[0].payload.date}</p>
-                      <p className="text-sm font-semibold text-[#22c55e]">
-                        ${payload[0].value?.toLocaleString()}
-                      </p>
-                    </div>
-                  )
-                }
-                return null
+      <ChartContainer config={chartConfig} className="h-48 lg:h-64 w-full">
+        <AreaChart
+          data={data}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id="cfIncome" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="0%"
+                stopColor="var(--color-income)"
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--color-income)"
+                stopOpacity={0}
+              />
+            </linearGradient>
+            <linearGradient id="cfExpenses" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="0%"
+                stopColor="var(--color-expenses)"
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--color-expenses)"
+                stopOpacity={0}
+              />
+            </linearGradient>
+          </defs>
+
+          <CartesianGrid
+            horizontal
+            vertical={false}
+            strokeDasharray="4 4"
+            stroke="var(--border)"
+            strokeOpacity={0.5}
+          />
+
+          <XAxis
+            dataKey="date"
+            axisLine={false}
+            tickLine={false}
+            tickMargin={8}
+            tick={{ fontSize: 10 }}
+            interval="preserveStartEnd"
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tickMargin={8}
+            tick={{ fontSize: 10 }}
+            tickFormatter={(value: number) =>
+              `$${(value / 1000).toFixed(1)}k`
+            }
+          />
+
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent indicator="dot" />}
+          />
+
+          {/* Today marker — vertical reference line */}
+          {todayLabel && (
+            <ReferenceLine
+              x={todayLabel}
+              stroke="#8b5cf6"
+              strokeWidth={2}
+              strokeDasharray="4 4"
+              label={{
+                value: "Today",
+                position: "top",
+                fill: "#8b5cf6",
+                fontSize: 11,
+                fontWeight: 600,
               }}
             />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#22c55e"
-              strokeWidth={2}
-              fill="url(#colorValue)"
-              dot={false}
-              activeDot={{ r: 4, fill: "#22c55e", stroke: "#0d0d12", strokeWidth: 2 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+          )}
 
-        {/* Projected Value Tooltip */}
-        <div className="absolute top-4 right-4 bg-[#22c55e]/20 border border-[#22c55e]/30 rounded-lg px-3 py-2">
-          <p className="text-lg font-bold text-[#22c55e]">
-            ${projectedValue.toLocaleString()}
+          {/* Income area */}
+          <Area
+            type="monotone"
+            dataKey="income"
+            stroke="var(--color-income)"
+            strokeWidth={2}
+            fill="url(#cfIncome)"
+            dot={false}
+            activeDot={{ r: 4, strokeWidth: 2 }}
+          />
+
+          {/* Expenses area */}
+          <Area
+            type="monotone"
+            dataKey="expenses"
+            stroke="var(--color-expenses)"
+            strokeWidth={2}
+            fill="url(#cfExpenses)"
+            dot={false}
+            activeDot={{ r: 4, strokeWidth: 2 }}
+          />
+        </AreaChart>
+      </ChartContainer>
+
+      {/* Legend + Projected summary */}
+      <div className="mt-4 pt-4 border-t border-border flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/* Legend */}
+        <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block w-3 h-3 rounded-sm"
+              style={{ backgroundColor: "var(--chart-1, #8b5cf6)" }}
+            />
+            <span className="text-muted-foreground">Income</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block w-3 h-3 rounded-sm"
+              style={{ backgroundColor: "var(--chart-2, #06b6d4)" }}
+            />
+            <span className="text-muted-foreground">Expenses</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-0.5 border-t-2 border-dashed" style={{ borderColor: "var(--chart-3, #8b5cf6)" }} />
+            <span className="text-muted-foreground">Today</span>
+          </div>
+        </div>
+
+        {/* Projected net cashflow */}
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">
+            Projected Net · {projectedDate}
           </p>
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="text-[#22c55e]">{"↓"}</span>
-            {projectedDate}
+          <p
+            className={`text-xl font-bold ${
+              netProjected >= 0 ? "text-green-500" : "text-destructive"
+            }`}
+          >
+            {netProjected >= 0 ? "+" : "−"}${Math.abs(netProjected).toLocaleString()}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {netProjected >= 0 ? "Surplus" : "Deficit"}
           </p>
         </div>
-      </div>
-
-      {/* Projected Cashflow Summary */}
-      <div className="mt-4 pt-4 border-t border-border">
-        <p className="text-xs text-muted-foreground uppercase tracking-wide">
-          Projected Cashflow
-        </p>
-        <p className="text-3xl font-bold text-foreground mt-1">
-          ${projectedValue.toLocaleString()}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {projectedDate}{" "}
-          <span className="text-[#22c55e] font-medium">Surplus</span>
-        </p>
       </div>
     </div>
   )

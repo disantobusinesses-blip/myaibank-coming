@@ -8,6 +8,7 @@ import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 import { SyncStatusBanner } from "@/components/dashboard/sync-status-banner"
 import { SplitText } from "@/components/split-text"
 import { AnimatedContent } from "@/components/animated-content"
+import { buildSpendingSummary } from "@/lib/financial-engine"
 import { 
   Wallet, 
   TrendingUp, 
@@ -33,12 +34,9 @@ export default function DashboardPage() {
   }
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0)
-  const income = transactions
-    .filter((t) => t.amount > 0)
-    .reduce((sum, t) => sum + t.amount, 0)
-  const expenses = transactions
-    .filter((t) => t.amount < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+  const summary = buildSpendingSummary(transactions)
+  const income = summary.totalIncome
+  const expenses = summary.totalExpenses
 
   const firstName = isDemoMode ? "Demo User" : (profile?.first_name || user?.email?.split("@")[0] || "there")
 
@@ -161,8 +159,8 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 gap-4">
               <Link href="/app/budget-autopilot" className="block">
                 <StatCard
-                  title="Good Expenses"
-                  value={expenses * 0.6}
+                  title="Essential"
+                  value={summary.essentialExpenses}
                   icon={<TrendingDown className="w-5 h-5" />}
                   variant="teal"
                   showArrow
@@ -170,8 +168,8 @@ export default function DashboardPage() {
               </Link>
               <Link href="/app/budget-autopilot" className="block">
                 <StatCard
-                  title="Bad Expenses"
-                  value={expenses * 0.4}
+                  title="Discretionary"
+                  value={summary.discretionaryExpenses}
                   icon={<TrendingDown className="w-5 h-5" />}
                   variant="purple"
                   showArrow

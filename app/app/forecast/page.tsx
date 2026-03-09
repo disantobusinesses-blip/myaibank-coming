@@ -2,20 +2,14 @@
 
 import { useAppData } from "@/contexts/app-data-context"
 import { CashflowChart } from "@/components/dashboard/cashflow-chart"
+import { buildSpendingSummary, projectMonthEnd } from "@/lib/financial-engine"
 import { TrendingUp, TrendingDown, Calendar } from "lucide-react"
 
 export default function ForecastPage() {
-  const { connected, transactions } = useAppData()
+  const { connected, transactions, totalBalance } = useAppData()
 
-  const income = transactions
-    .filter((t) => t.amount > 0)
-    .reduce((sum, t) => sum + t.amount, 0)
-  const expenses = transactions
-    .filter((t) => t.amount < 0)
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
-  
-  const netCashflow = income - expenses
-  const projectedMonthEnd = netCashflow * 1.5 // Simple projection
+  const summary = buildSpendingSummary(transactions)
+  const { projected: projectedMonthEnd, daysRemaining } = projectMonthEnd(transactions, totalBalance)
 
   if (!connected) {
     return (
@@ -32,7 +26,7 @@ export default function ForecastPage() {
     <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-foreground">Cashflow Forecast</h1>
 
-      {/* Main Chart */}
+      {/* Unified Cashflow Forecast Chart */}
       <CashflowChart />
 
       {/* Forecast Summary */}
@@ -43,7 +37,7 @@ export default function ForecastPage() {
             <p className="text-sm text-muted-foreground">Expected Income</p>
           </div>
           <p className="text-2xl font-bold text-[#22c55e]">
-            ${income.toLocaleString()}
+            ${summary.totalIncome.toLocaleString()}
           </p>
         </div>
 
@@ -53,7 +47,7 @@ export default function ForecastPage() {
             <p className="text-sm text-muted-foreground">Expected Expenses</p>
           </div>
           <p className="text-2xl font-bold text-foreground">
-            ${expenses.toLocaleString()}
+            ${summary.totalExpenses.toLocaleString()}
           </p>
         </div>
 
@@ -66,7 +60,7 @@ export default function ForecastPage() {
             ${Math.abs(projectedMonthEnd).toLocaleString()}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {projectedMonthEnd >= 0 ? "Surplus" : "Deficit"}
+            {projectedMonthEnd >= 0 ? "Surplus" : "Deficit"} · {daysRemaining} days left
           </p>
         </div>
       </div>
@@ -78,15 +72,19 @@ export default function ForecastPage() {
           <div className="flex items-start gap-3 p-3 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20">
             <div className="w-2 h-2 rounded-full bg-[#22c55e] mt-2" />
             <p className="text-sm text-foreground">
-              Based on your spending patterns, you&apos;re on track to save ${Math.round(netCashflow * 0.3)} this month.
+              {summary.netCashflow >= 0
+                ? `Based on your spending patterns, you're on track with a net surplus of $${Math.round(summary.netCashflow).toLocaleString()} this period.`
+                : `Your expenses ($${Math.round(summary.totalExpenses).toLocaleString()}) currently exceed your income. Consider reviewing discretionary spending.`}
             </p>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/20">
-            <div className="w-2 h-2 rounded-full bg-[#f59e0b] mt-2" />
-            <p className="text-sm text-foreground">
-              Your subscription spending is ${Math.round(expenses * 0.1)} higher than last month. Consider reviewing your subscriptions.
-            </p>
-          </div>
+          {summary.discretionaryExpenses > summary.essentialExpenses * 0.5 && (
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/20">
+              <div className="w-2 h-2 rounded-full bg-[#f59e0b] mt-2" />
+              <p className="text-sm text-foreground">
+                Your discretionary spending is ${Math.round(summary.discretionaryExpenses).toLocaleString()} — that&apos;s {Math.round((summary.discretionaryExpenses / summary.totalExpenses) * 100)}% of total expenses. Consider setting a budget cap.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
