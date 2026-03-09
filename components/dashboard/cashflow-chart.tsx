@@ -298,7 +298,7 @@ export function CashflowChart() {
             <span className="text-muted-foreground">Expenses</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block w-3 h-0.5 border-t-2 border-dashed border-[#8b5cf6]" style={{ width: 12 }} />
+            <span className="inline-block w-3 h-0.5 border-t-2 border-dashed" style={{ borderColor: "var(--chart-3, #8b5cf6)" }} />
             <span className="text-muted-foreground">Today</span>
           </div>
         </div>
@@ -310,7 +310,7 @@ export function CashflowChart() {
           </p>
           <p
             className={`text-xl font-bold ${
-              netProjected >= 0 ? "text-[#22c55e]" : "text-destructive"
+              netProjected >= 0 ? "text-green-500" : "text-destructive"
             }`}
           >
             {netProjected >= 0 ? "+" : "−"}${Math.abs(netProjected).toLocaleString()}
