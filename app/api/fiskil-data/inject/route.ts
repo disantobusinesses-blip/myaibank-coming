@@ -115,10 +115,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if Fiskil is configured - if not, use mock data
+    // Check if Fiskil is configured — if not, return an error.
+    // Never silently inject fabricated financial data for production users.
     if (!fiskilBaseUrl || !fiskilClientId || !fiskilClientSecret || !end_user_id) {
-      console.log("Fiskil not fully configured or no end_user_id, using mock data")
-      return await injectMockData(supabase, user_id)
+      console.warn("Fiskil not fully configured or no end_user_id provided")
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Fiskil integration not configured",
+          message:
+            "Set FISKIL_BASE_URL, FISKIL_CLIENT_ID, FISKIL_CLIENT_SECRET environment variables and provide end_user_id to enable bank data ingestion.",
+        },
+        { status: 503 }
+      )
     }
 
     // Fetch real data from Fiskil
@@ -126,8 +135,15 @@ export async function POST(request: NextRequest) {
       const fiskilData = await fetchFiskilData(end_user_id)
       return await injectRealData(supabase, user_id, fiskilData)
     } catch (fiskilError) {
-      console.error("Error fetching from Fiskil, falling back to mock data:", fiskilError)
-      return await injectMockData(supabase, user_id)
+      console.error("Error fetching from Fiskil:", fiskilError)
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Failed to fetch bank data from Fiskil",
+          message: fiskilError instanceof Error ? fiskilError.message : "Unknown error",
+        },
+        { status: 502 }
+      )
     }
 
   } catch (error) {
@@ -310,94 +326,6 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     ok: true,
     message: "Real Fiskil data injected successfully",
     accounts: accountsToInsert.length,
-    transactions: transactionsToInsert.length,
-  })
-}
-
-async function injectMockData(supabase: any, userId: string) {
-  // Mock accounts — only columns that exist in the bank_accounts schema
-  // Uses deterministic fiskil_account_id to allow upsert
-  const mockAccounts = [
-    {
-      user_id: userId,
-      fiskil_account_id: `mock-account-${userId}-1`,
-      institution_name: "Commonwealth Bank",
-      account_name: "Smart Access",
-      account_type: "transaction",
-      balance: 4825.67,
-      currency: "AUD",
-      last_synced_at: new Date().toISOString(),
-    },
-    {
-      user_id: userId,
-      fiskil_account_id: `mock-account-${userId}-2`,
-      institution_name: "Commonwealth Bank",
-      account_name: "GoalSaver",
-      account_type: "savings",
-      balance: 12450.00,
-      currency: "AUD",
-      last_synced_at: new Date().toISOString(),
-    },
-  ]
-
-  const { error: accountsError } = await safeUpsert(
-    supabase, "bank_accounts", mockAccounts, "user_id,fiskil_account_id", userId
-  )
-
-  if (accountsError) {
-    console.error("Error inserting mock accounts:", accountsError)
-  }
-
-  // Mock transactions — only columns that exist in the transactions schema
-  const daysAgo = (days: number) => {
-    const date = new Date()
-    date.setDate(date.getDate() - days)
-    return date.toISOString().split("T")[0]
-  }
-
-  const mockTransactions = [
-    { amount: 4500.00, description: "Salary - TechCorp Pty Ltd", merchant_name: "TechCorp Pty Ltd", category: "Income", date: daysAgo(1), type: "credit" },
-    { amount: -1800.00, description: "Rent Payment", merchant_name: "Ray White Property", category: "Housing", date: daysAgo(2), type: "debit" },
-    { amount: -156.78, description: "Electricity Bill", merchant_name: "AGL Energy", category: "Utilities", date: daysAgo(3), type: "debit" },
-    { amount: -89.00, description: "Internet - NBN Plan", merchant_name: "Telstra", category: "Utilities", date: daysAgo(5), type: "debit" },
-    { amount: -22.99, description: "Netflix Premium", merchant_name: "Netflix", category: "Entertainment", date: daysAgo(7), type: "debit" },
-    { amount: -12.99, description: "Spotify Premium", merchant_name: "Spotify", category: "Entertainment", date: daysAgo(8), type: "debit" },
-    { amount: -7.99, description: "iCloud Storage", merchant_name: "Apple", category: "Technology", date: daysAgo(10), type: "debit" },
-    { amount: -65.00, description: "Gym Membership", merchant_name: "Fitness First", category: "Health & Fitness", date: daysAgo(12), type: "debit" },
-    { amount: -24.56, description: "Uber - Home to CBD", merchant_name: "Uber", category: "Transport", date: daysAgo(1), type: "debit" },
-    { amount: -125.67, description: "Weekly Groceries", merchant_name: "Woolworths", category: "Groceries", date: daysAgo(3), type: "debit" },
-    { amount: -78.50, description: "Dinner - Italian Place", merchant_name: "The Italian Place", category: "Dining", date: daysAgo(2), type: "debit" },
-    { amount: -6.50, description: "Morning Coffee", merchant_name: "Campos Coffee", category: "Dining", date: daysAgo(1), type: "debit" },
-    { amount: -149.00, description: "New Headphones", merchant_name: "JB Hi-Fi", category: "Shopping", date: daysAgo(6), type: "debit" },
-    { amount: -125.00, description: "Health Insurance Premium", merchant_name: "Medibank", category: "Insurance", date: daysAgo(9), type: "debit" },
-    { amount: -500.00, description: "Transfer to Savings", merchant_name: "Internal Transfer", category: "Transfer", date: daysAgo(1), type: "debit" },
-  ]
-
-  const transactionsToInsert = mockTransactions.map((tx, idx) => ({
-    user_id: userId,
-    fiskil_transaction_id: `mock-tx-${userId}-${idx}`,
-    amount: tx.amount,
-    currency: "AUD",
-    description: tx.description,
-    merchant_name: tx.merchant_name,
-    category: tx.category,
-    transaction_type: tx.type,
-    transaction_date: tx.date,
-    is_pending: false,
-  }))
-
-  const { error: transactionsError } = await safeUpsert(
-    supabase, "transactions", transactionsToInsert, "user_id,fiskil_transaction_id", userId
-  )
-
-  if (transactionsError) {
-    console.error("Error inserting mock transactions:", transactionsError)
-  }
-
-  return NextResponse.json({
-    ok: true,
-    message: "Mock data injected successfully (Fiskil not configured)",
-    accounts: mockAccounts.length,
     transactions: transactionsToInsert.length,
   })
 }

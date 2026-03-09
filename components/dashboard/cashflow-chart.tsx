@@ -15,6 +15,8 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { useAppData } from "@/contexts/app-data-context"
+import { generateForecast } from "@/lib/financial-engine"
 
 /**
  * Unified Cashflow Forecast Chart
@@ -26,10 +28,17 @@ import {
  * How the "Today" marker works:
  * 1. Each data point stores a `rawDate` string in YYYY-MM-DD format.
  * 2. The user's current local date is normalised to the same YYYY-MM-DD
- *    format via `toISOString().slice(0, 10)` on a midnight-local Date.
+ *    format via the `toDateKey()` helper in financial-engine.ts.
  * 3. The point whose `rawDate === todayStr` is flagged `isToday: true`.
  * 4. A Recharts `<ReferenceLine>` is placed at that point's `date` label
  *    to draw the vertical line + "Today" label.
+ *
+ * Data source:
+ * - Historical points use actual income/expense aggregates from the user's
+ *   real transaction data (via useAppData context).
+ * - Future points project forward using computed weekly averages plus
+ *   known recurring subscription amounts.
+ * - No synthetic or randomly generated data is used.
  */
 
 const chartConfig = {
@@ -43,123 +52,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-/** Normalise a Date to a YYYY-MM-DD string using the local timezone. */
-function toDateKey(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, "0")
-  const day = String(d.getDate()).padStart(2, "0")
-  return `${y}-${m}-${day}`
-}
-
-interface ForecastDataPoint {
-  /** Display label, e.g. "Mar 9" */
-  date: string
-  /** ISO-like key for date matching, e.g. "2026-03-09" */
-  rawDate: string
-  /** Projected income for the period */
-  income: number
-  /** Projected expenses for the period */
-  expenses: number
-  /** true when this point is the user's current local date */
-  isToday: boolean
-  /** true for dates after today (forecast territory) */
-  isFuture: boolean
-}
-
-/**
- * Generate forecast data spanning 3 months in the past through 6 months
- * into the future.  Data is generated at weekly intervals so the chart
- * is not too cluttered while still giving a clear timeline.
- */
-function generateForecastData(): {
-  data: ForecastDataPoint[]
-  todayLabel: string
-  projectedIncome: number
-  projectedExpenses: number
-  projectedDate: string
-} {
-  const data: ForecastDataPoint[] = []
-  const today = new Date()
-  const todayStr = toDateKey(today)
-
-  // ~3 months back = -12 weeks, ~6 months forward = +26 weeks ≈ 39 total
-  const weeksBack = 12
-  const weeksForward = 26
-  let todayLabel = ""
-
-  for (let w = -weeksBack; w <= weeksForward; w++) {
-    const d = new Date(today)
-    d.setDate(d.getDate() + w * 7)
-    const key = toDateKey(d)
-    const label = d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    })
-
-    const isToday = key === todayStr
-    const isFuture = key > todayStr
-
-    // Deterministic-ish mock values so the chart looks natural.
-    // Income has a gentle upward trend; expenses fluctuate.
-    const weekIndex = w + weeksBack // 0-based index
-    const baseIncome = 4200 + Math.sin(weekIndex * 0.25) * 800
-    const baseExpenses = 2800 + Math.cos(weekIndex * 0.35) * 600
-
-    data.push({
-      date: label,
-      rawDate: key,
-      income: Math.round(baseIncome + ((weekIndex * 13) % 7) * 60),
-      expenses: Math.round(baseExpenses + ((weekIndex * 11) % 5) * 50),
-      isToday,
-      isFuture,
-    })
-
-    if (isToday) {
-      todayLabel = label
-    }
-  }
-
-  // If today didn't land exactly on a generated weekly point, find the
-  // closest point and override it to represent today.
-  if (!todayLabel && data.length > 0) {
-    let closest = data[0]
-    let minDiff = Math.abs(
-      new Date(data[0].rawDate).getTime() - today.getTime()
-    )
-    for (const pt of data) {
-      const diff = Math.abs(new Date(pt.rawDate).getTime() - today.getTime())
-      if (diff < minDiff) {
-        minDiff = diff
-        closest = pt
-      }
-    }
-    closest.isToday = true
-    closest.rawDate = todayStr
-    closest.date = today.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    })
-    todayLabel = closest.date
-    // Recalculate isFuture for all points based on updated today position
-    for (const pt of data) {
-      pt.isFuture = pt.rawDate > todayStr
-    }
-  }
-
-  const lastPoint = data[data.length - 1]
-
-  return {
-    data,
-    todayLabel,
-    projectedIncome: lastPoint?.income ?? 0,
-    projectedExpenses: lastPoint?.expenses ?? 0,
-    projectedDate: lastPoint?.date ?? "",
-  }
-}
-
 export function CashflowChart() {
+  const { transactions, subscriptions } = useAppData()
+
   const { data, todayLabel, projectedIncome, projectedExpenses, projectedDate } =
-    useMemo(() => generateForecastData(), [])
+    useMemo(
+      () => generateForecast(transactions, subscriptions),
+      [transactions, subscriptions]
+    )
 
   const netProjected = projectedIncome - projectedExpenses
 

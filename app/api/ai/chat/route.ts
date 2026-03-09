@@ -5,11 +5,12 @@ import {
 } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import {
-  NormalizedTransaction,
+  normalizeTransactions,
   filterTransactions,
   buildTransactionSummary,
   TransactionFilters,
 } from "@/lib/transactions-provider"
+import { createClient } from "@supabase/supabase-js"
 
 export const maxDuration = 30
 
@@ -90,15 +91,12 @@ export async function POST(req: Request) {
     const body = await req.json()
     const {
       messages,
-      context,
+      userId,
       filters,
       assistantParams,
     }: {
       messages: UIMessage[]
-      context?: {
-        transactions?: NormalizedTransaction[]
-        [key: string]: unknown
-      }
+      userId?: string
       filters?: TransactionFilters
       assistantParams?: AssistantParams
     } = body
@@ -114,19 +112,43 @@ export async function POST(req: Request) {
       apiKey: process.env.OPENAI_API_KEY,
     })
 
-    // Apply server-side filtering to transactions if provided
+    // Fetch transactions server-side from Supabase — never trust client
     let contextJson: string | null = null
-    if (context) {
-      let txs = (context.transactions ?? []) as NormalizedTransaction[]
-      if (filters) {
-        txs = filterTransactions(txs, filters)
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (userId && supabaseUrl && supabaseServiceKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+        const ninetyDaysAgo = new Date()
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+
+        const { data: rawTransactions } = await supabase
+          .from("transactions")
+          .select("*")
+          .eq("user_id", userId)
+          .gte("transaction_date", ninetyDaysAgo.toISOString().split("T")[0])
+          .order("transaction_date", { ascending: false })
+          .limit(500)
+
+        if (rawTransactions && rawTransactions.length > 0) {
+          let txs = normalizeTransactions(rawTransactions)
+          if (filters) {
+            txs = filterTransactions(txs, filters)
+          }
+          const summary = buildTransactionSummary(txs)
+          contextJson = JSON.stringify(
+            { ...summary, recentTransactions: txs.slice(0, 200) },
+            null,
+            2
+          )
+        }
+      } catch (dbError) {
+        console.error("Error fetching transactions for AI context:", dbError)
+        // Continue without context rather than failing the request
       }
-      const summary = buildTransactionSummary(txs)
-      contextJson = JSON.stringify(
-        { ...summary, recentTransactions: txs.slice(0, 200) },
-        null,
-        2
-      )
     }
 
     const systemPrompt = buildSystemPrompt(
