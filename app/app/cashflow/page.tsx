@@ -28,7 +28,8 @@ export default function CashflowPage() {
   // Group by category
   const categoryBreakdown = transactions.reduce((acc, t) => {
     if (t.amount < 0) {
-      acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount)
+      const cat = t.category || t.merchant_category || "uncategorized"
+      acc[cat] = (acc[cat] || 0) + Math.abs(t.amount)
     }
     return acc
   }, {} as Record<string, number>)

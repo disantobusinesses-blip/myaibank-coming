@@ -15,6 +15,21 @@ const toV1 = (base: string) => {
 }
 const fiskilV1Base = toV1(fiskilBaseUrl)
 
+function extractFiskilCategory(tx: any): string | null {
+  if (!tx.category) return null
+  if (typeof tx.category === "string") return tx.category
+  if (typeof tx.category === "object") {
+    return (
+      tx.category.primary_category ||
+      tx.category.primaryCategory ||
+      tx.category.name ||
+      tx.category.label ||
+      null
+    )
+  }
+  return null
+}
+
 /**
  * Upsert rows into a table. If the UNIQUE constraint for onConflict is missing
  * (Postgres error 42P10), fall back to delete-then-insert for the matching rows.
@@ -75,9 +90,27 @@ async function safeUpsert(
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { end_user_id, user_id } = body
+    // Prefer verifying identity from the Authorization header
+    let verifiedUserId: string | null = null
+    const authHeader = request.headers.get("authorization")
+    if (authHeader?.startsWith("Bearer ") && supabaseUrl && supabaseServiceKey) {
+      try {
+        const adminClient = createClient(supabaseUrl, supabaseServiceKey)
+        const { data: { user } } = await adminClient.auth.getUser(
+          authHeader.replace("Bearer ", "")
+        )
+        verifiedUserId = user?.id ?? null
+      } catch {
+        // Fall through to body user_id
+      }
+    }
 
+    const body = await request.json()
+    const { end_user_id, user_id: bodyUserId } = body
+    const user_id = verifiedUserId ?? bodyUserId
+    if (!verifiedUserId) {
+      console.warn("inject: no verified auth header — falling back to body user_id")
+    }
     if (!user_id) {
       return NextResponse.json(
         { error: "user_id is required" },
@@ -156,22 +189,31 @@ export async function POST(request: NextRequest) {
 }
 
 async function fetchFiskilData(endUserId: string) {
-  // Get Fiskil token — use the same /v1/token endpoint as create-consent-session
-  const tokenRes = await fetch(`${fiskilV1Base}/token`, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json; charset=UTF-8",
-    },
-    body: JSON.stringify({
-      client_id: fiskilClientId,
-      client_secret: fiskilClientSecret,
-    }),
-  })
-
-  if (!tokenRes.ok) {
-    const text = await tokenRes.text()
-    throw new Error(`Failed to get Fiskil token (${tokenRes.status}): ${text}`)
+  let tokenRes: Response | null = null
+  let lastTokenError = ""
+  const tokenDelays = [0, 1000, 2000]
+  for (const delay of tokenDelays) {
+    if (delay > 0) await new Promise((r) => setTimeout(r, delay))
+    try {
+      tokenRes = await fetch(`${fiskilV1Base}/token`, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          client_id: fiskilClientId,
+          client_secret: fiskilClientSecret,
+        }),
+      })
+      if (tokenRes.ok) break
+      lastTokenError = await tokenRes.text()
+    } catch (err) {
+      lastTokenError = err instanceof Error ? err.message : "Unknown error"
+    }
+  }
+  if (!tokenRes || !tokenRes.ok) {
+    throw new Error(`Failed to get Fiskil token after 3 attempts: ${lastTokenError}`)
   }
 
   const tokenJson = await tokenRes.json()
@@ -307,7 +349,7 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
       currency: tx.currency || "AUD",
       description: tx.description || tx.reference,
       merchant_name: tx.merchant_name || tx.merchant?.name,
-      category: tx.category?.primary_category || tx.category,
+      category: extractFiskilCategory(tx),
       transaction_type: amount > 0 ? "credit" : "debit",
       transaction_date: tx.execution_date_time || tx.posting_date_time || tx.value_date_time || tx.date || tx.transaction_date,
       is_pending: tx.status === "PENDING" || tx.pending || false,
@@ -320,6 +362,35 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 
   if (transactionsError) {
     console.error("Error inserting transactions:", transactionsError)
+  }
+
+  // Enrich transactions with AI categorisation for any that are uncategorized
+  try {
+    const { data: uncategorised } = await supabase
+      .from("transactions")
+      .select("id, merchant_name, description, category")
+      .eq("user_id", userId)
+      .or("category.is.null,category.eq.uncategorized")
+      .limit(100)
+
+    if (uncategorised && uncategorised.length > 0) {
+      const { categoriseTransactions } = await import("@/lib/categorisation")
+      const enriched = categoriseTransactions(uncategorised)
+      for (const tx of enriched) {
+        if (tx._categorised.confidence > 0.5) {
+          await supabase
+            .from("transactions")
+            .update({
+              ai_category: tx._categorised.category,
+              ai_merchant_clean: tx._categorised.merchant,
+              categorisation_confidence: tx._categorised.confidence,
+            })
+            .eq("id", (tx as any).id)
+        }
+      }
+    }
+  } catch (enrichErr) {
+    console.error("Non-fatal: AI categorisation enrichment failed:", enrichErr)
   }
 
   return NextResponse.json({

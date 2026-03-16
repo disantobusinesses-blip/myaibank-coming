@@ -75,6 +75,15 @@ function isEssentialCategory(category: string | null): boolean {
   return ESSENTIAL_CATEGORIES.has(category.toLowerCase())
 }
 
+function trimmedMean(values: number[], trimPercent = 0.1): number {
+  if (values.length === 0) return 0
+  if (values.length <= 2) return values.reduce((a, b) => a + b, 0) / values.length
+  const sorted = [...values].sort((a, b) => a - b)
+  const trimCount = Math.floor(sorted.length * trimPercent)
+  const trimmed = sorted.slice(trimCount, sorted.length - trimCount)
+  return trimmed.reduce((a, b) => a + b, 0) / trimmed.length
+}
+
 /* ------------------------------------------------------------------ */
 /*  Core: build spending summary from real transaction data            */
 /* ------------------------------------------------------------------ */
@@ -170,12 +179,8 @@ export function generateForecast(
   // Calculate averages from historical data
   const incomeValues = Object.values(weeklyIncome)
   const expenseValues = Object.values(weeklyExpenses)
-  const avgWeeklyIncome = incomeValues.length > 0
-    ? incomeValues.reduce((s, v) => s + v, 0) / incomeValues.length
-    : 0
-  const avgWeeklyExpenses = expenseValues.length > 0
-    ? expenseValues.reduce((s, v) => s + v, 0) / expenseValues.length
-    : 0
+  const avgWeeklyIncome = trimmedMean(incomeValues)
+  const avgWeeklyExpenses = trimmedMean(expenseValues)
 
   // Monthly subscription total (for enriching future expense projections)
   const monthlySubscriptionTotal = subscriptions
@@ -289,4 +294,58 @@ export function projectMonthEnd(
   const projected = currentBalance + dailyNet * daysRemaining
 
   return { projected: Math.round(projected), daysRemaining }
+}
+
+/* ------------------------------------------------------------------ */
+/*  30/60/90 day projections                                           */
+/* ------------------------------------------------------------------ */
+
+export interface ProjectionResult {
+  days: 30 | 60 | 90
+  projectedBalance: number
+  projectedIncome: number
+  projectedExpenses: number
+  netCashflow: number
+  savingsRate: number
+  confidenceLevel: "high" | "medium" | "low"
+}
+
+export function generateProjections(
+  transactions: Transaction[],
+  subscriptions: Subscription[],
+  currentBalance: number
+): ProjectionResult[] {
+  const summary = buildSpendingSummary(transactions)
+
+  const txCount = transactions.length
+  const confidence: "high" | "medium" | "low" =
+    txCount >= 90 ? "high" : txCount >= 30 ? "medium" : "low"
+
+  const monthlySubscriptionTotal = subscriptions
+    .filter((s) => s.is_active)
+    .reduce((sum, s) => sum + Math.abs(Number(s.amount)), 0)
+
+  return ([30, 60, 90] as const).map((days) => {
+    const weeks = days / 7
+    const projectedIncome = summary.avgWeeklyIncome * weeks
+    const projectedExpenses =
+      summary.avgWeeklyExpenses * weeks +
+      monthlySubscriptionTotal * (days / 30)
+    const netCashflow = projectedIncome - projectedExpenses
+    const projectedBalance = currentBalance + netCashflow
+    const savingsRate =
+      projectedIncome > 0
+        ? Math.max(0, netCashflow / projectedIncome)
+        : 0
+
+    return {
+      days,
+      projectedBalance: Math.round(projectedBalance),
+      projectedIncome: Math.round(projectedIncome),
+      projectedExpenses: Math.round(projectedExpenses),
+      netCashflow: Math.round(netCashflow),
+      savingsRate: Math.round(savingsRate * 100) / 100,
+      confidenceLevel: confidence,
+    }
+  })
 }
