@@ -152,7 +152,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         redirectTo: `${origin}/auth/callback`,
       },
     })
-    return { error: error ? new Error(error.message) : null }
+
+    if (error) {
+      // Extract the human-readable message even if Supabase returns raw JSON
+      // e.g. {"code":400,"error_code":"validation_failed","msg":"Unsupported provider: ..."}
+      let message = error.message ?? "Google sign-in failed"
+      try {
+        const parsed = JSON.parse(message)
+        if (parsed?.msg) message = parsed.msg
+      } catch {
+        // message is already a plain string — use as-is
+      }
+
+      // Surface a user-friendly message when the provider isn't enabled in Supabase
+      if (
+        message.toLowerCase().includes("provider is not enabled") ||
+        message.toLowerCase().includes("unsupported provider")
+      ) {
+        return {
+          error: new Error(
+            "Google sign-in is not available right now. Please contact support."
+          ),
+        }
+      }
+
+      return { error: new Error(message) }
+    }
+
+    return { error: null }
   }
 
   const signOut = async () => {

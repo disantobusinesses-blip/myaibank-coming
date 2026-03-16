@@ -81,6 +81,7 @@ function trimmedMean(values: number[], trimPercent = 0.1): number {
   const sorted = [...values].sort((a, b) => a - b)
   const trimCount = Math.floor(sorted.length * trimPercent)
   const trimmed = sorted.slice(trimCount, sorted.length - trimCount)
+  if (trimmed.length === 0) return sorted.reduce((a, b) => a + b, 0) / sorted.length
   return trimmed.reduce((a, b) => a + b, 0) / trimmed.length
 }
 

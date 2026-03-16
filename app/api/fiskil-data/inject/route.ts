@@ -366,16 +366,16 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 
   // Enrich transactions with AI categorisation for any that are uncategorized
   try {
-    const { data: uncategorised } = await supabase
+    const { data: uncategorized } = await supabase
       .from("transactions")
       .select("id, merchant_name, description, category")
       .eq("user_id", userId)
       .or("category.is.null,category.eq.uncategorized")
       .limit(100)
 
-    if (uncategorised && uncategorised.length > 0) {
+    if (uncategorized && uncategorized.length > 0) {
       const { categoriseTransactions } = await import("@/lib/categorisation")
-      const enriched = categoriseTransactions(uncategorised)
+      const enriched = categoriseTransactions(uncategorized)
       for (const tx of enriched) {
         if (tx._categorised.confidence > 0.5) {
           await supabase
