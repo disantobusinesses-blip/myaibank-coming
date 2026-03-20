@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import type { UIMessage } from "ai"
-import { Bot, Loader2, Sparkles, User } from "lucide-react"
+import { Sparkles, User } from "lucide-react"
 import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"
 import { useAuth } from "@/contexts/auth-context"
 import { useAppData } from "@/contexts/app-data-context"
@@ -23,10 +23,10 @@ const WELCOME_MESSAGE: UIMessage = {
 }
 
 const suggestedQuestions = [
-  "What are my top spending categories?",
-  "How much did I spend on dining this month?",
-  "Do I have any unused subscriptions?",
-  "How can I save more money?",
+  "Analyse my spending",
+  "What's my biggest expense?",
+  "Am I on track to save this month?",
+  "Show my subscriptions",
 ]
 
 function getMessageText(message: {
@@ -117,14 +117,27 @@ export default function CopilotPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] lg:h-screen max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 lg:p-6 border-b border-border">
-        <div className="w-10 h-10 rounded-xl bg-[#1F0051]/20 flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-[#8b5cf6]" />
+      {/* AI Persona Header */}
+      <div className="flex items-center gap-3 p-4 lg:p-5 border-b border-white/06">
+        <div className="w-10 h-10 rounded-2xl bg-[#7c3aed]/20 flex items-center justify-center shrink-0">
+          <Sparkles className="w-5 h-5 text-[#a78bfa]" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground">AI Financial Copilot</h1>
-          <p className="text-xs text-muted-foreground">Powered by Claude · Your personal finance assistant</p>
+          <p className="font-semibold text-foreground">MyAiBank AI</p>
+          <p className="text-xs text-muted-foreground">
+            Powered by Claude Opus · Your personal finance assistant
+          </p>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          {dailyRemaining !== null && (
+            <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider hidden sm:block">
+              {dailyRemaining} messages left today
+            </span>
+          )}
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
+            <span className="text-xs text-muted-foreground">Online</span>
+          </div>
         </div>
       </div>
 
@@ -141,21 +154,26 @@ export default function CopilotPage() {
               }`}
             >
               {message.role === "assistant" && (
-                <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Bot className="w-4 h-4 text-[#8b5cf6]" />
+                <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-4 h-4 text-[#a78bfa]" />
                 </div>
               )}
               <div
                 className={`max-w-[80%] lg:max-w-[70%] p-4 rounded-2xl text-sm whitespace-pre-wrap leading-relaxed ${
-                  message.role === "user"
-                    ? "bg-[#1F0051] text-white rounded-br-sm"
-                    : "bg-secondary text-foreground rounded-bl-sm"
+                  message.role === "user" ? "rounded-br-sm text-white" : "rounded-bl-sm text-[#f5f5f7]"
                 }`}
+                style={message.role === "user" ? {
+                  background: "rgba(124,58,237,0.2)",
+                  border: "1px solid rgba(124,58,237,0.3)",
+                } : {
+                  background: "rgba(124,58,237,0.08)",
+                  border: "1px solid rgba(124,58,237,0.15)",
+                }}
               >
                 {text}
               </div>
               {message.role === "user" && (
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-8 h-8 rounded-xl bg-white/06 flex items-center justify-center flex-shrink-0 mt-1">
                   <User className="w-4 h-4 text-foreground" />
                 </div>
               )}
@@ -165,11 +183,16 @@ export default function CopilotPage() {
 
         {isLoading && (
           <div className="flex gap-3 justify-start">
-            <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0 mt-1">
-              <Bot className="w-4 h-4 text-[#8b5cf6]" />
+            <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0 mt-1">
+              <Sparkles className="w-4 h-4 text-[#a78bfa]" />
             </div>
-            <div className="bg-secondary p-4 rounded-2xl rounded-bl-sm">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            <div
+              className="p-4 rounded-2xl rounded-bl-sm flex items-center gap-1.5"
+              style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}
+            >
+              <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "0ms" }} />
+              <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "160ms" }} />
+              <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "320ms" }} />
             </div>
           </div>
         )}
@@ -179,15 +202,15 @@ export default function CopilotPage() {
 
       {/* Suggested questions — shown until user sends first message */}
       {messages.length <= 1 && (
-        <div className="px-4 lg:px-6 pb-2">
-          <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
+        <div className="px-4 lg:px-6 pb-3">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 mb-2">Suggested</p>
           <div className="flex flex-wrap gap-2">
             {suggestedQuestions.map((q) => (
               <button
                 key={q}
                 onClick={() => handleSendMessage(q)}
                 disabled={isLoading}
-                className="text-xs px-3 py-1.5 rounded-full bg-secondary text-foreground hover:bg-secondary/80 transition-colors disabled:opacity-50"
+                className="suggestion-pill text-xs px-3 py-1.5 rounded-full text-muted-foreground disabled:opacity-50"
               >
                 {q}
               </button>
@@ -197,10 +220,10 @@ export default function CopilotPage() {
       )}
 
       {/* Input area */}
-      <div className="p-4 lg:p-6 border-t border-border">
+      <div className="p-4 lg:p-6 border-t border-white/06">
         {dailyRemaining !== null && (
-          <p className="text-xs text-muted-foreground text-center pb-2">
-            {dailyRemaining} AI messages remaining today
+          <p className="text-[10px] text-muted-foreground/60 text-center pb-2 uppercase tracking-wider">
+            {dailyRemaining} messages remaining today
           </p>
         )}
         <ChatGPTInput

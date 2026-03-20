@@ -501,6 +501,18 @@
   transition: all 0.15s ease;
 }
 
+/* Suggestion pill — used in AI chat and copilot */
+.suggestion-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.suggestion-pill:hover {
+  border-color: rgba(124, 58, 237, 0.4);
+  color: #a78bfa;
+}
+
 /* Reduced motion for premium utilities */
 @media (prefers-reduced-motion: reduce) {
   .balance-pulse,

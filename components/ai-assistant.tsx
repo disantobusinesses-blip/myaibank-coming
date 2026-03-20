@@ -12,10 +12,9 @@ const WELCOME_MESSAGE: UIMessage = {
 }
 import { Button } from "@/components/ui/button"
 import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"
-import { 
-  X, 
+import {
+  X,
   Sparkles,
-  Bot,
   User,
   AlertCircle
 } from "lucide-react"
@@ -173,7 +172,7 @@ export function AIAssistant() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 ai-btn-glow ${
+        className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 ai-btn-glow ${
           isOpen ? "hidden" : "flex"
         }`}
         aria-label="Open AI Financial Assistant"
@@ -183,68 +182,84 @@ export function AIAssistant() {
 
       {/* Chat Panel */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-[calc(100%-2rem)] max-w-md h-[500px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-chat-slide-up">
+        <div className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-[calc(100%-2rem)] max-w-lg h-[600px] max-h-[80vh] bg-[#0f0f16] border border-[rgba(124,58,237,0.2)] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-chat-slide-up">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-[#1F0051] to-[#2d1b69]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">AI Financial Assistant</h3>
-                <p className="text-xs text-white/70">Powered by MyAiBank</p>
-              </div>
+          <div className="flex items-center gap-3 p-4 border-b border-white/06">
+            <div className="w-10 h-10 rounded-2xl bg-[#7c3aed]/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-[#a78bfa]" />
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm">MyAiBank AI</p>
+              <p className="text-[10px] text-muted-foreground">Powered by Claude Opus · Your personal finance assistant</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {dailyRemaining !== null && !isDemoMode && (
+                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider hidden sm:block">
+                  {dailyRemaining} left today
+                </span>
+              )}
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
+                <span className="text-xs text-muted-foreground">Online</span>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-white/06 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
             {messages.map((message) => {
               const text = getMessageText(message)
               if (!text) return null
               return (
                 <div
                   key={message.id}
-                  className={`flex gap-3 animate-msg-fade-in ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-2.5 animate-msg-fade-in ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {message.role === "assistant" && (
-                    <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-[#1F0051]" />
+                    <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Sparkles className="w-4 h-4 text-[#a78bfa]" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
+                    className={`max-w-[82%] p-3 rounded-2xl text-sm whitespace-pre-wrap leading-relaxed ${
                       message.role === "user"
-                        ? "bg-[#1F0051] text-white rounded-br-md"
-                        : "bg-secondary text-foreground rounded-bl-md"
+                        ? "rounded-br-sm text-white"
+                        : "rounded-bl-sm text-[#f5f5f7]"
                     }`}
+                    style={message.role === "user" ? {
+                      background: "rgba(124,58,237,0.2)",
+                      border: "1px solid rgba(124,58,237,0.3)",
+                    } : {
+                      background: "rgba(124,58,237,0.08)",
+                      border: "1px solid rgba(124,58,237,0.15)",
+                    }}
                   >
                     {text}
                   </div>
                   {message.role === "user" && (
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-white/06 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <User className="w-4 h-4 text-foreground" />
                     </div>
                   )}
                 </div>
               )
             })}
-            
+
             {isLoading && (
-              <div className="flex gap-3 justify-start animate-msg-fade-in">
-                <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-[#8b5cf6]" />
+              <div className="flex gap-2.5 justify-start animate-msg-fade-in">
+                <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#a78bfa]" />
                 </div>
-                <div className="bg-secondary p-3 rounded-2xl rounded-bl-md flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "160ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "320ms" }} />
+                <div className="p-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}>
+                  <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "160ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "320ms" }} />
                 </div>
               </div>
             )}
@@ -254,13 +269,13 @@ export function AIAssistant() {
           {/* Suggested Questions */}
           {messages.length <= 2 && (
             <div className="px-4 pb-2">
-              <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 mb-2">Suggested</p>
+              <div className="flex flex-wrap gap-1.5">
                 {suggestedQuestions.map((question) => (
                   <button
                     key={question}
                     onClick={() => handleSuggestedQuestion(question)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
+                    className="suggestion-pill text-xs px-3 py-1.5 rounded-full text-muted-foreground"
                   >
                     {question}
                   </button>
@@ -271,19 +286,19 @@ export function AIAssistant() {
 
           {/* Demo Limit Message */}
           {isDemoMode && demoLimitReached && (
-            <div className="px-4 py-3 bg-amber-50 border-t border-amber-200">
+            <div className="px-4 py-3 border-t border-amber-500/20 bg-amber-500/10">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-amber-800">Demo limit reached</p>
-                  <p className="text-xs text-amber-700 mt-0.5">
-                    Sign up to continue using the AI Financial Assistant with unlimited questions.
+                  <p className="text-sm font-medium text-amber-400">Demo limit reached</p>
+                  <p className="text-xs text-amber-500/80 mt-0.5">
+                    Sign up to continue with unlimited AI questions.
                   </p>
                   <Link
                     href="/signup"
-                    className="inline-block mt-2 text-xs font-medium text-[#1F0051] hover:underline"
+                    className="inline-block mt-2 text-xs font-medium text-[#a78bfa] hover:underline"
                   >
-                    Sign up to continue
+                    Sign up for free →
                   </Link>
                 </div>
               </div>
@@ -291,15 +306,10 @@ export function AIAssistant() {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-border">
-            {dailyRemaining !== null && !isDemoMode && (
-              <p className="text-xs text-muted-foreground text-center pb-2">
-                {dailyRemaining} AI messages remaining today
-              </p>
-            )}
+          <div className="p-4 border-t border-white/06">
             {isDemoMode && !demoLimitReached && (
-              <p className="text-xs text-muted-foreground text-center pb-2">
-                Demo mode: {DEMO_AI_LIMIT - demoAiCount} question{DEMO_AI_LIMIT - demoAiCount !== 1 ? 's' : ''} remaining
+              <p className="text-[10px] text-muted-foreground/60 text-center pb-2 uppercase tracking-wider">
+                Demo · {DEMO_AI_LIMIT - demoAiCount} question{DEMO_AI_LIMIT - demoAiCount !== 1 ? 's' : ''} remaining
               </p>
             )}
             <ChatGPTInput
