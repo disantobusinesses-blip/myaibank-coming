@@ -13,6 +13,7 @@ import {
 import { generateProjections } from "@/lib/financial-engine"
 import type { Transaction, Subscription } from "@/contexts/app-data-context"
 import { createClient } from "@supabase/supabase-js"
+import { checkAndIncrementChatUsage } from "@/lib/ai-usage"
 
 export const maxDuration = 30
 
@@ -139,6 +140,52 @@ export async function POST(req: Request) {
 
     // Fetch transactions, accounts, and subscriptions server-side
     let contextJson: string | null = null
+
+    // Enforce subscription and usage limits
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized — please sign in." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      )
+    }
+
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("subscription_status")
+        .eq("id", userId)
+        .single()
+
+      if (profile?.subscription_status !== "active") {
+        return new Response(
+          JSON.stringify({
+            error: "subscription_required",
+            message: "An active MyAiBank subscription is required to use AI features. Subscribe for $14.99/month.",
+          }),
+          { status: 403, headers: { "Content-Type": "application/json" } }
+        )
+      }
+
+      const usageCheck = await checkAndIncrementChatUsage(
+        supabaseAdmin,
+        userId,
+        profile.subscription_status
+      )
+
+      if (!usageCheck.allowed) {
+        return new Response(
+          JSON.stringify({
+            error: "daily_limit_reached",
+            message: `You've reached your daily limit of ${usageCheck.limit} AI messages. Your limit resets tomorrow.`,
+            limit: usageCheck.limit,
+            remaining: 0,
+          }),
+          { status: 429, headers: { "Content-Type": "application/json" } }
+        )
+      }
+    }
 
     if (userId && supabaseUrl && supabaseServiceKey) {
       try {

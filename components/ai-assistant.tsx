@@ -3,11 +3,17 @@
 import { useState, useRef, useEffect, useMemo } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
+import type { UIMessage } from "ai"
+
+const WELCOME_MESSAGE: UIMessage = {
+  id: "welcome",
+  role: "assistant",
+  parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
+}
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"
 import { 
   X, 
-  Send, 
   Loader2, 
   Sparkles,
   Bot,
@@ -17,6 +23,7 @@ import {
 import Link from "next/link"
 import { useAppData } from "@/contexts/app-data-context"
 import { normalizeTransactions } from "@/lib/transactions-provider"
+import { createClient } from "@/lib/supabase/client"
 
 const suggestedQuestions = [
   "What are my top spending categories?",
@@ -66,6 +73,7 @@ export function AIAssistant() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [demoAiCount, setDemoAiCount] = useState(0)
   const [demoLimitReached, setDemoLimitReached] = useState(false)
+  const [dailyRemaining, setDailyRemaining] = useState<number | null>(null)
   const { transactions } = useAppData()
 
   // Check demo mode on mount
@@ -79,29 +87,48 @@ export function AIAssistant() {
     }
   }, [])
 
+  // Fetch daily usage for authenticated users
+  useEffect(() => {
+    const fetchUsage = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const monthYear = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`
+      const today = new Date().toISOString().split("T")[0]
+
+      const { data } = await supabase
+        .from("ai_usage")
+        .select("daily_chat_count, usage_date")
+        .eq("user_id", user.id)
+        .eq("month_year", monthYear)
+        .single()
+
+      const used = data?.usage_date === today ? (data?.daily_chat_count ?? 0) : 0
+      setDailyRemaining(50 - used)
+    }
+    fetchUsage()
+  }, [])
+
   const aiContext = useMemo(() => {
     const normalized = normalizeTransactions(transactions)
     return { transactions: normalized }
   }, [transactions])
 
   const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
-    body: {
-      context: aiContext,
-      assistantParams: {
-        tone: "advisor",
-        verbosity: "normal",
-        riskSensitivity: "medium",
-        locale: "AU",
+    transport: new DefaultChatTransport({
+      api: "/api/ai/chat",
+      body: {
+        context: aiContext,
+        assistantParams: {
+          tone: "advisor",
+          verbosity: "normal",
+          riskSensitivity: "medium",
+          locale: "AU",
+        },
       },
-    },
-    initialMessages: [
-      {
-        id: "welcome",
-        role: "assistant",
-        parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
-      },
-    ],
+    }),
+    messages: [WELCOME_MESSAGE],
   })
 
   const isLoading = status === "streaming" || status === "submitted"
@@ -114,8 +141,9 @@ export function AIAssistant() {
     scrollToBottom()
   }, [messages])
 
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return
+  const handleSend = (messageText?: string) => {
+    const text = (messageText ?? input).trim()
+    if (!text || isLoading) return
     
     // Check demo mode limit
     if (isDemoMode) {
@@ -131,12 +159,14 @@ export function AIAssistant() {
       }
     }
     
-    sendMessage({ text: input.trim() })
+    sendMessage({ text })
     setInput("")
+    // Decrement local counter optimistically
+    setDailyRemaining((prev) => (prev !== null ? Math.max(0, prev - 1) : null))
   }
 
   const handleSuggestedQuestion = (question: string) => {
-    setInput(question)
+    handleSend(question)
   }
 
   return (
@@ -261,33 +291,24 @@ export function AIAssistant() {
 
           {/* Input */}
           <div className="p-4 border-t border-border">
-            <div className="flex items-center gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder={isDemoMode && demoLimitReached ? "Sign up to continue..." : "Ask me anything..."}
-                className="flex-1 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-                disabled={isLoading || (isDemoMode && demoLimitReached)}
-              />
-              <Button
-                onClick={handleSend}
-                disabled={!input.trim() || isLoading || (isDemoMode && demoLimitReached)}
-                size="icon"
-                className="bg-[#1F0051] hover:bg-[#1F0051]/90 text-white"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+            {dailyRemaining !== null && !isDemoMode && (
+              <p className="text-xs text-muted-foreground text-center pb-2">
+                {dailyRemaining} AI messages remaining today
+              </p>
+            )}
             {isDemoMode && !demoLimitReached && (
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-xs text-muted-foreground text-center pb-2">
                 Demo mode: {DEMO_AI_LIMIT - demoAiCount} question{DEMO_AI_LIMIT - demoAiCount !== 1 ? 's' : ''} remaining
               </p>
             )}
+            <ChatGPTInput
+              placeholder={isDemoMode && demoLimitReached ? "Sign up to continue..." : "Ask about your finances..."}
+              onSubmit={(value) => handleSend(value)}
+              disabled={isLoading || (isDemoMode && demoLimitReached)}
+              textColor="#0A1217"
+              showEffects={true}
+              menuOptions={["Analysis", "Forecast", "Budget", "Savings"]}
+            />
           </div>
         </div>
       )}
