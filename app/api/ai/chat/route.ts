@@ -185,28 +185,25 @@ export async function POST(req: Request) {
           { status: 429, headers: { "Content-Type": "application/json" } }
         )
       }
-    }
 
-    if (userId && supabaseUrl && supabaseServiceKey) {
+      // Reuse the same supabaseAdmin for fetching financial context
       try {
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
         const ninetyDaysAgo = new Date()
         ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
         const [txResult, accountsResult, subsResult] = await Promise.all([
-          supabase
+          supabaseAdmin
             .from("transactions")
             .select("*")
             .eq("user_id", userId)
             .gte("transaction_date", ninetyDaysAgo.toISOString().split("T")[0])
             .order("transaction_date", { ascending: false })
             .limit(500),
-          supabase
+          supabaseAdmin
             .from("bank_accounts")
             .select("balance")
             .eq("user_id", userId),
-          supabase
+          supabaseAdmin
             .from("subscriptions")
             .select("*")
             .eq("user_id", userId)
