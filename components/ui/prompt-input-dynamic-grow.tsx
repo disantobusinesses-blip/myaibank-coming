@@ -16,7 +16,7 @@ export default function ChatGPTInput({
   placeholder = "Message...",
   onSubmit,
   disabled = false,
-  textColor = "#0A1217",
+  textColor = "#ffffff",
   showEffects = true,
   menuOptions = [],
 }: ChatGPTInputProps) {

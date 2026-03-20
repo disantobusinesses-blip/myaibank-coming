@@ -20,14 +20,12 @@ import {
   Menu,
   X,
   LogOut,
-  Sparkles,
 } from "lucide-react"
 import { AIAssistant } from "@/components/ai-assistant"
 import Image from "next/image"
 
 const navItems = [
   { href: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/copilot", label: "AI Copilot", icon: Sparkles },
   { href: "/app/transactions", label: "Transactions", icon: CreditCard },
   { href: "/app/subscriptions", label: "Subscriptions", icon: RefreshCcw },
   { href: "/app/forecast", label: "Forecast", icon: TrendingUp },

@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button"
 import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"
 import { 
   X, 
-  Loader2, 
   Sparkles,
   Bot,
   User,
@@ -174,7 +173,7 @@ export function AIAssistant() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-105 ${
+        className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#1F0051] to-[#6b21a8] text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 ai-btn-glow ${
           isOpen ? "hidden" : "flex"
         }`}
         aria-label="Open AI Financial Assistant"
@@ -184,7 +183,7 @@ export function AIAssistant() {
 
       {/* Chat Panel */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-[calc(100%-2rem)] max-w-md h-[500px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-[calc(100%-2rem)] max-w-md h-[500px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-chat-slide-up">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-[#1F0051] to-[#2d1b69]">
             <div className="flex items-center gap-3">
@@ -212,7 +211,7 @@ export function AIAssistant() {
               return (
                 <div
                   key={message.id}
-                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-3 animate-msg-fade-in ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {message.role === "assistant" && (
                     <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
@@ -238,12 +237,14 @@ export function AIAssistant() {
             })}
             
             {isLoading && (
-              <div className="flex gap-3 justify-start">
+              <div className="flex gap-3 justify-start animate-msg-fade-in">
                 <div className="w-8 h-8 rounded-full bg-[#1F0051]/20 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-[#1F0051]" />
+                  <Bot className="w-4 h-4 text-[#8b5cf6]" />
                 </div>
-                <div className="bg-secondary p-3 rounded-2xl rounded-bl-md">
-                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                <div className="bg-secondary p-3 rounded-2xl rounded-bl-md flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "160ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce-dot" style={{ animationDelay: "320ms" }} />
                 </div>
               </div>
             )}
@@ -305,7 +306,7 @@ export function AIAssistant() {
               placeholder={isDemoMode && demoLimitReached ? "Sign up to continue..." : "Ask about your finances..."}
               onSubmit={(value) => handleSend(value)}
               disabled={isLoading || (isDemoMode && demoLimitReached)}
-              textColor="#0A1217"
+              textColor="#ffffff"
               showEffects={true}
               menuOptions={["Analysis", "Forecast", "Budget", "Savings"]}
             />

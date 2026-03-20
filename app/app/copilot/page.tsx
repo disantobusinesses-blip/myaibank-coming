@@ -207,7 +207,7 @@ export default function CopilotPage() {
           placeholder="Ask about your finances..."
           onSubmit={(value) => handleSendMessage(value)}
           disabled={isLoading}
-          textColor="#0A1217"
+          textColor="#ffffff"
           showEffects={true}
           menuOptions={["Analysis", "Forecast", "Budget", "Savings"]}
         />
