@@ -37,11 +37,10 @@ function formatAustralianDate(dateStr: string): string {
 async function getPost(slug: string): Promise<Post | null> {
   try {
     const { data } = await blogClient
-      .from("posts")
+      .from("myaibank_posts")
       .select("id, slug, title, description, content, published, created_at")
       .eq("slug", slug)
       .eq("published", true)
-      .eq("business", "myaibank")
       .single()
 
     return (data as Post) ?? null

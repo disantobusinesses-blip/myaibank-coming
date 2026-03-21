@@ -150,10 +150,9 @@ export default async function BlogIndexPage() {
 
   try {
     const { data } = await blogClient
-      .from("posts")
+      .from("myaibank_posts")
       .select("id, slug, title, description, published, created_at")
       .eq("published", true)
-      .eq("business", "myaibank")
       .order("created_at", { ascending: false })
 
     posts = (data as Post[]) ?? []
