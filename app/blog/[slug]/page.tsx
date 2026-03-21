@@ -2,7 +2,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import ReactMarkdown from "react-markdown"
-import { createPublicClient } from "@/lib/supabase"
+import { createClient } from "@supabase/supabase-js"
+
+const blogClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_ANON_KEY!
+)
 
 export const revalidate = 60
 
@@ -30,17 +35,19 @@ function formatAustralianDate(dateStr: string): string {
 }
 
 async function getPost(slug: string): Promise<Post | null> {
-  const supabase = createPublicClient()
-  if (!supabase) return null
+  try {
+    const { data } = await blogClient
+      .from("posts")
+      .select("id, slug, title, description, content, published, created_at")
+      .eq("slug", slug)
+      .eq("published", true)
+      .eq("business", "myaibank")
+      .single()
 
-  const { data } = await supabase
-    .from("posts")
-    .select("id, slug, title, description, content, published, created_at")
-    .eq("slug", slug)
-    .eq("published", true)
-    .single()
-
-  return (data as Post) ?? null
+    return (data as Post) ?? null
+  } catch {
+    return null
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

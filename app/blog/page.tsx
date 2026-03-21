@@ -1,6 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { createPublicClient } from "@/lib/supabase"
+import { createClient } from "@supabase/supabase-js"
+
+const blogClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_ANON_KEY!
+)
 
 export const revalidate = 60
 
@@ -141,17 +146,19 @@ function formatAustralianDate(dateStr: string): string {
 }
 
 export default async function BlogIndexPage() {
-  const supabase = createPublicClient()
   let posts: Post[] = []
 
-  if (supabase) {
-    const { data } = await supabase
+  try {
+    const { data } = await blogClient
       .from("posts")
       .select("id, slug, title, description, published, created_at")
       .eq("published", true)
+      .eq("business", "myaibank")
       .order("created_at", { ascending: false })
 
     posts = (data as Post[]) ?? []
+  } catch {
+    // fall through to static fallback
   }
 
   // Fall back to static posts when Supabase returns nothing
