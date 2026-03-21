@@ -5,16 +5,16 @@ import { createPublicClient } from "@/lib/supabase"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Blog — AI Money Management Insights | MyAiBank",
+  title: "Blog | MyAiBank",
   description:
-    "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+    "Expert tips on budgeting, saving, and managing money in Australia",
   alternates: {
     canonical: "/blog",
   },
   openGraph: {
-    title: "Blog — AI Money Management Insights | MyAiBank",
+    title: "Blog | MyAiBank",
     description:
-      "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+      "Expert tips on budgeting, saving, and managing money in Australia",
     url: "/blog",
     type: "website",
     siteName: "MyAiBank",
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Blog — AI Money Management Insights | MyAiBank",
+    title: "Blog | MyAiBank",
     description:
-      "Read our latest articles on AI budgeting, spending insights, subscription detection, and financial health for Australians.",
+      "Expert tips on budgeting, saving, and managing money in Australia",
   },
 }
 
@@ -131,6 +131,15 @@ const STATIC_POSTS: Post[] = [
   },
 ]
 
+function formatAustralianDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Australia/Sydney",
+  })
+}
+
 export default async function BlogIndexPage() {
   const supabase = createPublicClient()
   let posts: Post[] = []
@@ -156,35 +165,39 @@ export default async function BlogIndexPage() {
         MyAiBank Blog
       </h1>
       <p className="mb-8 leading-relaxed" style={{ color: "#555" }}>
-        Learn how AI-powered tools help Australians budget smarter, track
-        spending, and improve their financial health.
+        Expert tips on budgeting, saving, and managing money in Australia.
       </p>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
           <Link
             key={post.id}
             href={`/blog/${post.slug}`}
-            className="block p-5 rounded-2xl border hover:shadow-sm transition-shadow"
+            className="flex flex-col p-5 rounded-2xl border hover:shadow-md transition-shadow"
             style={{ borderColor: "#e5e5e5" }}
           >
             <h2
-              className="text-xl font-semibold mb-1"
+              className="text-base font-semibold mb-2 leading-snug"
               style={{ color: "#180D27" }}
             >
               {post.title}
             </h2>
             {post.description && (
-              <p className="text-sm leading-relaxed" style={{ color: "#666" }}>
+              <p
+                className="text-sm leading-relaxed line-clamp-3 flex-1"
+                style={{ color: "#666" }}
+              >
                 {post.description}
               </p>
             )}
-            <span
-              className="text-xs mt-2 inline-block"
-              style={{ color: "#180D27" }}
-            >
-              Read more →
-            </span>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs" style={{ color: "#999" }}>
+                {formatAustralianDate(post.created_at)}
+              </span>
+              <span className="text-xs font-medium" style={{ color: "#180D27" }}>
+                Read →
+              </span>
+            </div>
           </Link>
         ))}
       </div>

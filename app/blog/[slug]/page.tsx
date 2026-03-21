@@ -1,42 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import sanitizeHtml from "sanitize-html"
+import ReactMarkdown from "react-markdown"
 import { createPublicClient } from "@/lib/supabase"
 
 export const revalidate = 60
-
-/** Allowed HTML tags and attributes for blog post content. */
-const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-  allowedTags: [
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    "p", "br", "hr",
-    "ul", "ol", "li",
-    "strong", "em", "b", "i", "u", "s",
-    "a",
-    "blockquote", "pre", "code",
-    "table", "thead", "tbody", "tr", "th", "td",
-    "img",
-    "div", "span",
-  ],
-  allowedAttributes: {
-    a: ["href", "title", "target", "rel"],
-    img: ["src", "alt", "width", "height", "loading"],
-    "*": ["class", "style"],
-  },
-  // Force external links to open safely
-  transformTags: {
-    a: (tagName, attribs) => ({
-      tagName,
-      attribs: {
-        ...attribs,
-        ...(attribs.href?.startsWith("http")
-          ? { target: "_blank", rel: "noopener noreferrer" }
-          : {}),
-      },
-    }),
-  },
-}
 
 interface Post {
   id: string
@@ -50,6 +18,15 @@ interface Post {
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+function formatAustralianDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Australia/Sydney",
+  })
 }
 
 async function getPost(slug: string): Promise<Post | null> {
@@ -106,19 +83,36 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article>
-      <h1 className="text-3xl font-bold mb-4" style={{ color: "#180D27" }}>
-        {post.title}
-      </h1>
-      <p className="text-sm mb-8" style={{ color: "#999" }}>
-        Published by MyAiBank
-      </p>
+      {/* Back link */}
+      <Link
+        href="/blog"
+        className="inline-flex items-center gap-1 text-sm mb-8 hover:underline"
+        style={{ color: "#666" }}
+      >
+        ← Back to Blog
+      </Link>
 
-      <div
-        className="prose prose-slate max-w-none"
-        dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content, SANITIZE_OPTIONS) }}
-      />
+      {/* Hero */}
+      <div className="mb-10">
+        <h1 className="text-3xl font-bold mb-3 leading-tight" style={{ color: "#180D27" }}>
+          {post.title}
+        </h1>
+        {post.description && (
+          <p className="text-lg leading-relaxed mb-3" style={{ color: "#555" }}>
+            {post.description}
+          </p>
+        )}
+        <p className="text-sm" style={{ color: "#999" }}>
+          {formatAustralianDate(post.created_at)}
+        </p>
+      </div>
 
-      {/* Conversion CTA */}
+      {/* Markdown content */}
+      <div className="prose prose-slate max-w-none">
+        <ReactMarkdown>{post.content}</ReactMarkdown>
+      </div>
+
+      {/* CTA banner */}
       <div
         className="mt-12 p-8 rounded-2xl text-center"
         style={{ backgroundColor: "#f9f7fc", border: "1px solid #e8e0f0" }}
@@ -127,20 +121,21 @@ export default async function BlogPostPage({ params }: Props) {
           className="text-xl font-semibold mb-2"
           style={{ color: "#180D27" }}
         >
-          Ready to see your finances analysed instantly?
+          Ready to take control of your finances?
         </h3>
-        <p className="mb-4" style={{ color: "#555" }}>
-          Try the MyAiBank demo and experience AI-powered money insights.
+        <p className="mb-5" style={{ color: "#555" }}>
+          Join MyAiBank and get AI-powered financial insights for $14.99/month.
+          No lock-in, cancel anytime.
         </p>
-        <Link
-          href="/"
+        <a
+          href="https://myaibank.ai"
           className="inline-block px-8 py-3 rounded-xl text-white font-semibold text-sm"
           style={{
             background: "linear-gradient(135deg, #180D27 0%, #2d1b69 100%)",
           }}
         >
-          Try the Demo
-        </Link>
+          Start Free Trial →
+        </a>
       </div>
     </article>
   )
