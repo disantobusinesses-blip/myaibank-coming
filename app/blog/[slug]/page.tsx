@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { createClient } from "@supabase/supabase-js"
 
 const blogClient = createClient(
@@ -115,7 +116,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Markdown content */}
       <div className="prose prose-slate max-w-none">
-        <ReactMarkdown>{post.content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
       </div>
 
       {/* CTA banner */}
