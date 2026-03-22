@@ -139,7 +139,18 @@ export default function SignupPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive text-center mb-6">{error}</p>
+            <div className="mb-6 text-center">
+              <p className="text-sm text-destructive">{error}</p>
+              {error.toLowerCase().includes("not available") && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  If this problem persists, please{" "}
+                  <a href="mailto:support@myaibank.ai" className="underline">
+                    contact support
+                  </a>
+                  .
+                </p>
+              )}
+            </div>
           )}
 
           {/* Sign In Link */}

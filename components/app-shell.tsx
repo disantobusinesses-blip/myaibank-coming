@@ -118,9 +118,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : showApp ? (
         <div className="min-h-screen bg-background flex">
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-sidebar">
+          <aside className="hidden lg:flex flex-col w-64 border-r bg-[#080810]" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
             {/* Logo */}
-            <div className="p-6 border-b border-sidebar-border">
+            <div className="p-6 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
               <Link href="/app/dashboard" className="flex items-center">
                 <Image
                   src="/MABtransparent.png"
@@ -131,6 +131,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   priority
                 />
               </Link>
+              {/* PRO badge */}
+              <div className="mt-3 px-3 py-1.5 rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 inline-block">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#a78bfa]">PRO</p>
+              </div>
             </div>
 
             {/* Nav Items */}
@@ -142,10 +146,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                       isActive
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent"
+                        ? "nav-item-active-glow bg-[#7c3aed]/10 text-[#a78bfa] font-semibold"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -156,10 +160,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </nav>
 
             {/* Sign Out / Exit Demo */}
-            <div className="p-4 border-t border-sidebar-border">
+            <div className="p-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
               <button
                 onClick={isDemoMode ? handleExitDemo : handleSignOut}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-muted-foreground hover:text-foreground hover:bg-white/[0.04] transition-all"
               >
                 <LogOut className="w-5 h-5" />
                 <span className="font-medium">{isDemoMode ? "Exit Demo" : "Sign Out"}</span>
@@ -193,11 +197,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {sidebarOpen && (
               <div className="lg:hidden fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-                <div className="absolute right-0 top-0 bottom-0 w-72 bg-sidebar border-l border-sidebar-border flex flex-col">
-                  <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-                    <span className="font-semibold text-sidebar-foreground">Menu</span>
-                    <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-sidebar-accent rounded-lg">
-                      <X className="w-5 h-5 text-sidebar-foreground" />
+                <div className="absolute right-0 top-0 bottom-0 w-72 bg-[#080810] flex flex-col" style={{ borderLeft: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="p-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                    <span className="font-semibold text-foreground">Menu</span>
+                    <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/[0.04] rounded-lg">
+                      <X className="w-5 h-5 text-muted-foreground" />
                     </button>
                   </div>
                   <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -209,10 +213,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           key={item.href}
                           href={item.href}
                           onClick={() => setSidebarOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                             isActive
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                              : "text-sidebar-foreground hover:bg-sidebar-accent"
+                              ? "nav-item-active-glow bg-[#7c3aed]/10 text-[#a78bfa] font-semibold"
+                              : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                           }`}
                         >
                           <Icon className="w-5 h-5" />
@@ -221,10 +225,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       )
                     })}
                   </nav>
-                  <div className="p-4 border-t border-sidebar-border">
+                  <div className="p-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                     <button
                       onClick={isDemoMode ? handleExitDemo : handleSignOut}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-muted-foreground hover:text-foreground hover:bg-white/[0.04] transition-all"
                     >
                       <LogOut className="w-5 h-5" />
                       <span className="font-medium">{isDemoMode ? "Exit Demo" : "Sign Out"}</span>

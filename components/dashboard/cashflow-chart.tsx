@@ -64,7 +64,7 @@ export function CashflowChart() {
   const netProjected = projectedIncome - projectedExpenses
 
   return (
-    <div className="rounded-2xl bg-card border border-border p-4 lg:p-6">
+    <div className="card-glass rounded-2xl p-4 lg:p-6">
       <div className="mb-4">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
           Cashflow Forecast
@@ -81,11 +81,19 @@ export function CashflowChart() {
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
           <defs>
+            <linearGradient id="purpleGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#7c3aed" />
+              <stop offset="100%" stopColor="#14b8a6" />
+            </linearGradient>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.2} />
+              <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
+            </linearGradient>
             <linearGradient id="cfIncome" x1="0" y1="0" x2="0" y2="1">
               <stop
                 offset="0%"
                 stopColor="var(--color-income)"
-                stopOpacity={0.3}
+                stopOpacity={0.25}
               />
               <stop
                 offset="100%"
@@ -97,7 +105,7 @@ export function CashflowChart() {
               <stop
                 offset="0%"
                 stopColor="var(--color-expenses)"
-                stopOpacity={0.3}
+                stopOpacity={0.2}
               />
               <stop
                 offset="100%"
@@ -111,8 +119,8 @@ export function CashflowChart() {
             horizontal
             vertical={false}
             strokeDasharray="4 4"
-            stroke="var(--border)"
-            strokeOpacity={0.5}
+            stroke="rgba(255,255,255,0.04)"
+            strokeOpacity={1}
           />
 
           <XAxis
@@ -136,19 +144,20 @@ export function CashflowChart() {
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent indicator="dot" />}
+            wrapperStyle={{}}
           />
 
           {/* Today marker — vertical reference line */}
           {todayLabel && (
             <ReferenceLine
               x={todayLabel}
-              stroke="#8b5cf6"
+              stroke="#7c3aed"
               strokeWidth={2}
               strokeDasharray="4 4"
               label={{
                 value: "Today",
                 position: "top",
-                fill: "#8b5cf6",
+                fill: "#a78bfa",
                 fontSize: 11,
                 fontWeight: 600,
               }}
@@ -159,7 +168,7 @@ export function CashflowChart() {
           <Area
             type="monotone"
             dataKey="income"
-            stroke="var(--color-income)"
+            stroke="url(#purpleGradient)"
             strokeWidth={2}
             fill="url(#cfIncome)"
             dot={false}
@@ -180,7 +189,7 @@ export function CashflowChart() {
       </ChartContainer>
 
       {/* Legend + Projected summary */}
-      <div className="mt-4 pt-4 border-t border-border flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 pt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         {/* Legend */}
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-2">
@@ -198,7 +207,7 @@ export function CashflowChart() {
             <span className="text-muted-foreground">Expenses</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block w-3 h-0.5 border-t-2 border-dashed" style={{ borderColor: "var(--chart-3, #8b5cf6)" }} />
+            <span className="inline-block w-3 h-0.5 border-t-2 border-dashed" style={{ borderColor: "#7c3aed" }} />
             <span className="text-muted-foreground">Today</span>
           </div>
         </div>
