@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { LegalFooter } from "@/components/legal-footer"
+import { SiteFooter } from "@/components/site-footer"
 import { SplitText } from "@/components/split-text"
 import { AnimatedContent } from "@/components/animated-content"
 
@@ -203,7 +203,7 @@ export default function WhatWeDoPage() {
         </AnimatedContent>
       </div>
 
-      <LegalFooter />
+      <SiteFooter />
     </main>
   )
 }

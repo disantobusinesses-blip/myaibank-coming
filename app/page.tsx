@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { LegalFooter } from "@/components/legal-footer"
+import { SiteFooter } from "@/components/site-footer"
 import { ShimmerButton } from "@/components/shimmer-button"
 import { AuroraBackground } from "@/components/aurora-background"
 import { SplitText } from "@/components/split-text"
@@ -93,41 +93,82 @@ export default function WelcomePage() {
     }
   }, [router])
 
-  if (effectiveLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050508' }}>
-        <div className="animate-pulse">
-          <Image
-            src="/MABtransparent.png"
-            alt="MAB logo"
-            width={80}
-            height={32}
-            className="object-contain opacity-40"
-          />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <main className="min-h-screen flex flex-col safe-area-inset relative overflow-hidden" style={{ backgroundColor: '#050508' }}>
+      {/* Loading overlay — visible only while auth is resolving */}
+      {effectiveLoading && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: '#050508' }}
+          aria-hidden="true"
+        >
+          <div className="animate-pulse">
+            <Image
+              src="/MABtransparent.png"
+              alt=""
+              width={80}
+              height={32}
+              className="object-contain opacity-40"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Aurora background */}
       <AuroraBackground className="fixed inset-0" />
 
+      {/* Site navigation — always SSR'd for crawlability */}
+      <nav
+        className="relative z-10 w-full px-6 py-4"
+        aria-label="Main navigation"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="max-w-md mx-auto flex items-center justify-between gap-4">
+          <Link href="/" aria-label="MyAiBank home">
+            <Image
+              src="/MABtransparent.png"
+              alt="MyAiBank"
+              width={80}
+              height={34}
+              className="object-contain"
+              priority
+            />
+          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/features"
+              className="font-body text-xs transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            >
+              Features
+            </Link>
+            <Link
+              href="/pricing"
+              className="font-body text-xs transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/blog"
+              className="font-body text-xs transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            >
+              Blog
+            </Link>
+            <Link
+              href="/login"
+              className="font-body text-xs transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+            >
+              Log in
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md mx-auto w-full">
-        {/* MAB Logo */}
-        <div className="mb-8">
-          <Image
-            src="/MABtransparent.png"
-            alt="MAB logo"
-            width={140}
-            height={60}
-            className="object-contain"
-            priority
-          />
-        </div>
-
         {/* Welcome heading — SplitText animation */}
         <h1 className="font-heading text-3xl text-center mb-3 text-balance text-white leading-tight">
           Welcome to{" "}
@@ -244,14 +285,28 @@ export default function WelcomePage() {
           </Button>
         </AnimatedContent>
 
-        {/* What We Do & Blog Links */}
-        <div className="flex items-center gap-4 mt-6">
+        {/* Internal links for crawlability */}
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-6">
           <Link
             href="/what-we-do"
             className="font-body text-sm transition-colors underline underline-offset-4"
             style={{ color: 'rgba(255,255,255,0.6)' }}
           >
-            Learn what we do
+            What We Do
+          </Link>
+          <Link
+            href="/features"
+            className="font-body text-sm transition-colors underline underline-offset-4"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
+          >
+            Features
+          </Link>
+          <Link
+            href="/pricing"
+            className="font-body text-sm transition-colors underline underline-offset-4"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
+          >
+            Pricing
           </Link>
           <Link
             href="/blog"
@@ -260,12 +315,19 @@ export default function WelcomePage() {
           >
             Blog
           </Link>
+          <Link
+            href="/security"
+            className="font-body text-sm transition-colors underline underline-offset-4"
+            style={{ color: 'rgba(255,255,255,0.6)' }}
+          >
+            Security
+          </Link>
         </div>
       </div>
 
-      {/* Legal Footer */}
+      {/* Site Footer — always SSR'd for crawlability */}
       <div className="relative z-10">
-        <LegalFooter variant="dark" />
+        <SiteFooter variant="dark" />
       </div>
 
       {/* Floating Demo CTA - appears after scrolling 40% */}
