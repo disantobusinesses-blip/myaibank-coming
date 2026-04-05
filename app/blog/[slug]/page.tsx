@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 import { createClient } from "@supabase/supabase-js"
+import { BlogContent } from "@/components/blog-content"
 
 const blogClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL!,
@@ -116,7 +115,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Markdown content */}
       <div className="prose prose-slate max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+        <BlogContent content={post.content} />
       </div>
 
       {/* CTA banner */}
