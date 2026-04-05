@@ -1,119 +1,61 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
+import { Mail, MessageSquare, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Contact | MyAiBank",
-  description:
-    "Get in touch with the MyAiBank team. Support, privacy enquiries, and general contact information.",
+  description: "Get in touch with the MyAiBank team. We are happy to help with questions about features, pricing, or your account.",
   alternates: { canonical: "/contact" },
-  openGraph: {
-    title: "Contact | MyAiBank",
-    description:
-      "Get in touch with the MyAiBank team. Support, privacy enquiries, and general contact information.",
-    url: "/contact",
-    type: "website",
-    siteName: "MyAiBank",
-    locale: "en_AU",
-  },
 }
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#fff", color: "#1a1a1a" }}>
-      <header className="px-6 py-4 border-b" style={{ borderColor: "#e5e5e5" }}>
-        <div className="max-w-3xl mx-auto flex items-center gap-3 flex-wrap">
-          <Link href="/" className="text-sm hover:underline" style={{ color: "#666" }}>
-            ← Home
-          </Link>
-          <span style={{ color: "#ccc" }}>|</span>
-          <Link href="/features" className="text-sm hover:underline" style={{ color: "#666" }}>
-            Features
-          </Link>
-          <span style={{ color: "#ccc" }}>|</span>
-          <Link href="/blog" className="text-sm hover:underline" style={{ color: "#666" }}>
-            Blog
-          </Link>
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor:"#050508", color:"#fff" }}>
+      <header style={{ borderBottom:"1px solid rgba(255,255,255,0.07)", backgroundColor:"rgba(5,5,8,0.95)", backdropFilter:"blur(12px)", position:"sticky", top:0, zIndex:50 }}>
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4 flex items-center justify-between">
+          <Link href="/"><Image src="/MABtransparent.png" alt="MyAiBank" width={80} height={32} className="object-contain w-16 h-auto sm:w-20" /></Link>
+          <Link href="/signup" className="h-9 px-4 rounded-full text-xs sm:text-sm font-semibold hover:scale-105 transition-all" style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff"}}>Get Started</Link>
         </div>
       </header>
 
-      <main className="flex-1 px-6 py-10 max-w-3xl mx-auto w-full">
-        <h1 className="text-3xl font-bold mb-3" style={{ color: "#180D27" }}>
-          Contact MyAiBank
-        </h1>
-        <p className="text-base leading-relaxed mb-10" style={{ color: "#555" }}>
-          We are here to help. Reach out to our team for support, privacy enquiries, or anything else.
-        </p>
-
-        <div className="space-y-6">
-          <div
-            className="p-6 rounded-2xl border"
-            style={{ borderColor: "#e5e5e5" }}
-          >
-            <h2 className="text-lg font-semibold mb-3" style={{ color: "#180D27" }}>
-              General Support
-            </h2>
-            <p className="text-sm mb-2" style={{ color: "#666" }}>
-              For help with your account, transactions, or platform questions:
-            </p>
-            <a
-              href="mailto:support@myaibank.ai"
-              className="text-sm font-medium hover:underline"
-              style={{ color: "#7c3aed" }}
-            >
-              support@myaibank.ai
+      <section className="relative flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-20 text-center overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+          style={{background:"radial-gradient(circle,rgba(139,92,246,0.1),transparent 65%)"}} />
+        <div className="relative max-w-2xl mx-auto">
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3" style={{color:"#8b5cf6"}}>Get In Touch</p>
+          <h1 className="font-bold text-white mb-4" style={{fontSize:"clamp(2rem,5vw,3.5rem)"}}>We&#39;d love to hear from you</h1>
+          <p className="text-sm sm:text-base mb-10 max-w-lg mx-auto" style={{color:"rgba(255,255,255,0.55)"}}>
+            Have a question about features, pricing, or your account? Our team is here to help.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-10">
+            <a href="mailto:hello@myaibank.ai" className="group p-6 sm:p-8 rounded-3xl text-left transition-all hover:scale-[1.02]"
+              style={{background:"rgba(139,92,246,0.1)",border:"1px solid rgba(139,92,246,0.25)"}}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{background:"rgba(139,92,246,0.2)"}}>
+                <Mail className="w-6 h-6" style={{color:"#a78bfa"}}/>
+              </div>
+              <h3 className="font-bold text-white mb-2">Email Us</h3>
+              <p className="text-sm mb-4" style={{color:"rgba(255,255,255,0.55)"}}>For general enquiries and support.</p>
+              <span className="text-sm font-semibold group-hover:underline" style={{color:"#a78bfa"}}>hello@myaibank.ai</span>
+            </a>
+            <a href="mailto:security@myaibank.ai" className="group p-6 sm:p-8 rounded-3xl text-left transition-all hover:scale-[1.02]"
+              style={{background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.2)"}}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{background:"rgba(34,197,94,0.15)"}}>
+                <MessageSquare className="w-6 h-6" style={{color:"#22c55e"}}/>
+              </div>
+              <h3 className="font-bold text-white mb-2">Security Reports</h3>
+              <p className="text-sm mb-4" style={{color:"rgba(255,255,255,0.55)"}}>Responsible disclosure and security issues.</p>
+              <span className="text-sm font-semibold group-hover:underline" style={{color:"#22c55e"}}>security@myaibank.ai</span>
             </a>
           </div>
-
-          <div
-            className="p-6 rounded-2xl border"
-            style={{ borderColor: "#e5e5e5" }}
-          >
-            <h2 className="text-lg font-semibold mb-3" style={{ color: "#180D27" }}>
-              Privacy Enquiries
-            </h2>
-            <p className="text-sm mb-2" style={{ color: "#666" }}>
-              For requests relating to your personal data, corrections, or deletion:
-            </p>
-            <a
-              href="mailto:privacy@myaibank.ai"
-              className="text-sm font-medium hover:underline"
-              style={{ color: "#7c3aed" }}
-            >
-              privacy@myaibank.ai
-            </a>
-          </div>
-
-          <div
-            className="p-6 rounded-2xl border"
-            style={{ borderColor: "#e5e5e5" }}
-          >
-            <h2 className="text-lg font-semibold mb-3" style={{ color: "#180D27" }}>
-              Company Details
-            </h2>
-            <div className="text-sm space-y-1" style={{ color: "#666" }}>
-              <p><strong style={{ color: "#444" }}>Trading Name:</strong> MyAiBank</p>
-              <p><strong style={{ color: "#444" }}>Legal Entity:</strong> AI CAPITAL HOLDINGS PTY LTD</p>
-              <p><strong style={{ color: "#444" }}>ABN:</strong> 38 693 023 371</p>
-              <p><strong style={{ color: "#444" }}>Country:</strong> Australia</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-4 text-sm">
-          <Link href="/privacy" className="hover:underline" style={{ color: "#7c3aed" }}>
-            Privacy Policy →
-          </Link>
-          <Link href="/terms" className="hover:underline" style={{ color: "#7c3aed" }}>
-            Terms of Use →
-          </Link>
-          <Link href="/security" className="hover:underline" style={{ color: "#7c3aed" }}>
-            Security →
+          <Link href="/signup" className="inline-flex items-center gap-2 h-12 px-8 rounded-2xl text-sm sm:text-base font-semibold hover:scale-105 transition-all"
+            style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff",boxShadow:"0 4px 24px rgba(139,92,246,0.3)"}}>
+            Get Started Free <ArrowRight className="w-4 h-4"/>
           </Link>
         </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+      </section>
+      <SiteFooter variant="dark"/>
+    </main>
   )
 }
