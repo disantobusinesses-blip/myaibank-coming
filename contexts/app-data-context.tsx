@@ -68,6 +68,8 @@ interface SyncStatus {
 interface AppDataContextType {
   accounts: Account[]
   transactions: Transaction[]
+  // Full 12-month transaction history for accurate forecasting
+  forecastTransactions: Transaction[]
   subscriptions: Subscription[]
   connected: boolean
   lastUpdated: string | null
@@ -85,6 +87,7 @@ interface AppDataContextType {
 const defaultAppData: AppDataContextType = {
   accounts: [],
   transactions: [],
+  forecastTransactions: [],
   subscriptions: [],
   connected: false,
   lastUpdated: null,
@@ -105,6 +108,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const { user, profile } = useAuth()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [forecastTransactions, setForecastTransactions] = useState<Transaction[]>([])
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [connected, setConnected] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
@@ -118,12 +122,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const supabase = createClient()
 
-  // Enable demo mode with fake data
   const enableDemoMode = useCallback(() => {
     try {
       setIsDemoMode(true)
 
-      // Convert demo accounts to proper Account type
       const mappedAccounts: Account[] = demoAccounts.map((a) => ({
         id: a.id,
         fiskil_account_id: null,
@@ -141,7 +143,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         updated_at: new Date().toISOString(),
       }))
 
-      // Convert demo transactions to proper Transaction type
       const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
         id: t.id,
         account_id: "demo-acc-1",
@@ -165,7 +166,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         updated_at: new Date().toISOString(),
       }))
 
-      // Convert demo subscriptions
       const mappedSubscriptions: Subscription[] = demoSubscriptions.map((s) => ({
         id: s.id,
         name: s.name,
@@ -182,13 +182,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
       setAccounts(mappedAccounts)
       setTransactions(mappedTransactions)
+      setForecastTransactions(mappedTransactions)
       setSubscriptions(mappedSubscriptions)
       setConnected(true)
       setLastUpdated(new Date().toISOString())
       setSyncStatus({ stage: "complete", progress: 100, message: "Demo data loaded" })
       setIsLoading(false)
 
-      // Store in sessionStorage so demo mode persists during navigation
       if (typeof window !== "undefined") {
         sessionStorage.setItem("myaibank_demo_mode", "true")
       }
@@ -204,13 +204,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setIsDemoMode(false)
       setAccounts([])
       setTransactions([])
+      setForecastTransactions([])
       setSubscriptions([])
       setConnected(false)
       setSyncStatus({ stage: "idle", progress: 0, message: "" })
 
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("myaibank_demo_mode")
-        // Also remove the cookie
         document.cookie = "myaibank_demo_mode=; path=/; max-age=0"
       }
     } catch (error) {
@@ -218,30 +218,19 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Check for demo mode on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const demoMode = sessionStorage.getItem("myaibank_demo_mode")
-      if (demoMode === "true") {
-        enableDemoMode()
-      }
+      if (demoMode === "true") enableDemoMode()
     }
   }, [enableDemoMode])
 
   const refreshData = useCallback(async () => {
-    // If in demo mode, just use demo data
-    if (isDemoMode) {
-      enableDemoMode()
-      return
-    }
-
-    if (!user) {
-      setIsLoading(false)
-      return
-    }
+    if (isDemoMode) { enableDemoMode(); return }
+    if (!user) { setIsLoading(false); return }
 
     setIsLoading(true)
-    setSyncStatus({ stage: "syncing", progress: 30, message: "Fetching your accounts..." })
+    setSyncStatus({ stage: "syncing", progress: 20, message: "Fetching your accounts..." })
 
     try {
       // Fetch accounts
@@ -254,9 +243,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       if (accountsError) throw accountsError
       setAccounts(accountsData || [])
 
-      setSyncStatus({ stage: "syncing", progress: 60, message: "Fetching transactions..." })
+      setSyncStatus({ stage: "syncing", progress: 45, message: "Fetching recent transactions..." })
 
-      // Fetch transactions (last 90 days)
+      // Recent transactions (90 days) for dashboard/cashflow views
       const ninetyDaysAgo = new Date()
       ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
@@ -269,6 +258,26 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
       if (transactionsError) throw transactionsError
       setTransactions(transactionsData || [])
+
+      setSyncStatus({ stage: "syncing", progress: 65, message: "Fetching 12-month history for forecasting..." })
+
+      // Full 12-month history for accurate cash flow forecasting
+      const twelveMonthsAgo = new Date()
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+
+      const { data: forecastData, error: forecastError } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("transaction_date", twelveMonthsAgo.toISOString().split("T")[0])
+        .order("transaction_date", { ascending: false })
+
+      if (forecastError) {
+        console.warn("Failed to fetch forecast transactions, falling back to 90-day data:", forecastError)
+        setForecastTransactions(transactionsData || [])
+      } else {
+        setForecastTransactions(forecastData || [])
+      }
 
       setSyncStatus({ stage: "syncing", progress: 85, message: "Fetching subscriptions..." })
 
@@ -294,9 +303,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   }, [user, supabase, isDemoMode, enableDemoMode])
 
   useEffect(() => {
-    // Skip if in demo mode
     if (isDemoMode) return
-
     if (profile?.has_bank_connection) {
       refreshData()
     } else {
@@ -305,12 +312,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }, [profile?.has_bank_connection, refreshData, isDemoMode])
 
-  // Calculate totals
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0)
 
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
   const recentTransactions = transactions.filter((t) => new Date(t.transaction_date) >= thirtyDaysAgo)
 
   const totalIncome = recentTransactions
@@ -328,6 +333,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       value={{
         accounts,
         transactions,
+        forecastTransactions,
         subscriptions,
         connected,
         lastUpdated,
@@ -349,13 +355,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
 export function useAppData(): AppDataContextType {
   const context = useContext(AppDataContext)
-
-  // SSR/build safety: during prerender the provider may not exist.
-  // Return a safe default instead of crashing the build.
   if (context === undefined) {
     if (typeof window === "undefined") return defaultAppData
     throw new Error("useAppData must be used within an AppDataProvider")
   }
-
   return context
 }
