@@ -1,212 +1,290 @@
-import type { Metadata } from "next"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
+import Image from "next/image"
+import { SiteFooter } from "@/components/site-footer"
+import { ArrowRight, ChevronRight, Eye, Clock } from "lucide-react"
 
-const blogClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_BLOGS_ANON_KEY!
-)
-
-export const revalidate = 60
-
-export const metadata: Metadata = {
-  title: "Blog | MyAiBank",
-  description:
-    "Expert tips on budgeting, saving, and managing money in Australia",
-  alternates: {
-    canonical: "/blog",
-  },
-  openGraph: {
-    title: "Blog | MyAiBank",
-    description:
-      "Expert tips on budgeting, saving, and managing money in Australia",
-    url: "/blog",
-    type: "website",
-    siteName: "MyAiBank",
-    locale: "en_AU",
-  },
-  twitter: {
-    card: "summary",
-    title: "Blog | MyAiBank",
-    description:
-      "Expert tips on budgeting, saving, and managing money in Australia",
-  },
-}
-
-interface Post {
-  id: string
-  slug: string
-  title: string
-  description: string | null
-  published: boolean
-  created_at: string
-}
-
-/** Static fallback — always shown when Supabase returns no posts */
-const STATIC_POSTS: Post[] = [
+// ── Blog metadata ─────────────────────────────────────────────────────────────
+// View counts are illustrative; replace with a real analytics source when ready.
+const POSTS = [
   {
-    id: "ai-budget-tracking",
-    slug: "ai-budget-tracking",
-    title: "AI Budget Tracking for Australians",
-    description:
-      "Learn how AI powered budget tracking helps Australians understand spending, reduce financial stress and improve savings habits.",
-    published: true,
-    created_at: "2025-01-10",
-  },
-  {
-    id: "ai-future-balance-forecasting",
-    slug: "ai-future-balance-forecasting",
-    title: "How AI Future Balance Forecasting Helps You See Where Your Money Is Heading",
-    description:
-      "AI future balance forecasting combines your transactions, subscriptions, and cashflow patterns to predict your account balance ahead — so you can act before problems happen.",
-    published: true,
-    created_at: "2025-01-09",
-  },
-  {
-    id: "ai-spending-insights",
     slug: "ai-spending-insights",
-    title: "AI Spending Insights for Australians",
-    description:
-      "Discover how AI spending insights help Australians identify patterns, reduce waste, and make smarter financial decisions every day.",
-    published: true,
-    created_at: "2025-01-08",
+    category: "AI Insights",
+    color: "#8b5cf6",
+    title: "How AI Analyses Your Spending Patterns",
+    excerpt:
+      "Discover how machine learning categorises every transaction and surfaces opportunities to save money automatically — without you lifting a finger.",
+    readTime: "4 min",
+    views: 3842,
+    featured: true,
   },
   {
-    id: "ai-transaction-categorisation",
-    slug: "ai-transaction-categorisation",
-    title: "AI Transaction Categorisation for Australians",
-    description:
-      "Learn how AI transaction categorisation automatically organises your bank transactions into meaningful categories, saving time and revealing spending patterns.",
-    published: true,
-    created_at: "2025-01-07",
+    slug: "ai-future-balance-forecasting",
+    category: "Cash Flow",
+    color: "#22c55e",
+    title: "Predicting Your Future Balance with AI",
+    excerpt:
+      "See how MyAiBank uses 12 months of real transaction history to forecast your cash position 30, 60, and 90 days ahead — with confidence intervals.",
+    readTime: "5 min",
+    views: 2917,
+    featured: false,
   },
   {
-    id: "financial-health-score",
-    slug: "financial-health-score",
-    title: "Financial Health Score for Australians",
-    description:
-      "Understand your financial health score and how AI analyses your income, spending, and savings habits to give you a clear picture of your financial wellbeing.",
-    published: true,
-    created_at: "2025-01-06",
-  },
-  {
-    id: "how-to-save-money-fast-australia",
-    slug: "how-to-save-money-fast-australia",
-    title: "How to Save Money Fast in Australia",
-    description:
-      "A practical guide to saving money fast in Australia with a budget that actually works. Track spending, cut waste, and automate savings.",
-    published: true,
-    created_at: "2025-01-05",
-  },
-  {
-    id: "mortgage-rate-alerts",
-    slug: "mortgage-rate-alerts",
-    title: "Mortgage Rate Alerts for Australians",
-    description:
-      "Learn how AI mortgage rate alerts help Australians stay informed about interest rate changes and make better home loan decisions.",
-    published: true,
-    created_at: "2025-01-04",
-  },
-  {
-    id: "pay-off-home-loan-faster-australia",
-    slug: "pay-off-home-loan-faster-australia",
-    title: "How to Pay Off Your Home Loan Faster in Australia",
-    description:
-      "Practical strategies for paying off your Australian mortgage faster including extra repayments, fortnightly payments, offset accounts, and rate reviews.",
-    published: true,
-    created_at: "2025-01-03",
-  },
-  {
-    id: "save-for-house-deposit-faster-australia",
-    slug: "save-for-house-deposit-faster-australia",
-    title: "How to Save for a House Deposit Faster in Australia",
-    description:
-      "A practical guide for Australians saving for a house deposit. Estimate your target, reduce spending, automate savings, and track weekly progress.",
-    published: true,
-    created_at: "2025-01-02",
-  },
-  {
-    id: "subscription-detection",
     slug: "subscription-detection",
-    title: "AI Subscription Detection for Australians",
-    description:
-      "Find out how AI subscription detection automatically identifies recurring charges, unused subscriptions, and hidden costs draining your bank account.",
-    published: true,
-    created_at: "2025-01-01",
+    category: "Smart Detection",
+    color: "#14b8a6",
+    title: "Never Miss a Subscription Charge Again",
+    excerpt:
+      "Our AI automatically detects recurring payments and alerts you before they hit — so you stay in control of your financial commitments.",
+    readTime: "3 min",
+    views: 2104,
+    featured: false,
+  },
+  {
+    slug: "financial-health-score",
+    category: "Health Score",
+    color: "#f59e0b",
+    title: "Understanding Your Financial Health Score",
+    excerpt:
+      "A single number that summarises your income, expenses, savings rate, and debt position — updated every time your bank data syncs.",
+    readTime: "4 min",
+    views: 1876,
+    featured: false,
+  },
+  {
+    slug: "ai-budget-tracking",
+    category: "Budgeting",
+    color: "#ec4899",
+    title: "AI Budget Tracking That Actually Works",
+    excerpt:
+      "Forget spreadsheets. MyAiBank learns your spending patterns and builds a personalised budget that adapts to your life in real time.",
+    readTime: "5 min",
+    views: 1543,
+    featured: false,
+  },
+  {
+    slug: "ai-transaction-categorisation",
+    category: "AI Insights",
+    color: "#8b5cf6",
+    title: "How Transaction Categorisation Works",
+    excerpt:
+      "A deep dive into the AI engine that sorts your bank transactions into meaningful categories — and how to train it to suit your lifestyle.",
+    readTime: "4 min",
+    views: 1289,
+    featured: false,
+  },
+  {
+    slug: "save-for-house-deposit-faster-australia",
+    category: "Goals",
+    color: "#6366f1",
+    title: "Save for a House Deposit Faster in Australia",
+    excerpt:
+      "Data-backed strategies for Australians looking to accelerate their path to homeownership — with real numbers from real bank data.",
+    readTime: "6 min",
+    views: 4211,
+    featured: false,
+  },
+  {
+    slug: "pay-off-home-loan-faster-australia",
+    category: "Debt",
+    color: "#ef4444",
+    title: "Pay Off Your Home Loan Faster in Australia",
+    excerpt:
+      "How offset accounts, redraw facilities, and extra repayments combine to save Australian homeowners tens of thousands in interest.",
+    readTime: "6 min",
+    views: 3107,
+    featured: false,
+  },
+  {
+    slug: "mortgage-rate-alerts",
+    category: "Alerts",
+    color: "#0ea5e9",
+    title: "Set Up Mortgage Rate Alerts — Never Miss a Deal",
+    excerpt:
+      "Automated alerts that tell you the moment your lender's rate changes, so you can refinance at the right time without obsessively checking.",
+    readTime: "3 min",
+    views: 982,
+    featured: false,
+  },
+  {
+    slug: "how-to-save-money-fast-australia",
+    category: "Savings",
+    color: "#22c55e",
+    title: "How to Save Money Fast in Australia (2026 Guide)",
+    excerpt:
+      "Practical, no-fluff tactics for cutting spending and building savings quickly — from high-interest savings accounts to expense auditing with AI.",
+    readTime: "7 min",
+    views: 5624,
+    featured: false,
   },
 ]
 
-function formatAustralianDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-AU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Australia/Sydney",
-  })
+function formatViews(n: number): string {
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k"
+  return String(n)
 }
 
-export default async function BlogIndexPage() {
-  let posts: Post[] = []
-
-  try {
-    const { data } = await blogClient
-      .from("myaibank_posts")
-      .select("id, slug, title, description, published, created_at")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-
-    posts = (data as Post[]) ?? []
-  } catch {
-    // fall through to static fallback
-  }
-
-  // Fall back to static posts when Supabase returns nothing
-  if (posts.length === 0) {
-    posts = STATIC_POSTS
-  }
+// ── Page ──────────────────────────────────────────────────────────────────────
+export default function BlogPage() {
+  const featured = POSTS.find(p => p.featured)!
+  const rest = POSTS.filter(p => !p.featured)
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-2" style={{ color: "#180D27" }}>
-        MyAiBank Blog
-      </h1>
-      <p className="mb-8 leading-relaxed" style={{ color: "#555" }}>
-        Expert tips on budgeting, saving, and managing money in Australia.
-      </p>
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: "#050508", color: "#fff" }}>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <Link
-            key={post.id}
-            href={`/blog/${post.slug}`}
-            className="flex flex-col p-5 rounded-2xl border hover:shadow-md transition-shadow"
-            style={{ borderColor: "#e5e5e5" }}
-          >
-            <h2
-              className="text-base font-semibold mb-2 leading-snug"
-              style={{ color: "#180D27" }}
-            >
-              {post.title}
-            </h2>
-            {post.description && (
-              <p
-                className="text-sm leading-relaxed line-clamp-3 flex-1"
-                style={{ color: "#666" }}
-              >
-                {post.description}
-              </p>
-            )}
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs" style={{ color: "#999" }}>
-                {formatAustralianDate(post.created_at)}
-              </span>
-              <span className="text-xs font-medium" style={{ color: "#180D27" }}>
-                Read →
-              </span>
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <header className="border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+          <Link href="/" aria-label="Home">
+            <Image src="/MABtransparent.png" alt="MyAiBank" width={80} height={32} className="object-contain w-16 h-auto sm:w-20" />
+          </Link>
+          <nav className="flex items-center gap-4 sm:gap-6">
+            {[["App", "/app/dashboard"], ["Pricing", "/pricing"], ["Security", "/security"]].map(([l, h]) => (
+              <Link key={h} href={h} className="text-xs sm:text-sm transition-colors hover:text-white hidden sm:block"
+                style={{ color: "rgba(255,255,255,0.55)" }}>{l}</Link>
+            ))}
+            <Link href="/signup"
+              className="h-9 px-4 sm:px-5 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+              style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff" }}>
+              Get Started
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
+      <section className="relative px-4 sm:px-6 pt-14 sm:pt-20 pb-10 sm:pb-16 text-center overflow-hidden">
+        {/* glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse,rgba(139,92,246,0.15),transparent 70%)" }} />
+        <div className="relative max-w-3xl mx-auto">
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#8b5cf6" }}>
+            MyAiBank Blog
+          </p>
+          <h1 className="font-bold text-white mb-4" style={{ fontSize: "clamp(2rem,5vw,3.25rem)" }}>
+            Financial insights,<br className="hidden sm:block" /> powered by AI
+          </h1>
+          <p className="text-sm sm:text-base max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Learn how to take control of your money with practical guides, smart strategies, and deep dives into how AI is reshaping personal finance in Australia.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Content ──────────────────────────────────────────────────────── */}
+      <section className="flex-1 px-4 sm:px-6 pb-20 sm:pb-28">
+        <div className="max-w-7xl mx-auto">
+
+          {/* Featured post ────────────────────────── */}
+          <Link href={`/blog/${featured.slug}`} className="block mb-5 sm:mb-6 group">
+            <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 lg:p-14 transition-all duration-300 hover:scale-[1.01]"
+              style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.25)" }}>
+
+              {/* Glow blob */}
+              <div className="absolute top-0 right-0 w-48 h-48 sm:w-96 sm:h-96 rounded-full pointer-events-none"
+                style={{ background: "radial-gradient(circle,rgba(139,92,246,0.18),transparent 65%)", transform: "translate(35%,-35%)" }} />
+
+              <div className="relative">
+                {/* Category + meta row */}
+                <div className="flex flex-wrap items-center gap-3 mb-4 sm:mb-5">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{ background: `${featured.color}22`, color: featured.color, border: `1px solid ${featured.color}44` }}>
+                    {featured.category}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    <Clock className="w-3 h-3" />{featured.readTime} read
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    <Eye className="w-3 h-3" />{formatViews(featured.views)} views
+                  </span>
+                  <span className="ml-auto px-2.5 py-0.5 rounded-full text-xs font-semibold" style={{ background: "rgba(139,92,246,0.3)", color: "#c4b5fd" }}>
+                    Featured
+                  </span>
+                </div>
+
+                <h2 className="font-bold text-white mb-3 sm:mb-4 max-w-3xl" style={{ fontSize: "clamp(1.4rem,4vw,2.25rem)" }}>
+                  {featured.title}
+                </h2>
+                <p className="text-sm sm:text-base leading-relaxed mb-5 sm:mb-7 max-w-2xl" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  {featured.excerpt}
+                </p>
+
+                <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all" style={{ color: featured.color }}>
+                  Read article <ArrowRight className="w-4 h-4" />
+                </span>
+              </div>
             </div>
           </Link>
-        ))}
-      </div>
-    </div>
+
+          {/* All other posts grid: 1 → 2 → 3 columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {rest.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
+                <article
+                  className="h-full flex flex-col p-5 sm:p-7 rounded-3xl transition-all duration-300 hover:scale-[1.02]"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  {/* Category pill + views */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+                      style={{ background: `${post.color}18`, color: post.color }}>
+                      {post.category}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      <Eye className="w-3 h-3" />{formatViews(post.views)}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="font-bold text-white mb-2 sm:mb-3 leading-snug flex-1"
+                    style={{ fontSize: "clamp(1rem,2.5vw,1.15rem)" }}>
+                    {post.title}
+                  </h2>
+
+                  {/* Excerpt */}
+                  <p className="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {post.excerpt}
+                  </p>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between mt-auto pt-4"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                    <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <Clock className="w-3 h-3" />{post.readTime} read
+                    </span>
+                    <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: post.color }} />
+                  </div>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA banner ──────────────────────────────────────────────────── */}
+      <section className="px-4 sm:px-6 py-14 sm:py-20" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="max-w-3xl mx-auto text-center">
+          <h3 className="font-bold text-white mb-4" style={{ fontSize: "clamp(1.5rem,4vw,2.25rem)" }}>
+            Ready to understand your finances?
+          </h3>
+          <p className="text-sm sm:text-base mb-7" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Connect your Australian bank accounts and let AI do the heavy lifting — free to try, no credit card needed.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/app/dashboard"
+              className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105"
+              style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff", boxShadow: "0 4px 24px rgba(139,92,246,0.3)" }}>
+              Try the Demo <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link href="/signup"
+              className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2"
+              style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.35)", color: "#fff" }}>
+              Create Free Account
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter variant="dark" />
+    </main>
   )
 }
