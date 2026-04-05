@@ -1,204 +1,311 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Search, 
-  Plus, 
-  Star,
-  DollarSign,
-  BarChart3,
-  PieChart,
-  ArrowUpRight,
-  ArrowDownRight,
-  Loader2
-} from "lucide-react"
-import { PortfolioChart } from "@/components/portfolio/portfolio-chart"
-import { StockSearchModal } from "@/components/portfolio/stock-search-modal"
-import { HoldingCard } from "@/components/portfolio/holding-card"
+import { useState, useMemo } from "react"
+import { useAppData } from "@/contexts/app-data-context"
+import {
+  AreaChart, Area, XAxis, YAxis, ResponsiveContainer,
+  Tooltip, CartesianGrid, ReferenceLine,
+} from "recharts"
+import { TrendingUp, DollarSign, Calculator, Info } from "lucide-react"
 
-// Mock portfolio data
-const mockHoldings = [
-  { symbol: "AAPL", name: "Apple Inc.", shares: 10, avgPrice: 175.50, currentPrice: 182.30, change: 3.88 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", shares: 5, avgPrice: 140.20, currentPrice: 148.75, change: 6.10 },
-  { symbol: "MSFT", name: "Microsoft Corp.", shares: 8, avgPrice: 365.00, currentPrice: 378.50, change: 3.70 },
-  { symbol: "TSLA", name: "Tesla Inc.", shares: 3, avgPrice: 245.00, currentPrice: 238.20, change: -2.78 },
-  { symbol: "AMZN", name: "Amazon.com Inc.", shares: 12, avgPrice: 178.90, currentPrice: 185.40, change: 3.63 },
+// ── Return rate presets ──────────────────────────────────────────────────────
+const RATE_PRESETS = [
+  { label: "Conservative",  rate: 8,  color: "#14b8a6", desc: "Diversified bonds & shares" },
+  { label: "S&P 500 Avg",   rate: 10, color: "#22c55e", desc: "Historical S&P 500 average" },
+  { label: "Growth",        rate: 11, color: "#8b5cf6", desc: "High-growth equity portfolio" },
 ]
 
-const mockWatchlist = [
-  { symbol: "NVDA", name: "NVIDIA Corp.", price: 875.50, change: 4.25 },
-  { symbol: "META", name: "Meta Platforms", price: 505.30, change: -1.20 },
-  { symbol: "AMD", name: "Advanced Micro Devices", price: 165.80, change: 2.10 },
-]
+// ── Compound interest engine ──────────────────────────────────────────────────
+function calcCompound(initial: number, monthly: number, ratePercent: number, years: number) {
+  const r = ratePercent / 100 / 12   // monthly rate
+  let balance = initial
+  let totalContributed = initial
+  for (let m = 0; m < years * 12; m++) {
+    balance = balance * (1 + r) + monthly
+    totalContributed += monthly
+  }
+  return { balance: Math.round(balance), totalContributed: Math.round(totalContributed) }
+}
 
+function buildChartData(initial: number, monthly: number, ratePercent: number) {
+  const r = ratePercent / 100 / 12
+  const points = []
+  let balance = initial
+  let totalContributed = initial
+  // Generate annually for up to 50 years
+  for (let year = 0; year <= 50; year++) {
+    if (year > 0) {
+      for (let m = 0; m < 12; m++) {
+        balance = balance * (1 + r) + monthly
+        totalContributed += monthly
+      }
+    }
+    points.push({
+      year,
+      balance:    Math.round(balance),
+      contributed: Math.round(totalContributed),
+      growth:     Math.round(balance - totalContributed),
+    })
+  }
+  return points
+}
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(2) + "M"
+  if (n >= 1_000)     return "$" + (n / 1_000).toFixed(1)     + "k"
+  return "$" + n.toLocaleString()
+}
+
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  const balance    = payload.find((p: any) => p.dataKey === "balance")?.value    ?? 0
+  const contributed = payload.find((p: any) => p.dataKey === "contributed")?.value ?? 0
+  const growth     = balance - contributed
+  return (
+    <div className="rounded-2xl p-3 shadow-2xl" style={{ backgroundColor:"#1a1a2e", border:"1px solid rgba(255,255,255,0.12)", minWidth:"180px" }}>
+      <p className="font-semibold text-white text-xs mb-2">Year {label}</p>
+      <div className="space-y-1">
+        <div className="flex justify-between gap-4">
+          <span className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Total value</span>
+          <span className="text-xs font-bold text-white">{fmt(balance)}</span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Contributed</span>
+          <span className="text-xs font-medium" style={{ color:"#14b8a6" }}>{fmt(contributed)}</span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Investment growth</span>
+          <span className="text-xs font-bold" style={{ color:"#22c55e" }}>+{fmt(growth)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function PortfolioPage() {
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [holdings] = useState(mockHoldings)
-  const [watchlist] = useState(mockWatchlist)
+  const { connected } = useAppData()
 
-  const totalValue = holdings.reduce((sum, h) => sum + h.shares * h.currentPrice, 0)
-  const totalCost = holdings.reduce((sum, h) => sum + h.shares * h.avgPrice, 0)
-  const totalGain = totalValue - totalCost
-  const totalGainPercent = (totalGain / totalCost) * 100
+  // Calculator state
+  const [initial,  setInitial]  = useState(10000)
+  const [monthly,  setMonthly]  = useState(500)
+  const [rateIdx,  setRateIdx]  = useState(1)   // default: S&P 500 Avg
+
+  const preset = RATE_PRESETS[rateIdx]
+  const chartData = useMemo(() => buildChartData(initial, monthly, preset.rate), [initial, monthly, preset.rate])
+
+  // Key milestones
+  const milestones = [10, 20, 30, 40, 50].map(yr => ({
+    year: yr,
+    ...calcCompound(initial, monthly, preset.rate, yr),
+  }))
+
+  const totalAtYear20 = milestones[1].balance
+  const contributed20 = milestones[1].totalContributed
+  const growthMultiplier = contributed20 > 0 ? (totalAtYear20 / contributed20).toFixed(1) : "0"
+
+  const inputClass = "w-full h-12 rounded-xl px-4 text-white text-sm font-medium outline-none transition-all focus:ring-2"
+  const inputStyle = {
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.12)",
+  }
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-5 sm:space-y-6 pb-12">
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+          <Calculator className="w-5 h-5 sm:w-6 sm:h-6" style={{ color:"#8b5cf6" }} />
+          Investment Compound Calculator
+        </h1>
+        <p className="text-xs sm:text-sm mt-1" style={{ color:"rgba(255,255,255,0.5)" }}>
+          See how your money grows with the power of compound interest — based on real market return averages.
+        </p>
+      </div>
+
+      {/* ── Rate preset pills ───────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        {RATE_PRESETS.map((p, i) => (
+          <button
+            key={p.label}
+            onClick={() => setRateIdx(i)}
+            className="flex-1 p-3 sm:p-4 rounded-2xl text-left transition-all duration-200 hover:scale-[1.02]"
+            style={{
+              background: rateIdx === i ? `${p.color}22` : "rgba(255,255,255,0.04)",
+              border: rateIdx === i ? `1px solid ${p.color}55` : "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold" style={{ color: rateIdx===i ? p.color : "rgba(255,255,255,0.6)" }}>{p.label}</span>
+              <span className="text-lg sm:text-xl font-bold text-white">{p.rate}%</span>
+            </div>
+            <p className="text-xs" style={{ color:"rgba(255,255,255,0.4)" }}>{p.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Input row ───────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Portfolio</h1>
-          <p className="text-muted-foreground text-sm">Track your investments and watchlist</p>
-        </div>
-        <Button 
-          onClick={() => setSearchOpen(true)}
-          className="bg-[#1F0051] hover:bg-[#1F0051]/90 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Investment
-        </Button>
-      </div>
-
-      {/* Portfolio Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#1F0051]/20 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-[#1F0051]" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Value</p>
-                <p className="text-xl font-bold text-foreground">
-                  ${totalValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                totalGain >= 0 ? "bg-[#22c55e]/20" : "bg-destructive/20"
-              }`}>
-                {totalGain >= 0 ? (
-                  <TrendingUp className="w-5 h-5 text-[#22c55e]" />
-                ) : (
-                  <TrendingDown className="w-5 h-5 text-destructive" />
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Gain/Loss</p>
-                <p className={`text-xl font-bold ${totalGain >= 0 ? "text-[#22c55e]" : "text-destructive"}`}>
-                  {totalGain >= 0 ? "+" : ""}${totalGain.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#14b8a6]/20 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-[#14b8a6]" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Return</p>
-                <p className={`text-xl font-bold ${totalGainPercent >= 0 ? "text-[#22c55e]" : "text-destructive"}`}>
-                  {totalGainPercent >= 0 ? "+" : ""}{totalGainPercent.toFixed(2)}%
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#f59e0b]/20 flex items-center justify-center">
-                <PieChart className="w-5 h-5 text-[#f59e0b]" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Holdings</p>
-                <p className="text-xl font-bold text-foreground">{holdings.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Portfolio Chart */}
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold text-foreground">Portfolio Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PortfolioChart />
-        </CardContent>
-      </Card>
-
-      {/* Holdings & Watchlist */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Holdings List */}
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Your Holdings</h2>
-          <div className="space-y-3">
-            {holdings.map((holding) => (
-              <HoldingCard key={holding.symbol} holding={holding} />
+          <label className="block text-xs font-semibold mb-2" style={{ color:"rgba(255,255,255,0.55)" }}>
+            Initial Deposit (AUD)
+          </label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color:"rgba(255,255,255,0.4)" }} />
+            <input
+              type="number" min={0} step={1000}
+              value={initial}
+              onChange={e => setInitial(Math.max(0, Number(e.target.value)))}
+              className={inputClass}
+              style={{ ...inputStyle, paddingLeft:"2.25rem" }}
+            />
+          </div>
+          {/* Quick preset buttons */}
+          <div className="flex gap-2 mt-2">
+            {[5000, 10000, 25000, 50000].map(v => (
+              <button key={v} onClick={() => setInitial(v)}
+                className="flex-1 py-1 rounded-lg text-xs font-medium transition-colors"
+                style={{ background: initial===v ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)", color: initial===v ? "#c4b5fd" : "rgba(255,255,255,0.5)", border: initial===v ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.07)" }}>
+                ${(v/1000).toFixed(0)}k
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Watchlist */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Watchlist</h2>
-            <Button variant="ghost" size="sm" onClick={() => setSearchOpen(true)}>
-              <Plus className="w-4 h-4" />
-            </Button>
+        <div>
+          <label className="block text-xs font-semibold mb-2" style={{ color:"rgba(255,255,255,0.55)" }}>
+            Monthly Contribution (AUD)
+          </label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color:"rgba(255,255,255,0.4)" }} />
+            <input
+              type="number" min={0} step={100}
+              value={monthly}
+              onChange={e => setMonthly(Math.max(0, Number(e.target.value)))}
+              className={inputClass}
+              style={{ ...inputStyle, paddingLeft:"2.25rem" }}
+            />
           </div>
-          <div className="space-y-2">
-            {watchlist.map((stock) => (
-              <Card key={stock.symbol} className="bg-card border-border hover:bg-secondary/50 transition-colors cursor-pointer">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-[#f59e0b]" />
-                      <div>
-                        <p className="font-semibold text-foreground text-sm">{stock.symbol}</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[120px]">{stock.name}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-foreground text-sm">${stock.price.toFixed(2)}</p>
-                      <div className={`flex items-center justify-end gap-1 text-xs ${
-                        stock.change >= 0 ? "text-[#22c55e]" : "text-destructive"
-                      }`}>
-                        {stock.change >= 0 ? (
-                          <ArrowUpRight className="w-3 h-3" />
-                        ) : (
-                          <ArrowDownRight className="w-3 h-3" />
-                        )}
-                        {stock.change >= 0 ? "+" : ""}{stock.change.toFixed(2)}%
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="flex gap-2 mt-2">
+            {[250, 500, 1000, 2000].map(v => (
+              <button key={v} onClick={() => setMonthly(v)}
+                className="flex-1 py-1 rounded-lg text-xs font-medium transition-colors"
+                style={{ background: monthly===v ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)", color: monthly===v ? "#c4b5fd" : "rgba(255,255,255,0.5)", border: monthly===v ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.07)" }}>
+                ${v < 1000 ? v : (v/1000)+"k"}
+              </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Stock Search Modal */}
-      <StockSearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+      {/* ── Chart ───────────────────────────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.08)" }}>
+        <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 className="font-semibold text-white text-sm">Portfolio Growth — 50 Year Projection</h3>
+              <p className="text-xs mt-0.5" style={{ color:"rgba(255,255,255,0.4)" }}>
+                {preset.label} · {preset.rate}% annual return · Compounded monthly
+              </p>
+            </div>
+            <div className="text-left sm:text-right">
+              <p className="text-xs" style={{ color:"rgba(255,255,255,0.4)" }}>Value at 20 years</p>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: preset.color }}>{fmt(totalAtYear20)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-56 sm:h-72 lg:h-80 px-1 pb-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top:8, right:8, left:-10, bottom:0 }}>
+              <defs>
+                <linearGradient id="totalGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor={preset.color} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={preset.color} stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="contribGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="#14b8a6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="year" axisLine={false} tickLine={false}
+                tick={{ fill:"rgba(255,255,255,0.35)", fontSize:10 }}
+                tickFormatter={v => v===0?"Now":"Yr "+v} interval={9} />
+              <YAxis axisLine={false} tickLine={false}
+                tick={{ fill:"rgba(255,255,255,0.35)", fontSize:10 }}
+                tickFormatter={v => v>=1000000 ? "$"+(v/1000000).toFixed(1)+"M" : v>=1000 ? "$"+(v/1000).toFixed(0)+"k" : "$"+v} />
+              <Tooltip content={<ChartTooltip />} />
+
+              {/* Reference lines at 10, 20, 30 year marks */}
+              {[10, 20, 30].map(yr => (
+                <ReferenceLine key={yr} x={yr} stroke="rgba(255,255,255,0.12)" strokeDasharray="3 3"
+                  label={{ value:`${yr}yr`, fill:"rgba(255,255,255,0.3)", fontSize:9, position:"top" }} />
+              ))}
+
+              {/* Contributed amount (bottom layer) */}
+              <Area type="monotone" dataKey="contributed"
+                stroke="#14b8a6" strokeWidth={1.5}
+                fill="url(#contribGrad)"
+                dot={false} name="Contributed" />
+
+              {/* Total portfolio (top layer) */}
+              <Area type="monotone" dataKey="balance"
+                stroke={preset.color} strokeWidth={2.5}
+                fill="url(#totalGrad)"
+                dot={false} name="Portfolio Value"
+                activeDot={{ r:5, fill:preset.color, stroke:"#fff", strokeWidth:2 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-5 px-4 sm:px-6 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-0.5 rounded" style={{ background: preset.color }} />
+            <span className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Portfolio value</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-0.5 rounded" style={{ background:"#14b8a6" }} />
+            <span className="text-xs" style={{ color:"rgba(255,255,255,0.5)" }}>Amount contributed</span>
+          </div>
+          <p className="text-xs ml-auto" style={{ color:"rgba(255,255,255,0.35)" }}>The gap = compound returns</p>
+        </div>
+      </div>
+
+      {/* ── Milestone cards ──────────────────────────────────────────────── */}
+      <div>
+        <h3 className="text-sm font-semibold text-white mb-3">Projected Milestones</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+          {milestones.map(({ year, balance, totalContributed }) => {
+            const growth = balance - totalContributed
+            const ratio  = totalContributed > 0 ? (balance / totalContributed).toFixed(1) : "1"
+            return (
+              <div key={year} className="p-4 rounded-2xl"
+                style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)" }}>
+                <p className="text-xs mb-2 font-semibold" style={{ color:"rgba(255,255,255,0.45)" }}>Year {year}</p>
+                <p className="text-lg sm:text-xl font-bold text-white leading-tight">{fmt(balance)}</p>
+                <p className="text-xs mt-1" style={{ color: preset.color }}>×{ratio} return</p>
+                <div className="mt-2 pt-2" style={{ borderTop:"1px solid rgba(255,255,255,0.07)" }}>
+                  <p className="text-xs" style={{ color:"rgba(255,255,255,0.4)" }}>Growth: <span style={{color:"#22c55e"}}>+{fmt(growth)}</span></p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Info banner ──────────────────────────────────────────────────── */}
+      <div className="flex items-start gap-3 p-4 rounded-2xl" style={{ background:"rgba(139,92,246,0.08)", border:"1px solid rgba(139,92,246,0.2)" }}>
+        <Info className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color:"#a78bfa" }} />
+        <p className="text-xs leading-relaxed" style={{ color:"rgba(255,255,255,0.55)" }}>
+          <span className="font-semibold text-white">Disclaimer:</span> This calculator is illustrative only and does not constitute financial advice.
+          The S&P 500 has historically returned ~10% annually including dividends, but past performance does not guarantee future results.
+          Returns are shown pre-tax and do not account for inflation, fees, or brokerage costs. Consult a licensed financial adviser before investing.
+        </p>
+      </div>
     </div>
   )
 }
