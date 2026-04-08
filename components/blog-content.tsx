@@ -31,8 +31,7 @@ const markdownComponents: Components = {
     if (!href) return <a {...props}>{children}</a>
     const isInternal =
       href.startsWith("/") ||
-      href.startsWith("https://myaibank.ai") ||
-      href.startsWith("http://myaibank.ai")
+      /^https?:\/\/myaibank\.ai(\/|$)/.test(href)
     if (isInternal) {
       const localHref = href.startsWith("/")
         ? href
