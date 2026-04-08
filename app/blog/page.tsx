@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
+import { DemoStartButton } from "@/components/demo-start-button"
 import { ArrowRight, ChevronRight, Eye, Clock } from "lucide-react"
 
 const POSTS = [
@@ -95,10 +96,10 @@ export default function BlogPage() {
             Connect your bank accounts and let AI do the heavy lifting — free to try, no credit card needed.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/app/dashboard" className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105"
+            <DemoStartButton className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
               style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff",boxShadow:"0 4px 24px rgba(139,92,246,0.3)"}}>
               Try the Demo <ArrowRight className="w-4 h-4"/>
-            </Link>
+            </DemoStartButton>
             <Link href="/signup" className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2"
               style={{background:"rgba(139,92,246,0.15)",border:"1px solid rgba(139,92,246,0.35)",color:"#fff"}}>
               Create Free Account
