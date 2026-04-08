@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
+import { DemoStartButton } from "@/components/demo-start-button"
 import { CheckCircle, ArrowRight, Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -73,10 +74,10 @@ export default function PricingPage() {
               </div>
             ))}
             <div className="mt-auto pt-6">
-              <Link href="/app/dashboard" className="block w-full text-center h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105"
+              <DemoStartButton className="block w-full text-center h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
                 style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",color:"#fff"}}>
                 Try Demo Now
-              </Link>
+              </DemoStartButton>
             </div>
           </div>
 

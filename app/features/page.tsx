@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
+import { DemoStartButton } from "@/components/demo-start-button"
 import { Brain, TrendingUp, PieChart, Bell, Shield, Star, CreditCard, ArrowRight, Home } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -74,10 +75,10 @@ export default function FeaturesPage() {
           <h2 className="font-bold text-white mb-4" style={{fontSize:"clamp(1.5rem,4vw,2.5rem)"}}>Ready to get started?</h2>
           <p className="text-sm sm:text-base mb-8" style={{color:"rgba(255,255,255,0.5)"}}>Try the demo instantly — no signup required. Or create your free account and connect your real bank.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/app/dashboard" className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all"
+            <DemoStartButton className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all"
               style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff",boxShadow:"0 4px 24px rgba(139,92,246,0.3)"}}>
               Try Demo <ArrowRight className="w-4 h-4"/>
-            </Link>
+            </DemoStartButton>
             <Link href="/signup" className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center"
               style={{background:"rgba(139,92,246,0.15)",border:"1px solid rgba(139,92,246,0.35)",color:"#fff"}}>
               Create Free Account

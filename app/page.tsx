@@ -591,12 +591,12 @@ export default function WelcomePage() {
 
       {/* ── FLOATING CTA (35%+ scroll) ────────────────────────────────────── */}
       {showFloatingCta && (
-        <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 w-full sm:w-auto"
+        <div className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-50 flex justify-center px-4"
           style={{ animation: "fadeInUp 300ms ease forwards" }}>
           <ShimmerButton
             onClick={handleDemoMode}
             shimmerColor="rgba(139,92,246,0.4)"
-            className="w-full sm:w-auto h-12 px-6 rounded-full text-sm font-semibold shadow-2xl"
+            className="h-12 px-6 rounded-full text-sm font-semibold shadow-2xl"
             style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff", boxShadow: "0 8px 32px rgba(139,92,246,0.4)" }}
           >
             <Play className="w-4 h-4 mr-1.5 flex-shrink-0" />
