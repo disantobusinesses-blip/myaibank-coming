@@ -2,7 +2,6 @@
 
 import React from "react"
 import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react"
-import { CountUp } from "@/components/count-up"
 
 interface StatCardProps {
   title: string
@@ -76,11 +75,7 @@ export function StatCard({
       </div>
 
       <p className={`text-3xl font-bold tabular-nums ${valueColor[variant]} mt-1`}>
-        <CountUp
-          to={Math.abs(value)}
-          duration={2800}
-          formatter={(v) => `$${Math.round(v).toLocaleString()}`}
-        />
+        ${Math.round(Math.abs(value)).toLocaleString()}
       </p>
 
       <div className="flex items-center justify-between mt-2">

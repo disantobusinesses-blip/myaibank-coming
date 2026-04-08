@@ -3,6 +3,7 @@
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Components } from "react-markdown"
+import Link from "next/link"
 import { SavingsCalculator } from "@/components/savings-calculator"
 
 interface BlogContentProps {
@@ -24,6 +25,25 @@ const markdownComponents: Components = {
     }
 
     return <p>{children}</p>
+  },
+  // Use Next.js Link for internal links so navigation is client-side
+  a({ href, children, ...props }) {
+    if (!href) return <a {...props}>{children}</a>
+    const isInternal =
+      href.startsWith("/") ||
+      href.startsWith("https://myaibank.ai") ||
+      href.startsWith("http://myaibank.ai")
+    if (isInternal) {
+      const localHref = href.startsWith("/")
+        ? href
+        : href.replace(/^https?:\/\/myaibank\.ai/, "")
+      return <Link href={localHref} {...props}>{children}</Link>
+    }
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+        {children}
+      </a>
+    )
   },
 }
 
