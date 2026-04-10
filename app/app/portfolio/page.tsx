@@ -86,10 +86,13 @@ function ChartTooltip({ active, payload, label }: any) {
 export default function PortfolioPage() {
   const { connected } = useAppData()
 
-  // Calculator state
-  const [initial,  setInitial]  = useState(10000)
-  const [monthly,  setMonthly]  = useState(500)
-  const [rateIdx,  setRateIdx]  = useState(1)   // default: S&P 500 Avg
+  // Calculator state — strings to avoid browser number-input leading-zero quirks
+  const [initialStr, setInitialStr] = useState("10000")
+  const [monthlyStr, setMonthlyStr] = useState("500")
+  const [rateIdx,    setRateIdx]    = useState(1)   // default: S&P 500 Avg
+
+  const initial = Math.max(0, Number(initialStr) || 0)
+  const monthly = Math.max(0, Number(monthlyStr) || 0)
 
   const preset = RATE_PRESETS[rateIdx]
   const chartData = useMemo(() => buildChartData(initial, monthly, preset.rate), [initial, monthly, preset.rate])
@@ -154,13 +157,14 @@ export default function PortfolioPage() {
           <div className="relative">
             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color:"rgba(255,255,255,0.4)" }} />
             <input
-              type="number" min={0} step={1000}
-              value={initial}
+              type="text" inputMode="numeric"
+              value={initialStr}
               onFocus={e => e.target.select()}
               onChange={e => {
-                const raw = e.target.value.replace(/^0+(?=\d)/, '')
-                setInitial(raw === '' ? 0 : Math.max(0, Number(raw)))
+                const digits = e.target.value.replace(/\D/g, '')
+                setInitialStr(digits === '' ? '' : String(Number(digits)))
               }}
+              onBlur={() => setInitialStr(s => s === '' ? '0' : s)}
               className={inputClass}
               style={{ ...inputStyle, paddingLeft:"2.25rem" }}
             />
@@ -168,7 +172,7 @@ export default function PortfolioPage() {
           {/* Quick preset buttons */}
           <div className="flex gap-2 mt-2">
             {[5000, 10000, 25000, 50000].map(v => (
-              <button key={v} onClick={() => setInitial(v)}
+              <button key={v} onClick={() => setInitialStr(String(v))}
                 className="flex-1 py-1 rounded-lg text-xs font-medium transition-colors"
                 style={{ background: initial===v ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)", color: initial===v ? "#c4b5fd" : "rgba(255,255,255,0.5)", border: initial===v ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.07)" }}>
                 ${(v/1000).toFixed(0)}k
@@ -184,20 +188,21 @@ export default function PortfolioPage() {
           <div className="relative">
             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color:"rgba(255,255,255,0.4)" }} />
             <input
-              type="number" min={0} step={100}
-              value={monthly}
+              type="text" inputMode="numeric"
+              value={monthlyStr}
               onFocus={e => e.target.select()}
               onChange={e => {
-                const raw = e.target.value.replace(/^0+(?=\d)/, '')
-                setMonthly(raw === '' ? 0 : Math.max(0, Number(raw)))
+                const digits = e.target.value.replace(/\D/g, '')
+                setMonthlyStr(digits === '' ? '' : String(Number(digits)))
               }}
+              onBlur={() => setMonthlyStr(s => s === '' ? '0' : s)}
               className={inputClass}
               style={{ ...inputStyle, paddingLeft:"2.25rem" }}
             />
           </div>
           <div className="flex gap-2 mt-2">
             {[250, 500, 1000, 2000].map(v => (
-              <button key={v} onClick={() => setMonthly(v)}
+              <button key={v} onClick={() => setMonthlyStr(String(v))}
                 className="flex-1 py-1 rounded-lg text-xs font-medium transition-colors"
                 style={{ background: monthly===v ? "rgba(139,92,246,0.25)" : "rgba(255,255,255,0.05)", color: monthly===v ? "#c4b5fd" : "rgba(255,255,255,0.5)", border: monthly===v ? "1px solid rgba(139,92,246,0.35)" : "1px solid rgba(255,255,255,0.07)" }}>
                 ${v < 1000 ? v : (v/1000)+"k"}
