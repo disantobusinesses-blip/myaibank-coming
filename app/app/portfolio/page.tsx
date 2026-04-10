@@ -158,7 +158,7 @@ export default function PortfolioPage() {
               value={initial}
               onFocus={e => e.target.select()}
               onChange={e => {
-                const raw = e.target.value.replace(/^0+(\d)/, '$1')
+                const raw = e.target.value.replace(/^0+(?=\d)/, '')
                 setInitial(raw === '' ? 0 : Math.max(0, Number(raw)))
               }}
               className={inputClass}
@@ -188,7 +188,7 @@ export default function PortfolioPage() {
               value={monthly}
               onFocus={e => e.target.select()}
               onChange={e => {
-                const raw = e.target.value.replace(/^0+(\d)/, '$1')
+                const raw = e.target.value.replace(/^0+(?=\d)/, '')
                 setMonthly(raw === '' ? 0 : Math.max(0, Number(raw)))
               }}
               className={inputClass}
