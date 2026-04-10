@@ -125,7 +125,6 @@ export default function WelcomePage() {
   const [mounted,          setMounted]          = useState(false)
   const [mobileMenuOpen,   setMobileMenuOpen]   = useState(false)
   const [navScrolled,      setNavScrolled]      = useState(false)
-  const [showFloatingCta,  setShowFloatingCta]  = useState(false)
   const [loadingTimedOut,  setLoadingTimedOut]  = useState(false)
   const [featuredBlogs,    setFeaturedBlogs]    = useState<BlogPost[]>(FEATURED_BLOGS)
 
@@ -197,10 +196,7 @@ export default function WelcomePage() {
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
-        const denom  = document.documentElement.scrollHeight - window.innerHeight
-        const ratio  = denom > 0 ? window.scrollY / denom : 0
         setNavScrolled(window.scrollY > 60)
-        setShowFloatingCta(ratio >= 0.35)
         ticking = false
       })
     }
@@ -647,21 +643,6 @@ export default function WelcomePage() {
         <SiteFooter variant="dark" />
       </div>
 
-      {/* ── FLOATING CTA (35%+ scroll) ────────────────────────────────────── */}
-      {showFloatingCta && (
-        <div className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-50 flex justify-center px-4"
-          style={{ animation: "fadeInUp 300ms ease forwards" }}>
-          <ShimmerButton
-            onClick={handleDemoMode}
-            shimmerColor="rgba(139,92,246,0.4)"
-            className="h-12 px-6 rounded-full text-sm font-semibold shadow-2xl"
-            style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff", boxShadow: "0 8px 32px rgba(139,92,246,0.4)" }}
-          >
-            <Play className="w-4 h-4 mr-1.5 flex-shrink-0" />
-            Try Demo — Free
-          </ShimmerButton>
-        </div>
-      )}
     </main>
   )
 }
