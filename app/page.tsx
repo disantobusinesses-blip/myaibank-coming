@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { createClient } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { SiteFooter } from "@/components/site-footer"
 import { ShimmerButton } from "@/components/shimmer-button"
@@ -16,6 +17,24 @@ import {
   Brain, CreditCard, Bell, PieChart, Lock, Zap,
   ChevronRight, CheckCircle, Menu, X,
 } from "lucide-react"
+
+// ── Blog helpers ──────────────────────────────────────────────────────────────
+const BLOG_COLORS = [
+  "#8b5cf6","#22c55e","#14b8a6","#f59e0b",
+  "#ec4899","#6366f1","#ef4444","#0ea5e9",
+]
+const BLOG_CATEGORIES = [
+  "AI Insights","Cash Flow","Detection","Budgeting",
+  "Health Score","Goals","Debt","Alerts","Savings","Analytics",
+]
+type BlogPost = {
+  slug: string
+  category: string
+  color: string
+  title: string
+  excerpt: string
+  readTime: string
+}
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
@@ -60,7 +79,19 @@ const FEATURED_BLOGS = [
     excerpt: "Data-backed strategies for Australians looking to accelerate their path to home ownership.",
     readTime: "6 min",
   },
-]
+] as BlogPost[]
+
+// ── Supabase blog client (lazy singleton) ─────────────────────────────────────
+let _blogClient: ReturnType<typeof createClient> | null = null
+function getBlogClient() {
+  if (!_blogClient) {
+    _blogClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_BLOGS_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_BLOGS_ANON_KEY!
+    )
+  }
+  return _blogClient
+}
 
 const FEATURES = [
   { icon: Brain,      color: "#8b5cf6", title: "AI Financial Copilot",     desc: "Ask anything about your finances in plain English and get instant, personalised answers." },
@@ -96,8 +127,35 @@ export default function WelcomePage() {
   const [navScrolled,      setNavScrolled]      = useState(false)
   const [showFloatingCta,  setShowFloatingCta]  = useState(false)
   const [loadingTimedOut,  setLoadingTimedOut]  = useState(false)
+  const [featuredBlogs,    setFeaturedBlogs]    = useState<BlogPost[]>(FEATURED_BLOGS)
 
   const effectiveLoading = useMemo(() => loading && !loadingTimedOut, [loading, loadingTimedOut])
+
+  // Fetch live blog posts from Supabase so homepage links match the actual slugs
+  // used by the blog index page — prevents landing on broken static folder pages.
+  useEffect(() => {
+    getBlogClient()
+      .from("myaibank_posts")
+      .select("slug, title, description")
+      .eq("published", true)
+      .order("created_at", { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setFeaturedBlogs(
+            data.map((post, i) => ({
+              slug:     post.slug as string,
+              category: BLOG_CATEGORIES[i % BLOG_CATEGORIES.length],
+              color:    BLOG_COLORS[i % BLOG_COLORS.length],
+              title:    post.title as string,
+              excerpt:  (post.description as string) ?? "",
+              readTime: "4 min",
+            }))
+          )
+        }
+      })
+      .catch(() => { /* keep FEATURED_BLOGS fallback */ })
+  }, [])
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -495,25 +553,25 @@ export default function WelcomePage() {
           </div>
 
           {/* Featured — large card */}
-          <Link href={`/blog/${FEATURED_BLOGS[0].slug}`} className="block mb-4 sm:mb-5 group">
+          <Link href={`/blog/${featuredBlogs[0].slug}`} className="block mb-4 sm:mb-5 group">
             <div className="p-6 sm:p-10 lg:p-12 rounded-3xl relative overflow-hidden transition-all duration-300 hover:scale-[1.01]"
               style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.25)" }}>
               <div className="absolute top-0 right-0 w-48 h-48 sm:w-80 sm:h-80 rounded-full pointer-events-none"
                 style={{ background: "radial-gradient(circle,rgba(139,92,246,0.15),transparent 70%)", transform: "translate(30%,-30%)" }} />
               <div className="relative">
                 <span className="inline-block px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold mb-3 sm:mb-4"
-                  style={{ background: `${FEATURED_BLOGS[0].color}22`, color: FEATURED_BLOGS[0].color, border: `1px solid ${FEATURED_BLOGS[0].color}44` }}>
-                  {FEATURED_BLOGS[0].category}
+                  style={{ background: `${featuredBlogs[0].color}22`, color: featuredBlogs[0].color, border: `1px solid ${featuredBlogs[0].color}44` }}>
+                  {featuredBlogs[0].category}
                 </span>
                 <h3 className="font-bold text-white mb-2 sm:mb-3 max-w-2xl" style={{ fontSize: "clamp(1.2rem, 4vw, 1.875rem)" }}>
-                  {FEATURED_BLOGS[0].title}
+                  {featuredBlogs[0].title}
                 </h3>
                 <p className="text-sm sm:text-base max-w-2xl mb-4 sm:mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-                  {FEATURED_BLOGS[0].excerpt}
+                  {featuredBlogs[0].excerpt}
                 </p>
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{FEATURED_BLOGS[0].readTime} read</span>
-                  <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium group-hover:gap-2.5 transition-all" style={{ color: FEATURED_BLOGS[0].color }}>
+                  <span className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{featuredBlogs[0].readTime} read</span>
+                  <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium group-hover:gap-2.5 transition-all" style={{ color: featuredBlogs[0].color }}>
                     Read article <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </span>
                 </div>
@@ -523,7 +581,7 @@ export default function WelcomePage() {
 
           {/* Grid: 1 col → 2 col → 4 col */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {FEATURED_BLOGS.slice(1).map((post) => (
+            {featuredBlogs.slice(1).map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
                 <div className="h-full p-5 sm:p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
