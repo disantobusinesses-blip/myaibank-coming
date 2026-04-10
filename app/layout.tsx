@@ -5,6 +5,7 @@ import Script from "next/script"
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/auth-context'
 import { Toaster } from '@/components/ui/toaster'
+import { CookieConsentBanner } from '@/components/cookie-consent-banner'
 import './globals.css'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -48,6 +49,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </AuthProvider>
+        <CookieConsentBanner />
         <Analytics />
         <Script
           id="json-ld-software-application"
@@ -91,8 +93,23 @@ export default function RootLayout({
             })
           }}
         />
+        {/* ── Google consent mode defaults (must run before GA loads) ── */}
+        <Script id="consent-defaults" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              wait_for_update: 500
+            });
+          `}
+        </Script>
+        {/* ── Google Analytics ──────────────────────────────────────── */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-4CZLJF002E"
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -100,7 +117,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-4CZLJF002E');
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', { send_page_view: true });
           `}
         </Script>
       </body>

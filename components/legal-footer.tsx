@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger"
 
 export function LegalFooter({ variant = "light" }: { variant?: "light" | "dark" }) {
   const textColor = variant === "dark" ? 'rgba(255,255,255,0.45)' : undefined
@@ -37,6 +38,11 @@ export function LegalFooter({ variant = "light" }: { variant?: "light" | "dark" 
         >
           Privacy Policy
         </Link>
+        <span>|</span>
+        <CookieSettingsTrigger
+          className={`${hoverClass} transition-colors underline underline-offset-2 text-xs`}
+          style={variant === "dark" ? { color: textColor } : undefined}
+        />
       </div>
       <p className={`mt-2 ${variant === "light" ? "text-muted-foreground" : ""}`}>
         ABN 38 693 023 371 | support@myaibank.ai
