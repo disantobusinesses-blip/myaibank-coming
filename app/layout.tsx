@@ -50,6 +50,48 @@ export default function RootLayout({
         </AuthProvider>
         <Analytics />
         <Script
+          id="json-ld-software-application"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "MyAiBank",
+              "url": "https://myaibank.ai",
+              "description": "AI-powered personal finance platform for Australians. Connects to your bank accounts via Open Banking to automatically track spending, detect subscriptions, forecast cash flow, and score your financial health.",
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web, iOS, Android",
+              "offers": {
+                "@type": "Offer",
+                "price": "14.99",
+                "priceCurrency": "AUD",
+                "priceSpecification": {
+                  "@type": "RecurringChargeSpecification",
+                  "price": "14.99",
+                  "priceCurrency": "AUD",
+                  "billingDuration": "P1M"
+                }
+              },
+              "featureList": [
+                "Bank account aggregation",
+                "AI transaction categorisation",
+                "Cash flow forecasting",
+                "Subscription detection",
+                "Financial health scoring",
+                "Budget tracking"
+              ],
+              "audience": {
+                "@type": "Audience",
+                "geographicArea": {
+                  "@type": "Country",
+                  "name": "Australia"
+                }
+              }
+            })
+          }}
+        />
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-4CZLJF002E"
           strategy="afterInteractive"
         />
