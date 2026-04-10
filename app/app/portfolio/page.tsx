@@ -156,7 +156,11 @@ export default function PortfolioPage() {
             <input
               type="number" min={0} step={1000}
               value={initial}
-              onChange={e => setInitial(Math.max(0, Number(e.target.value)))}
+              onFocus={e => e.target.select()}
+              onChange={e => {
+                const raw = e.target.value.replace(/^0+(\d)/, '$1')
+                setInitial(raw === '' ? 0 : Math.max(0, Number(raw)))
+              }}
               className={inputClass}
               style={{ ...inputStyle, paddingLeft:"2.25rem" }}
             />
@@ -182,7 +186,11 @@ export default function PortfolioPage() {
             <input
               type="number" min={0} step={100}
               value={monthly}
-              onChange={e => setMonthly(Math.max(0, Number(e.target.value)))}
+              onFocus={e => e.target.select()}
+              onChange={e => {
+                const raw = e.target.value.replace(/^0+(\d)/, '$1')
+                setMonthly(raw === '' ? 0 : Math.max(0, Number(raw)))
+              }}
               className={inputClass}
               style={{ ...inputStyle, paddingLeft:"2.25rem" }}
             />
