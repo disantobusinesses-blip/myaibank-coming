@@ -115,6 +115,74 @@ const TRUST = [
   { icon: CheckCircle,  label: "No Credentials Stored", desc: "Your login never touches us" },
 ]
 
+// ── BankCarousel ──────────────────────────────────────────────────────────────
+const AU_BANKS = [
+  "Commonwealth Bank", "Westpac", "ANZ", "NAB", "Macquarie Bank",
+  "ING Australia", "Bendigo Bank", "Bank of Queensland", "Suncorp Bank", "HSBC Australia",
+  "Citibank Australia", "AMP Bank", "ME Bank", "St George Bank", "BankWest",
+  "Adelaide Bank", "Greater Bank", "Newcastle Permanent", "Heritage Bank", "People's Choice",
+  "Bank Australia", "Teachers Mutual Bank", "UniBank", "Firefighters Mutual Bank", "Police Bank",
+  "G&C Mutual Bank", "Queensland Country Bank", "P&N Bank", "BCU Bank", "Regional Australia Bank",
+]
+
+function BankCarousel() {
+  // Duplicate for seamless loop
+  const items = [...AU_BANKS, ...AU_BANKS]
+  return (
+    <section className="relative z-10 py-16 sm:py-24 px-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-8 sm:mb-12 text-center">
+        <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#14b8a6" }}>Accredited &amp; Connected</p>
+        <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
+          Works with your bank
+        </h2>
+        <p className="mt-3 text-sm sm:text-base max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.45)" }}>
+          Connect securely via CDR open banking — no passwords shared.
+        </p>
+      </div>
+
+      {/* Carousel track — full bleed, edge fades */}
+      <div className="relative overflow-hidden"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+        }}
+      >
+        <div className="bank-ticker-track py-2">
+          {items.map((bank, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 mx-3"
+              style={{ width: 148 }}
+            >
+              <div
+                className="rounded-2xl flex flex-col items-center gap-3 p-4"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  transition: "border-color 0.2s",
+                }}
+              >
+                {/* Placeholder logo box */}
+                <div
+                  className="w-full rounded-xl"
+                  style={{
+                    height: 56,
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px dashed rgba(255,255,255,0.1)",
+                  }}
+                />
+                <p className="text-center leading-snug" style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
+                  {bank}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ── LaunchTimeline ────────────────────────────────────────────────────────────
 const US_LAUNCH = new Date("2026-05-04T00:00:00Z")
 
@@ -473,13 +541,13 @@ export default function WelcomePage() {
             <ShimmerButton
               onClick={handleDemoMode}
               shimmerColor="rgba(139,92,246,0.3)"
-              className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
               style={{ background: "linear-gradient(135deg,#ffffff,#f0edf5)", color: "#0a0a0f", boxShadow: "0 4px 32px rgba(139,92,246,0.25)" }}
             >
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
               Try the Live Demo
             </ShimmerButton>
-            <Button asChild className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
+            <Button asChild className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
               style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#fff" }}>
               <Link href="/signup">
                 Get Started Free
@@ -505,6 +573,9 @@ export default function WelcomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── BANK CAROUSEL ────────────────────────────────────────────────── */}
+      <BankCarousel />
 
       {/* ── LAUNCH TIMELINE ──────────────────────────────────────────────── */}
       <LaunchTimeline />
@@ -737,13 +808,13 @@ export default function WelcomePage() {
             <ShimmerButton
               onClick={handleDemoMode}
               shimmerColor="rgba(139,92,246,0.3)"
-              className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-10 rounded-2xl text-sm sm:text-base font-semibold"
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 rounded-2xl text-sm sm:text-base font-semibold"
               style={{ background: "linear-gradient(135deg,#ffffff,#f0edf5)", color: "#0a0a0f", boxShadow: "0 4px 32px rgba(139,92,246,0.3)" }}
             >
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
               Try the Live Demo
             </ShimmerButton>
-            <Button asChild className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
+            <Button asChild className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
               style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#fff" }}>
               <Link href="/signup">Create Free Account <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" /></Link>
             </Button>
