@@ -118,11 +118,7 @@ const TRUST = [
 // ── BankCarousel ──────────────────────────────────────────────────────────────
 const AU_BANKS = [
   "Commonwealth Bank", "Westpac", "ANZ", "NAB", "Macquarie Bank",
-  "ING Australia", "Bendigo Bank", "Bank of Queensland", "Suncorp Bank", "HSBC Australia",
-  "Citibank Australia", "AMP Bank", "ME Bank", "St George Bank", "BankWest",
-  "Adelaide Bank", "Greater Bank", "Newcastle Permanent", "Heritage Bank", "People's Choice",
-  "Bank Australia", "Teachers Mutual Bank", "UniBank", "Firefighters Mutual Bank", "Police Bank",
-  "G&C Mutual Bank", "Queensland Country Bank", "P&N Bank", "BCU Bank", "Regional Australia Bank",
+  "ING Australia", "Bendigo Bank", "Bank of Queensland",
 ]
 
 function BankCarousel() {
@@ -171,9 +167,6 @@ function BankCarousel() {
                     border: "1px dashed rgba(255,255,255,0.1)",
                   }}
                 />
-                <p className="text-center leading-snug" style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
-                  {bank}
-                </p>
               </div>
             </div>
           ))}
