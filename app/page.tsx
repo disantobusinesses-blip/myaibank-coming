@@ -217,70 +217,14 @@ function LaunchTimeline() {
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none"
             style={{ background: "rgba(20,184,166,0.18)", filter: "blur(48px)" }} />
 
-          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🇦🇺</span>
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-widest" style={{ color: "#14b8a6" }}>Launching Soon</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">Australia Launch — April 30</h2>
-              <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
-                myaibank.ai is officially launching for Australian users. Be first in line.
-              </p>
-            </div>
-            {/* Badge */}
-            <div className="flex-shrink-0 self-start sm:self-center">
-              <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm sm:text-base"
-                style={{ background: "linear-gradient(135deg, #14b8a6, #22c55e)", color: "#000", boxShadow: "0 0 24px rgba(20,184,166,0.45)" }}>
-                <span>🎉 First 500 get a free account</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Timeline connector */}
-        <div className="flex justify-center">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-px h-4 sm:h-6" style={{ background: "rgba(255,255,255,0.12)" }} />
-            <div className="w-2 h-2 rounded-full" style={{ background: "rgba(139,92,246,0.6)" }} />
-            <div className="w-px h-4 sm:h-6" style={{ background: "rgba(255,255,255,0.12)" }} />
-          </div>
-        </div>
-
-        {/* ── United States ── */}
-        <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8"
-          style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(99,102,241,0.08) 100%)", border: "1px solid rgba(139,92,246,0.25)" }}>
-          <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full pointer-events-none"
-            style={{ background: "rgba(139,92,246,0.18)", filter: "blur(48px)" }} />
-
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🇺🇸</span>
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-widest" style={{ color: "#8b5cf6" }}>Coming Next</span>
+              <span className="text-2xl">🇦🇺</span>
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-widest" style={{ color: "#14b8a6" }}>Launching Soon</span>
             </div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-5">Coming to the United States</h2>
-
-            {/* Countdown tiles */}
-            <div className="flex gap-3 sm:gap-4">
-              {[
-                { value: pad(timeLeft.days),    label: "Days" },
-                { value: pad(timeLeft.hours),   label: "Hours" },
-                { value: pad(timeLeft.minutes), label: "Minutes" },
-                { value: pad(timeLeft.seconds), label: "Seconds" },
-              ].map(({ value, label }) => (
-                <div key={label} className="flex-1 text-center rounded-2xl py-3 sm:py-4 px-2"
-                  style={{ background: "rgba(139,92,246,0.18)", border: "1px solid rgba(139,92,246,0.28)" }}>
-                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold tabular-nums"
-                    style={{ color: "#c4b5fd", textShadow: "0 0 20px rgba(139,92,246,0.5)" }}>
-                    {value}
-                  </div>
-                  <div className="text-xs mt-1 font-medium uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-4 text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-              US launch countdown · May 4, 2026
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">Coming to Australia…then the USA…</h2>
+            <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
+              myaibank.ai is officially launching. Be first in line.
             </p>
           </div>
         </div>
