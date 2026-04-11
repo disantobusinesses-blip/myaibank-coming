@@ -117,7 +117,7 @@ const TRUST = [
 
 // ── BankCarousel ──────────────────────────────────────────────────────────────
 const AU_BANKS = [
-  "Commonwealth Bank", "Westpac", "ANZ", "NAB", "Macquarie Bank",
+  "Commonwealth Bank", "Westpac", "ANZ", "NAB",
   "ING Australia", "Bendigo Bank", "Bank of Queensland",
 ]
 
@@ -126,7 +126,6 @@ const BANK_LOGOS: Record<string, string> = {
   "Westpac": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3191f7f3-c8bc-49df-9c6b-5f47c2a2e136.jpeg",
   "ANZ": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5c8457b6-deee-4641-a244-c79fd8feaaef.jpeg",
   "NAB": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/67df0813-90b3-45bc-9a1e-b0b83a12ea2c.jpeg",
-  "Macquarie Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/67df0813-90b3-45bc-9a1e-b0b83a12ea2c.jpeg",
   "ING Australia": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f78e453d-ebe2-4765-8edb-5132da8a67dc.jpeg",
   "Bendigo Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ca6d6b72-329d-41c3-af1b-820f980f225e.jpeg",
   "Bank of Queensland": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f21160e0-f6d1-4311-9d65-857bbf7a846c.jpeg",
@@ -158,25 +157,15 @@ function BankCarousel() {
           {items.map((bank, i) => (
             <div
               key={i}
-              className="flex-shrink-0 mx-3"
-              style={{ width: 148 }}
+              className="flex-shrink-0 mx-4"
+              style={{ width: 100 }}
             >
-              <div
-                className="rounded-2xl flex flex-col items-center gap-3 p-4"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  transition: "border-color 0.2s",
-                }}
-              >
-                {/* Bank logo image */}
-                <img
-                  src={BANK_LOGOS[bank]}
-                  alt={bank}
-                  className="w-full rounded-xl object-contain"
-                  style={{ height: 56 }}
-                />
-              </div>
+              <img
+                src={BANK_LOGOS[bank]}
+                alt={bank}
+                className="w-full rounded-xl object-contain"
+                style={{ height: 56 }}
+              />
             </div>
           ))}
         </div>
