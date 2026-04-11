@@ -60,7 +60,7 @@ export default function DashboardPage() {
   const topCategoryAmount = sortedCategories[0]?.[1]
 
   const aiInsight = topCategoryName && topCategoryAmount
-    ? `Your highest spend this period is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${savingsRate > 20 ? "🎉 Great job — you're saving above the 20% target!" : savingsRate > 0 ? "💡 Try to push savings above 20% of income." : "⚠️ Your expenses are exceeding income this period."}`
+    ? `Your highest spend this period is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${savingsRate > 20 ? "🎉 Great job, you're saving above the 20% target!" : savingsRate > 0 ? "💡 Try to push savings above 20% of income." : "⚠️ Your expenses are exceeding income this period."}`
     : "Connect your bank to unlock personalised AI insights about your spending."
 
   const isPositiveBalance = totalBalance >= 0
@@ -75,7 +75,7 @@ export default function DashboardPage() {
             <Info className="w-5 h-5 text-amber-500 shrink-0" />
             <div>
               <p className="font-medium text-amber-400 text-sm">Demo Mode Active</p>
-              <p className="text-xs text-amber-500/80">Viewing sample data — connect your real bank to get started.</p>
+              <p className="text-xs text-amber-500/80">Viewing sample data. Connect your real bank to get started.</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">

@@ -15,7 +15,7 @@ const FREE_FEATURES = [
   "AI-powered transaction categorisation",
   "Cash flow dashboard and spending analytics",
   "Subscription and bill detection",
-  "AI financial assistant — ask anything",
+  "AI financial assistant, ask anything",
   "Cashflow forecasting (30/60/90 day)",
   "Financial health score",
   "Mortgage rate alerts",
@@ -26,7 +26,7 @@ const FREE_FEATURES = [
 const FAQ = [
   { q:"Is MyAiBank really free?",         a:"Yes. MyAiBank is free for the first 500 early adopters in Australia. We are growing our user base before introducing paid plans." },
   { q:"Will pricing change in future?",   a:"We plan to introduce a paid plan for new users once we scale. Early adopters will receive preferential pricing and grandfathered rates." },
-  { q:"Do I need a credit card to sign up?", a:"No. Sign up with your email or Google account — no payment details required during the early adopter period." },
+  { q:"Do I need a credit card to sign up?", a:"No. Sign up with your email or Google account. No payment details required during the early adopter period." },
   { q:"What features are included?",      a:"All features listed above are included in the free plan. Our premium tier ($14.99/mo) unlocks real bank connections and live AI insights." },
 ]
 

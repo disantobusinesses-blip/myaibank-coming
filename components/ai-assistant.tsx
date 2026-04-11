@@ -8,7 +8,7 @@ import type { UIMessage } from "ai"
 const WELCOME_MESSAGE: UIMessage = {
   id: "welcome",
   role: "assistant",
-  parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything — spending totals, merchant breakdowns, category trends, or tips to save." }],
+  parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything: spending totals, merchant breakdowns, category trends, or tips to save." }],
 }
 import { Button } from "@/components/ui/button"
 import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"

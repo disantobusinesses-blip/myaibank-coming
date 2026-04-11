@@ -17,7 +17,7 @@ const WELCOME_MESSAGE: UIMessage = {
   parts: [
     {
       type: "text",
-      text: "Hey! I'm your AI Financial Copilot. I can see your transactions — ask me anything about your spending, savings, subscriptions, or how to improve your finances.",
+      text: "Hey! I'm your AI Financial Copilot. I can see your transactions. Ask me anything about your spending, savings, subscriptions, or how to improve your finances.",
     },
   ],
 }

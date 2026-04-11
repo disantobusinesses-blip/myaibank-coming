@@ -68,7 +68,7 @@ const FEATURED_BLOGS = [
     category: "Health Score",
     color: "#f59e0b",
     title: "Understanding Your Financial Health Score",
-    excerpt: "One number summarising income, expenses, savings rate, and debt — updated every sync.",
+    excerpt: "One number summarising income, expenses, savings rate, and debt, updated every sync.",
     readTime: "4 min",
   },
   {
@@ -96,16 +96,16 @@ function getBlogClient() {
 const FEATURES = [
   { icon: Brain,      color: "#8b5cf6", title: "AI Financial Copilot",     desc: "Ask anything about your finances in plain English and get instant, personalised answers." },
   { icon: TrendingUp, color: "#22c55e", title: "Cash Flow Forecasting",    desc: "30, 60, and 90-day projections built from 12 months of your real transaction history." },
-  { icon: PieChart,   color: "#14b8a6", title: "Auto Categorisation",      desc: "Every transaction is sorted instantly — groceries, bills, dining, investments — no tagging needed." },
+  { icon: PieChart,   color: "#14b8a6", title: "Auto Categorisation",      desc: "Every transaction is sorted instantly: groceries, bills, dining, investments. No tagging needed." },
   { icon: Bell,       color: "#f59e0b", title: "Subscription Detection",   desc: "Recurring charges are automatically surfaced so you never pay for forgotten subscriptions." },
   { icon: CreditCard, color: "#ec4899", title: "Multi-Account View",       desc: "Link all your Australian bank accounts and see your complete picture in one dashboard." },
   { icon: Shield,     color: "#6366f1", title: "Bank-Grade Security",      desc: "CDR-compliant open banking. Read-only. Your credentials never touch our servers." },
 ]
 
 const STEPS = [
-  { n: "01", color: "#8b5cf6", title: "Connect Your Bank",        desc: "Securely link Australian bank accounts in under 60 seconds via CDR open banking — no credentials stored." },
+  { n: "01", color: "#8b5cf6", title: "Connect Your Bank",        desc: "Securely link Australian bank accounts in under 60 seconds via CDR open banking. No credentials stored." },
   { n: "02", color: "#22c55e", title: "AI Analyses Your Data",    desc: "Our engine processes your history, categorises spending, detects subscriptions, and builds your forecast." },
-  { n: "03", color: "#14b8a6", title: "Get Personalised Insights", desc: "See your health score, cash flow forecast, spending breakdown, and AI recommendations — all in one place." },
+  { n: "03", color: "#14b8a6", title: "Get Personalised Insights", desc: "See your health score, cash flow forecast, spending breakdown, and AI recommendations, all in one place." },
 ]
 
 const TRUST = [
@@ -136,14 +136,29 @@ function BankCarousel() {
   const items = [...AU_BANKS, ...AU_BANKS]
   return (
     <section className="relative z-10 py-16 sm:py-24 px-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-8 sm:mb-12 text-center">
-        <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#14b8a6" }}>Accredited &amp; Connected</p>
-        <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
-          Works with your bank
-        </h2>
-        <p className="mt-3 text-sm sm:text-base max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.45)" }}>
-          Connect securely via CDR open banking — no passwords shared.
-        </p>
+      {/* CDR accreditation block: image left, checklist right */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-10 sm:mb-14 flex flex-col sm:flex-row items-center gap-8 sm:gap-12">
+        {/* CDR logo */}
+        <div className="flex-shrink-0">
+          <img
+            src="https://github.com/user-attachments/assets/3bd238e1-c74f-40a5-91c8-9cea4e420b49"
+            alt="Consumer Data Right logo"
+            className="w-48 sm:w-56 rounded-2xl object-contain"
+          />
+        </div>
+        {/* Checklist */}
+        <ul className="space-y-3 text-sm sm:text-base text-white">
+          {[
+            "CDR sponsored access",
+            "Compatible with supported Australian banks",
+            "No passwords shared",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-3">
+              <span className="text-lg">✅</span>
+              <span style={{ color: "rgba(255,255,255,0.85)" }}>{item}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Carousel track — full bleed, edge fades */}
@@ -544,7 +559,7 @@ export default function WelcomePage() {
               One platform for your whole financial life
             </h2>
             <p className="text-sm sm:text-base lg:text-lg max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.5)" }}>
-              From categorisation to 90-day cash flow forecasting — all powered by AI, updated every time your bank syncs.
+              From categorisation to 90-day cash flow forecasting, all powered by AI, updated every time your bank syncs.
             </p>
           </div>
 

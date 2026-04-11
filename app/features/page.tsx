@@ -16,7 +16,7 @@ const FEATURES = [
   { icon:TrendingUp,color:"#22c55e", title:"Cashflow Forecasting",         desc:"Predict your account balance weeks ahead using your transaction history, subscriptions, and spending patterns. Act before problems happen.", slug:"ai-future-balance-forecasting" },
   { icon:PieChart,  color:"#14b8a6", title:"Spending Analytics Dashboard", desc:"See your income, expenses, and net cash flow at a glance. Break down spending by category and track trends over time.", slug:"ai-spending-insights" },
   { icon:Bell,      color:"#f59e0b", title:"Subscription & Bill Detection", desc:"Automatically find recurring charges, subscriptions, and bills. See what each costs over time so you can cancel unused services.", slug:"subscription-detection" },
-  { icon:Brain,     color:"#ec4899", title:"AI Financial Assistant",        desc:"Ask anything about your money — \"What did I spend on food?\" or \"Show my biggest merchants.\" Real answers from your actual transactions.", slug:"ai-transaction-categorisation" },
+  { icon:Brain,     color:"#ec4899", title:"AI Financial Assistant",        desc:"Ask anything about your money: \"What did I spend on food?\" or \"Show my biggest merchants.\" Real answers from your actual transactions.", slug:"ai-transaction-categorisation" },
   { icon:Star,      color:"#6366f1", title:"Financial Health Score",        desc:"Understand your overall financial wellbeing with an AI-generated health score. Track income, spending, and savings rate over time.", slug:"financial-health-score" },
   { icon:Home,      color:"#0ea5e9", title:"Mortgage Rate Alerts",          desc:"Stay informed about interest rate changes that could affect your home loan. Get personalised alerts when refinancing opportunities arise.", slug:"mortgage-rate-alerts" },
   { icon:Shield,    color:"#a78bfa", title:"Bank-Grade Security",           desc:"Your financial data is protected with encryption at rest and in transit. We never store your banking credentials. Read-only access via CDR.", slug:null },
@@ -45,7 +45,7 @@ export default function FeaturesPage() {
           <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3" style={{color:"#22c55e"}}>Platform Features</p>
           <h1 className="font-bold text-white mb-4" style={{fontSize:"clamp(2rem,5vw,3.5rem)"}}>Everything you need to understand your money</h1>
           <p className="text-sm sm:text-lg max-w-2xl mx-auto" style={{color:"rgba(255,255,255,0.55)"}}>
-            Nine powerful features powered by AI, open banking, and real transaction data — all in one platform.
+            Nine powerful features powered by AI, open banking, and real transaction data, all in one platform.
           </p>
         </div>
       </section>
@@ -73,7 +73,7 @@ export default function FeaturesPage() {
       <section className="px-4 sm:px-6 lg:px-10 py-14 sm:py-20" style={{borderTop:"1px solid rgba(255,255,255,0.07)"}}>
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-bold text-white mb-4" style={{fontSize:"clamp(1.5rem,4vw,2.5rem)"}}>Ready to get started?</h2>
-          <p className="text-sm sm:text-base mb-8" style={{color:"rgba(255,255,255,0.5)"}}>Try the demo instantly — no signup required. Or create your free account and connect your real bank.</p>
+          <p className="text-sm sm:text-base mb-8" style={{color:"rgba(255,255,255,0.5)"}}>Try the demo instantly, no signup required. Or create your free account and connect your real bank.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <DemoStartButton className="w-full sm:w-auto h-12 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-all"
               style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff",boxShadow:"0 4px 24px rgba(139,92,246,0.3)"}}>

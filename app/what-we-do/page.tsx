@@ -73,7 +73,7 @@ const faqItems = [
   {
     question: "What is an AI money manager?",
     answer:
-      "An AI money manager uses your transaction data to automatically categorise spending, highlight patterns, track cash flow, and surface actionable insights — helping you budget smarter and faster than manual spreadsheets.",
+      "An AI money manager uses your transaction data to automatically categorise spending, highlight patterns, track cash flow, and surface actionable insights, helping you budget smarter and faster than manual spreadsheets.",
   },
   {
     question: "How does MyAiBank work as an AI money tracker?",
@@ -93,7 +93,7 @@ const faqItems = [
   {
     question: "Can I try MyAiBank before signing up?",
     answer:
-      "Yes. Our demo mode lets you explore the full experience with realistic sample data — including the AI assistant, spending insights, and subscription detection — so you can see the value before connecting your accounts.",
+      "Yes. Our demo mode lets you explore the full experience with realistic sample data, including the AI assistant, spending insights, and subscription detection, so you can see the value before connecting your accounts.",
   },
   {
     question: "Is MyAiBank a bank?",

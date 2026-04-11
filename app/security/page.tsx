@@ -37,7 +37,7 @@ const principles = [
   {
     title: "Minimal data access",
     description:
-      "We request only the data necessary to provide insights — transaction history, account balances, and merchant details. We do not access your personal banking credentials at any point.",
+      "We request only the data necessary to provide insights: transaction history, account balances, and merchant details. We do not access your personal banking credentials at any point.",
   },
   {
     title: "Secure authentication",
