@@ -141,7 +141,7 @@ function BankCarousel() {
         {/* CDR logo */}
         <div className="flex-shrink-0">
           <img
-            src="/images/cdr-logo.svg"
+            src="/images/1736A2F5-7FA6-48D1-B9F2-72C2067631CA.png"
             alt="Consumer Data Right logo"
             className="w-48 sm:w-56 rounded-2xl object-contain"
           />
