@@ -2,10 +2,9 @@
 import subprocess
 import os
 
-cwd = os.getcwd()
-
-subprocess.run(['git', 'add', 'app/page.tsx'], cwd=cwd, check=True)
-subprocess.run(['git', 'commit', '-m', 'Make carousel background transparent'], cwd=cwd, check=True)
-subprocess.run(['git', 'push'], cwd=cwd, check=True)
+# Git add, commit, and push from current working directory
+subprocess.run(['git', 'add', '.'], check=True)
+subprocess.run(['git', 'commit', '-m', 'Make carousel background transparent'], check=True)
+subprocess.run(['git', 'push'], check=True)
 
 print("Pushed transparent background changes!")
