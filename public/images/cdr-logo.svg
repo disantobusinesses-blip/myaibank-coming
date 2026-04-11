@@ -1,39 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 170" fill="none">
-  <!-- Person silhouette, icon centered at (85, 85) -->
-  <!-- Head -->
-  <circle cx="85" cy="68" r="13" fill="white"/>
-  <!-- Shoulders/body -->
-  <path d="M 62 100 Q 85 88 108 100 L 108 106 Q 85 94 62 106 Z" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 175">
+  <!-- Black badge background (CSS rounded-2xl clips the corners) -->
+  <rect width="500" height="175" fill="#000000"/>
 
-  <!-- Ring 1: r=27, tight dashes nearly full circle -->
-  <circle cx="85" cy="85" r="27" stroke="white" stroke-width="3" stroke-dasharray="5 5" fill="none"/>
+  <!-- Person icon, centered at (87, 87) -->
+  <!-- Head: filled circle -->
+  <circle cx="87" cy="73" r="11" fill="white"/>
+  <!-- Shoulders: lower semicircle dome (M left A r r 0 0 1 right sweeps clockwise → downward dome) -->
+  <path d="M 59 92 A 28 28 0 0 1 115 92 Z" fill="white"/>
 
-  <!-- Ring 2: r=40, dashes nearly full circle -->
-  <circle cx="85" cy="85" r="40" stroke="white" stroke-width="3" stroke-dasharray="7 6" fill="none"/>
+  <!--
+    Dashed rings: 4 concentric circles, each with ~5 pill-shaped (stroke-linecap=round) segments.
+    Rotated -90° so the pattern starts at 12 o'clock.
+    dashoffset = dash/2 centres the first dash on the 12 o'clock axis.
 
-  <!-- Ring 3: r=53, arcs on left and right sides (±60° from horizontal) -->
-  <!-- Left arc: 120° to 240°  → start (85+53cos120, 85+53sin120) = (58.5, 130.9) to (58.5, 39.1) -->
-  <path d="M 58.5 130.9 A 53 53 0 0 1 58.5 39.1" stroke="white" stroke-width="3" stroke-dasharray="7 6" fill="none"/>
-  <!-- Right arc: 300° to 60°  → start (111.5, 39.1) to (111.5, 130.9) -->
-  <path d="M 111.5 39.1 A 53 53 0 0 1 111.5 130.9" stroke="white" stroke-width="3" stroke-dasharray="7 6" fill="none"/>
+    Ring circumferences:  r=27→169.6  r=40→251.3  r=53→333.0  r=66→414.7
+    5 dashes: C/5 = total per segment → split ~72% dash / 28% gap
+  -->
+  <!-- Ring 1: r=27, C≈170, dasharray="24 10" -->
+  <circle cx="87" cy="87" r="27"
+          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
+          stroke-dasharray="24 10" stroke-dashoffset="12"
+          transform="rotate(-90, 87, 87)"/>
+  <!-- Ring 2: r=40, C≈251, dasharray="36 14" -->
+  <circle cx="87" cy="87" r="40"
+          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
+          stroke-dasharray="36 14" stroke-dashoffset="18"
+          transform="rotate(-90, 87, 87)"/>
+  <!-- Ring 3: r=53, C≈333, dasharray="48 19" -->
+  <circle cx="87" cy="87" r="53"
+          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
+          stroke-dasharray="48 19" stroke-dashoffset="24"
+          transform="rotate(-90, 87, 87)"/>
+  <!-- Ring 4: r=66, C≈415, dasharray="60 23" -->
+  <circle cx="87" cy="87" r="66"
+          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
+          stroke-dasharray="60 23" stroke-dashoffset="30"
+          transform="rotate(-90, 87, 87)"/>
 
-  <!-- Ring 4: r=66, narrower side arcs (±50° from horizontal) -->
-  <!-- Left arc: 130° to 230° → (85+66cos130, 85+66sin130) = (42.6, 135.5) to (42.6, 34.5) -->
-  <path d="M 42.6 135.5 A 66 66 0 0 1 42.6 34.5" stroke="white" stroke-width="3" stroke-dasharray="8 7" fill="none"/>
-  <!-- Right arc: 310° to 50° → (127.4, 34.5) to (127.4, 135.5) -->
-  <path d="M 127.4 34.5 A 66 66 0 0 1 127.4 135.5" stroke="white" stroke-width="3" stroke-dasharray="8 7" fill="none"/>
-
-  <!-- Ring 5 (outermost): r=79, short side arcs (±40° from horizontal) -->
-  <!-- Left arc: 140° to 220° → (85+79cos140, 85+79sin140) = (24.5, 135.8) to (24.5, 34.2) -->
-  <path d="M 24.5 135.8 A 79 79 0 0 1 24.5 34.2" stroke="white" stroke-width="3" stroke-dasharray="9 8" fill="none"/>
-  <!-- Right arc: 320° to 40° → (145.5, 34.2) to (145.5, 135.8) -->
-  <path d="M 145.5 34.2 A 79 79 0 0 1 145.5 135.8" stroke="white" stroke-width="3" stroke-dasharray="9 8" fill="none"/>
-
-  <!-- "Consumer Data Right" text -->
-  <text x="178" y="76"
-        font-family="'Helvetica Neue', 'Arial', sans-serif"
-        font-size="40" font-weight="700" fill="white" letter-spacing="-0.5">Consumer</text>
-  <text x="178" y="126"
-        font-family="'Helvetica Neue', 'Arial', sans-serif"
-        font-size="40" font-weight="700" fill="white" letter-spacing="-0.5">Data Right</text>
+  <!-- Text: bold rounded sans-serif, two lines -->
+  <text x="182" y="82"
+        font-family="system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="48" font-weight="800" fill="white">Consumer</text>
+  <text x="182" y="142"
+        font-family="system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="48" font-weight="800" fill="white">Data Right</text>
 </svg>
