@@ -230,12 +230,9 @@ function LaunchTimeline() {
             </div>
             {/* Badge */}
             <div className="flex-shrink-0 self-start sm:self-center">
-              <div className="relative inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm sm:text-base"
+              <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm sm:text-base"
                 style={{ background: "linear-gradient(135deg, #14b8a6, #22c55e)", color: "#000", boxShadow: "0 0 24px rgba(20,184,166,0.45)" }}>
-                {/* Pulsing ring */}
-                <span className="absolute -inset-0.5 rounded-2xl animate-ping opacity-30"
-                  style={{ background: "linear-gradient(135deg, #14b8a6, #22c55e)" }} />
-                <span className="relative">🎉 First 500 get a free account</span>
+                <span>🎉 First 500 get a free account</span>
               </div>
             </div>
           </div>
