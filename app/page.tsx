@@ -121,6 +121,17 @@ const AU_BANKS = [
   "ING Australia", "Bendigo Bank", "Bank of Queensland",
 ]
 
+const BANK_LOGOS: Record<string, string> = {
+  "Commonwealth Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/e8fd4372-97f9-456e-8a89-5f706e9b2df0.jpeg",
+  "Westpac": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3191f7f3-c8bc-49df-9c6b-5f47c2a2e136.jpeg",
+  "ANZ": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5c8457b6-deee-4641-a244-c79fd8feaaef.jpeg",
+  "NAB": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/67df0813-90b3-45bc-9a1e-b0b83a12ea2c.jpeg",
+  "Macquarie Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/67df0813-90b3-45bc-9a1e-b0b83a12ea2c.jpeg",
+  "ING Australia": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f78e453d-ebe2-4765-8edb-5132da8a67dc.jpeg",
+  "Bendigo Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ca6d6b72-329d-41c3-af1b-820f980f225e.jpeg",
+  "Bank of Queensland": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f21160e0-f6d1-4311-9d65-857bbf7a846c.jpeg",
+}
+
 function BankCarousel() {
   // Duplicate for seamless loop
   const items = [...AU_BANKS, ...AU_BANKS]
@@ -158,14 +169,12 @@ function BankCarousel() {
                   transition: "border-color 0.2s",
                 }}
               >
-                {/* Placeholder logo box */}
-                <div
-                  className="w-full rounded-xl"
-                  style={{
-                    height: 56,
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px dashed rgba(255,255,255,0.1)",
-                  }}
+                {/* Bank logo image */}
+                <img
+                  src={BANK_LOGOS[bank]}
+                  alt={bank}
+                  className="w-full rounded-xl object-contain"
+                  style={{ height: 56 }}
                 />
               </div>
             </div>
