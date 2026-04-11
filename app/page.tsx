@@ -154,7 +154,10 @@ function BankCarousel() {
             "No passwords shared",
           ].map((item) => (
             <li key={item} className="flex items-center gap-3">
-              <span className="text-lg">✅</span>
+              <svg className="flex-shrink-0 w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="10" cy="10" r="9" fill="#22c55e" />
+                <path d="M6 10.5l2.8 2.8 5.2-5.6" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
               <span style={{ color: "rgba(255,255,255,0.85)" }}>{item}</span>
             </li>
           ))}
