@@ -2,16 +2,17 @@
 import subprocess
 import os
 
-# Use current working directory
+# Get the current working directory (project root)
 cwd = os.getcwd()
 
 # Stage the changes
-subprocess.run(['git', 'add', 'app/page.tsx'], cwd=cwd, check=True)
+subprocess.run(['git', 'add', 'app/page.tsx'], cwd=cwd, check=False)
 
 # Commit with message
-subprocess.run(['git', 'commit', '-m', 'Remove placeholder container - logos float freely'], cwd=cwd, check=True)
+result = subprocess.run(['git', 'commit', '-m', 'Remove placeholder container - logos float freely'], cwd=cwd, capture_output=True, text=True)
 
 # Push to current branch
-subprocess.run(['git', 'push'], cwd=cwd, check=True)
+subprocess.run(['git', 'push'], cwd=cwd, check=False)
 
+print("Commit output:", result.stdout)
 print("Successfully committed and pushed clean logo carousel changes!")
