@@ -27,6 +27,14 @@ const PUBLIC_ROUTES: Set<string> = new Set([
   ROUTES.AUTH_CALLBACK,
   ROUTES.AUTH_ERROR,
   ROUTES.WHAT_WE_DO,
+  // Marketing / public content pages
+  "/features",
+  "/pricing",
+  "/blog",
+  "/security",
+  "/contact",
+  "/privacy",
+  "/terms",
 ])
 
 // Routes that handle their own transition logic and should not be
@@ -76,6 +84,8 @@ export function getNextRoute(
   if (!state.sessionExists) {
     // Public routes are fine
     if (PUBLIC_ROUTES.has(currentPath)) return null
+    // Blog post slugs (/blog/some-slug) are also public
+    if (currentPath.startsWith("/blog/")) return null
     // Protected routes → sign in
     return loopGuard(ROUTES.SIGNIN, currentPath)
   }
@@ -97,8 +107,15 @@ export function getNextRoute(
   // ── 5) Fully set up — should be in /app/* ──
   if (currentPath.startsWith("/app")) return null // already there
 
-  // If they are on a public/transition page after being fully set up, go to dashboard
-  return loopGuard(ROUTES.DASHBOARD, currentPath)
+  // Only auto-redirect from pages that specifically trigger the "go to dashboard" flow:
+  // the landing page (user is already set up) and onboarding (user just finished).
+  // All other public marketing pages are freely browsable even when authenticated.
+  if (currentPath === ROUTES.LANDING || currentPath === ROUTES.ONBOARDING) {
+    return loopGuard(ROUTES.DASHBOARD, currentPath)
+  }
+
+  // Authenticated users can stay on public pages (blog, features, pricing, etc.)
+  return null
 }
 
 // ── Loop prevention ──────────────────────────────────────────────────

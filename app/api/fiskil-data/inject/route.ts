@@ -7,13 +7,16 @@ const fiskilBaseUrl = process.env.FISKIL_BASE_URL || "https://api.fiskil.com"
 const fiskilClientId = process.env.FISKIL_CLIENT_ID
 const fiskilClientSecret = process.env.FISKIL_CLIENT_SECRET
 
-// Normalize base URL to include /v1 like the consent-session route does
 const normalizeBase = (url: string) => String(url || "").replace(/\/$/, "")
 const toV1 = (base: string) => {
   const b = normalizeBase(base)
   return /\/v1$/i.test(b) ? b : `${b}/v1`
 }
 const fiskilV1Base = toV1(fiskilBaseUrl)
+
+// In-memory token cache — avoids a round trip on every inject call
+let cachedToken: string | null = null
+let tokenExpiresAt = 0
 
 function extractFiskilCategory(tx: any): string | null {
   if (!tx.category) return null
@@ -30,10 +33,6 @@ function extractFiskilCategory(tx: any): string | null {
   return null
 }
 
-/**
- * Upsert rows into a table. If the UNIQUE constraint for onConflict is missing
- * (Postgres error 42P10), fall back to delete-then-insert for the matching rows.
- */
 async function safeUpsert(
   supabase: any,
   table: string,
@@ -42,30 +41,18 @@ async function safeUpsert(
   userId: string
 ) {
   if (rows.length === 0) return { error: null }
-
-  // Try the upsert first — works if the UNIQUE constraint exists
-  const { error } = await supabase
-    .from(table)
-    .upsert(rows, { onConflict })
-
+  const { error } = await supabase.from(table).upsert(rows, { onConflict })
   if (!error) return { error: null }
+  if (error.code !== "42P10") return { error }
 
-  // If error is NOT 42P10, return it as-is
-  if (error.code !== "42P10") {
-    return { error }
-  }
-
-  // Fallback: constraint is missing. Delete only the matching fiskil rows, then insert.
   console.warn(
     `UNIQUE constraint missing for ${table} (${onConflict}). ` +
-    `Falling back to delete + insert. Run scripts/002_add_unique_constraints.sql to fix permanently.`
+      `Falling back to delete + insert. Run scripts/002_add_unique_constraints.sql to fix permanently.`
   )
 
-  // Determine the fiskil ID column from the onConflict spec (e.g. "user_id,fiskil_account_id")
   const conflictCols = onConflict.split(",").map((c) => c.trim())
   const fiskilIdCol = conflictCols.find((c) => c.startsWith("fiskil_"))
   if (fiskilIdCol) {
-    // Delete only rows whose fiskil IDs are in the incoming set
     const incomingIds = rows.map((r) => r[fiskilIdCol]).filter(Boolean)
     if (incomingIds.length > 0) {
       const { error: deleteError } = await supabase
@@ -73,72 +60,48 @@ async function safeUpsert(
         .delete()
         .eq("user_id", userId)
         .in(fiskilIdCol, incomingIds)
-
       if (deleteError) {
         console.error(`Error deleting from ${table}:`, deleteError)
         return { error: deleteError }
       }
     }
   }
-
-  const { error: insertError } = await supabase
-    .from(table)
-    .insert(rows)
-
+  const { error: insertError } = await supabase.from(table).insert(rows)
   return { error: insertError }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Prefer verifying identity from the Authorization header
-    let verifiedUserId: string | null = null
+    // SECURITY: Only accept verified auth header — never trust body user_id
     const authHeader = request.headers.get("authorization")
-    if (authHeader?.startsWith("Bearer ") && supabaseUrl && supabaseServiceKey) {
-      try {
-        const adminClient = createClient(supabaseUrl, supabaseServiceKey)
-        const { data: { user } } = await adminClient.auth.getUser(
-          authHeader.replace("Bearer ", "")
-        )
-        verifiedUserId = user?.id ?? null
-      } catch {
-        // Fall through to body user_id
-      }
+    if (!authHeader?.startsWith("Bearer ") || !supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    let verifiedUserId: string | null = null
+    try {
+      const adminClient = createClient(supabaseUrl, supabaseServiceKey)
+      const {
+        data: { user },
+      } = await adminClient.auth.getUser(authHeader.replace("Bearer ", ""))
+      verifiedUserId = user?.id ?? null
+    } catch {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
+    if (!verifiedUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { end_user_id, user_id: bodyUserId } = body
-    const user_id = verifiedUserId ?? bodyUserId
-    if (!verifiedUserId) {
-      console.warn("inject: no verified auth header — falling back to body user_id")
-    }
-    if (!user_id) {
-      return NextResponse.json(
-        { error: "user_id is required" },
-        { status: 400 }
-      )
-    }
-
-    // Check if Supabase is configured
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.warn("Supabase not configured, skipping data injection")
-      return NextResponse.json({ 
-        ok: true, 
-        message: "Supabase not configured, no data injected" 
-      })
-    }
+    const { end_user_id } = body
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Ensure the profiles row exists for this user before inserting FK-dependent data.
-    // The profile is normally created by a trigger on auth.users, but it may be missing
-    // if the trigger was not set up, failed silently, or the user was created before the
-    // trigger existed. This upsert is safe: it only inserts if the row is absent.
+    // Ensure profile row exists
     const { error: profileError } = await supabase
       .from("profiles")
-      .upsert(
-        { id: user_id },
-        { onConflict: "id", ignoreDuplicates: true }
-      )
+      .upsert({ id: verifiedUserId }, { onConflict: "id", ignoreDuplicates: true })
 
     if (profileError) {
       console.error("Error ensuring profile exists:", profileError)
@@ -148,25 +111,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if Fiskil is configured — if not, return an error.
-    // Never silently inject fabricated financial data for production users.
     if (!fiskilBaseUrl || !fiskilClientId || !fiskilClientSecret || !end_user_id) {
       console.warn("Fiskil not fully configured or no end_user_id provided")
       return NextResponse.json(
         {
           ok: false,
           error: "Fiskil integration not configured",
-          message:
-            "Set FISKIL_BASE_URL, FISKIL_CLIENT_ID, FISKIL_CLIENT_SECRET environment variables and provide end_user_id to enable bank data ingestion.",
+          message: "Set FISKIL_BASE_URL, FISKIL_CLIENT_ID, FISKIL_CLIENT_SECRET and provide end_user_id.",
         },
         { status: 503 }
       )
     }
 
-    // Fetch real data from Fiskil
     try {
       const fiskilData = await fetchFiskilData(end_user_id)
-      return await injectRealData(supabase, user_id, fiskilData)
+      return await injectRealData(supabase, verifiedUserId, fiskilData)
     } catch (fiskilError) {
       console.error("Error fetching from Fiskil:", fiskilError)
       return NextResponse.json(
@@ -178,7 +137,6 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       )
     }
-
   } catch (error) {
     console.error("Error in fiskil-data/inject:", error)
     return NextResponse.json(
@@ -188,122 +146,130 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function fetchFiskilData(endUserId: string) {
-  let tokenRes: Response | null = null
-  let lastTokenError = ""
-  const tokenDelays = [0, 1000, 2000]
-  for (const delay of tokenDelays) {
+async function getFiskilToken(): Promise<string> {
+  if (cachedToken && Date.now() < tokenExpiresAt - 60_000) return cachedToken
+
+  const delays = [0, 1000, 2000]
+  let lastError = ""
+  for (const delay of delays) {
     if (delay > 0) await new Promise((r) => setTimeout(r, delay))
     try {
-      tokenRes = await fetch(`${fiskilV1Base}/token`, {
+      const res = await fetch(`${fiskilV1Base}/token`, {
         method: "POST",
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json; charset=UTF-8",
-        },
-        body: JSON.stringify({
-          client_id: fiskilClientId,
-          client_secret: fiskilClientSecret,
-        }),
+        headers: { accept: "application/json", "content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({ client_id: fiskilClientId, client_secret: fiskilClientSecret }),
       })
-      if (tokenRes.ok) break
-      lastTokenError = await tokenRes.text()
+      if (!res.ok) { lastError = await res.text(); continue }
+      const json = await res.json()
+      const token = json.token
+      if (!token) throw new Error(`Fiskil token missing: ${JSON.stringify(json)}`)
+      cachedToken = token
+      tokenExpiresAt = Date.now() + 55 * 60 * 1000
+      return token
     } catch (err) {
-      lastTokenError = err instanceof Error ? err.message : "Unknown error"
+      lastError = err instanceof Error ? err.message : "Unknown error"
     }
   }
-  if (!tokenRes || !tokenRes.ok) {
-    throw new Error(`Failed to get Fiskil token after 3 attempts: ${lastTokenError}`)
-  }
+  throw new Error(`Failed to get Fiskil token after 3 attempts: ${lastError}`)
+}
 
-  const tokenJson = await tokenRes.json()
-  const token = tokenJson.token
-  if (!token) {
-    throw new Error(`Fiskil token missing in response: ${JSON.stringify(tokenJson)}`)
+async function fetchAllPages(
+  initialUrl: string,
+  headers: Record<string, string>,
+  dataKey: string
+): Promise<any[]> {
+  const all: any[] = []
+  let nextUrl: string | null = initialUrl
+  while (nextUrl) {
+    const res = await fetch(nextUrl, { headers })
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Fiskil paginated fetch failed (${res.status}): ${text}`)
+    }
+    const data = await res.json()
+    all.push(...(data[dataKey] || data.data || []))
+    nextUrl = data.links?.next || null
   }
+  return all
+}
 
-  const authHeaders = {
+async function fetchFiskilData(endUserId: string) {
+  const token = await getFiskilToken()
+  const authHeaders: Record<string, string> = {
     accept: "application/json",
     "content-type": "application/json; charset=UTF-8",
     authorization: `Bearer ${token}`,
   }
 
-  // Fetch accounts — correct Fiskil endpoint is /v1/banking/accounts
-  const accountsRes = await fetch(
+  const accountsList = await fetchAllPages(
     `${fiskilV1Base}/banking/accounts?end_user_id=${endUserId}`,
-    { headers: authHeaders }
-  )
-
-  if (!accountsRes.ok) {
-    const text = await accountsRes.text()
-    throw new Error(`Failed to fetch accounts from Fiskil (${accountsRes.status}): ${text}`)
-  }
-
-  const accountsData = await accountsRes.json()
-  const accountsList = accountsData.accounts || accountsData.data || []
-
-  // Fetch balances — Fiskil returns balances via /v1/banking/balances
-  const balancesRes = await fetch(
-    `${fiskilV1Base}/banking/balances?end_user_id=${endUserId}`,
-    { headers: authHeaders }
+    authHeaders,
+    "accounts"
   )
 
   const balanceMap: Record<string, { current_balance: string; available_balance: string; currency: string }> = {}
-  if (balancesRes.ok) {
-    const balancesData = await balancesRes.json()
-    for (const b of balancesData.balances || balancesData.data || []) {
+  try {
+    const balances = await fetchAllPages(
+      `${fiskilV1Base}/banking/balances?end_user_id=${endUserId}`,
+      authHeaders,
+      "balances"
+    )
+    for (const b of balances) {
       balanceMap[b.account_id] = {
         current_balance: b.current_balance || "0",
         available_balance: b.available_balance || "0",
         currency: b.currency || "AUD",
       }
     }
+  } catch (err) {
+    console.warn("Failed to fetch balances, continuing without:", err)
   }
 
-  // Merge balance info into each account
-  const accountsWithBalances = accountsList.map((acc: any) => {
-    const bal = balanceMap[acc.account_id] || {}
-    return { ...acc, ...bal }
-  })
+  const accountsWithBalances = accountsList.map((acc: any) => ({
+    ...acc,
+    ...(balanceMap[acc.account_id] || {}),
+  }))
 
-  // Fetch transactions — correct Fiskil endpoint is /v1/banking/transactions
-  const allTransactions = []
-  // First try fetching all transactions for the user at once
-  const txRes = await fetch(
-    `${fiskilV1Base}/banking/transactions?end_user_id=${endUserId}`,
-    { headers: authHeaders }
-  )
-
-  if (txRes.ok) {
-    const txData = await txRes.json()
-    allTransactions.push(...(txData.transactions || txData.data || []))
-  } else {
-    // Log the error and fallback: fetch per account
-    const txErrText = await txRes.text().catch(() => "")
-    console.warn(`Bulk transaction fetch failed (${txRes.status}): ${txErrText}. Falling back to per-account fetch.`)
+  let allTransactions: any[] = []
+  try {
+    allTransactions = await fetchAllPages(
+      `${fiskilV1Base}/banking/transactions?end_user_id=${endUserId}`,
+      authHeaders,
+      "transactions"
+    )
+  } catch (err) {
+    console.warn(`Bulk transaction fetch failed: ${err}. Falling back to per-account fetch.`)
     for (const account of accountsWithBalances) {
-      const accTxRes = await fetch(
-        `${fiskilV1Base}/banking/transactions?account_id=${account.account_id}&end_user_id=${endUserId}`,
-        { headers: authHeaders }
-      )
-      if (accTxRes.ok) {
-        const accTxData = await accTxRes.json()
-        allTransactions.push(...(accTxData.transactions || accTxData.data || []))
+      try {
+        const txs = await fetchAllPages(
+          `${fiskilV1Base}/banking/transactions?account_id=${account.account_id}&end_user_id=${endUserId}`,
+          authHeaders,
+          "transactions"
+        )
+        allTransactions.push(...txs)
+      } catch (accErr) {
+        console.warn(`Failed to fetch transactions for account ${account.account_id}:`, accErr)
       }
     }
   }
 
-  return {
-    accounts: accountsWithBalances,
-    transactions: allTransactions,
+  let scheduledPayments: any[] = []
+  try {
+    scheduledPayments = await fetchAllPages(
+      `${fiskilV1Base}/banking/scheduled-payments?end_user_id=${endUserId}`,
+      authHeaders,
+      "scheduled_payments"
+    )
+  } catch (err) {
+    console.warn("Failed to fetch scheduled payments, continuing without:", err)
   }
+
+  return { accounts: accountsWithBalances, transactions: allTransactions, scheduledPayments }
 }
 
 async function injectRealData(supabase: any, userId: string, fiskilData: any) {
-  const { accounts, transactions } = fiskilData
+  const { accounts, transactions, scheduledPayments } = fiskilData
 
-  // Insert accounts — map Fiskil response fields to our schema
-  // Fiskil fields: account_id, display_name, account_ownership, bsb, bundle_name, current_balance, available_balance, currency
   const accountsToInsert = accounts.map((acc: any) => ({
     user_id: userId,
     fiskil_account_id: acc.account_id || acc.id,
@@ -311,6 +277,7 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
     account_name: acc.display_name || acc.name || acc.account_name || acc.bundle_name,
     account_type: acc.product_category || acc.type || acc.account_type,
     balance: parseFloat(acc.current_balance || acc.balance || 0),
+    available_balance: parseFloat(acc.available_balance || acc.current_balance || acc.balance || 0),
     currency: acc.currency || "AUD",
     last_synced_at: new Date().toISOString(),
   }))
@@ -318,12 +285,8 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
   const { error: accountsError } = await safeUpsert(
     supabase, "bank_accounts", accountsToInsert, "user_id,fiskil_account_id", userId
   )
+  if (accountsError) console.error("Error inserting accounts:", accountsError)
 
-  if (accountsError) {
-    console.error("Error inserting accounts:", accountsError)
-  }
-
-  // Build a lookup from fiskil_account_id → DB account row id
   const { data: savedAccounts } = await supabase
     .from("bank_accounts")
     .select("id, fiskil_account_id")
@@ -331,19 +294,14 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 
   const accountIdMap: Record<string, string> = {}
   for (const row of savedAccounts || []) {
-    if (row.fiskil_account_id) {
-      accountIdMap[row.fiskil_account_id] = row.id
-    }
+    if (row.fiskil_account_id) accountIdMap[row.fiskil_account_id] = row.id
   }
 
-  // Insert transactions — map Fiskil response fields to our schema
-  // Fiskil fields: transaction_id, account_id, amount, currency, description, merchant_name, category, execution_date_time, status
   const transactionsToInsert = transactions.map((tx: any) => {
     const amount = parseFloat(tx.amount || 0)
-    const fiskilAccountId = tx.account_id
     return {
       user_id: userId,
-      account_id: accountIdMap[fiskilAccountId] || null,
+      account_id: accountIdMap[tx.account_id] || null,
       fiskil_transaction_id: tx.transaction_id || tx.id,
       amount,
       currency: tx.currency || "AUD",
@@ -351,7 +309,12 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
       merchant_name: tx.merchant_name || tx.merchant?.name,
       category: extractFiskilCategory(tx),
       transaction_type: amount > 0 ? "credit" : "debit",
-      transaction_date: tx.execution_date_time || tx.posting_date_time || tx.value_date_time || tx.date || tx.transaction_date,
+      transaction_date:
+        tx.execution_date_time ||
+        tx.posting_date_time ||
+        tx.value_date_time ||
+        tx.date ||
+        tx.transaction_date,
       is_pending: tx.status === "PENDING" || tx.pending || false,
     }
   })
@@ -359,12 +322,27 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
   const { error: transactionsError } = await safeUpsert(
     supabase, "transactions", transactionsToInsert, "user_id,fiskil_transaction_id", userId
   )
+  if (transactionsError) console.error("Error inserting transactions:", transactionsError)
 
-  if (transactionsError) {
-    console.error("Error inserting transactions:", transactionsError)
+  if (scheduledPayments.length > 0) {
+    const scheduledToInsert = scheduledPayments.map((sp: any) => ({
+      user_id: userId,
+      fiskil_payment_id: sp.scheduled_payment_id || sp.id,
+      account_id: accountIdMap[sp.account_id] || null,
+      nickname: sp.nickname || sp.description,
+      amount: parseFloat(sp.amount?.amount || sp.amount || 0),
+      currency: sp.amount?.currency || sp.currency || "AUD",
+      next_payment_date: sp.next_payment_date || sp.next_date,
+      payment_frequency: sp.recurrence?.interval_period || sp.frequency || null,
+      is_active: true,
+    }))
+    try {
+      await safeUpsert(supabase, "scheduled_payments", scheduledToInsert, "user_id,fiskil_payment_id", userId)
+    } catch (spErr) {
+      console.warn("scheduled_payments table may not exist yet — skipping:", spErr)
+    }
   }
 
-  // Enrich transactions with AI categorisation for any that are uncategorized
   try {
     const { data: uncategorized } = await supabase
       .from("transactions")
@@ -395,8 +373,9 @@ async function injectRealData(supabase: any, userId: string, fiskilData: any) {
 
   return NextResponse.json({
     ok: true,
-    message: "Real Fiskil data injected successfully",
+    message: "Fiskil data injected successfully",
     accounts: accountsToInsert.length,
     transactions: transactionsToInsert.length,
+    scheduledPayments: scheduledPayments.length,
   })
 }

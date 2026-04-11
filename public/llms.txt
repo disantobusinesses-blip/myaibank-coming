@@ -1,0 +1,28 @@
+# MyAiBank
+> AI-powered personal finance platform for Australians.
+
+## What it does
+MyAiBank connects to Australian bank accounts via Open Banking and uses AI to automatically track spending, categorise transactions, detect subscriptions, forecast cash flow, and score financial health.
+
+## Core features
+- Bank account aggregation via Open Banking (Fiskil)
+- Automatic transaction categorisation
+- AI-powered spending insights
+- Cash flow forecasting
+- Subscription detection
+- Financial health scoring
+- Budget tracking
+- Portfolio tracking
+
+## Pricing
+- $14.99 AUD per month
+- Free trial available
+
+## Target audience
+Australians who want to understand and improve their finances — budgeting, saving, debt reduction, investment tracking
+
+## Contact
+Website: https://myaibank.ai
+
+## About
+MyAiBank is a product of AI Capital Holdings Pty Ltd (ABN 38 693 023 371), Melbourne, Australia.

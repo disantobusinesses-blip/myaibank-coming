@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger"
 
 interface SiteFooterProps {
   variant?: "light" | "dark"
@@ -70,6 +71,13 @@ export function SiteFooter({ variant = "light" }: SiteFooterProps) {
             <ul className="space-y-2">
               <li><Link href="/privacy" className={baseLinkClass}>Privacy Policy</Link></li>
               <li><Link href="/terms" className={baseLinkClass}>Terms of Use</Link></li>
+              <li>
+                <CookieSettingsTrigger
+                  className={`text-sm transition-colors hover:underline underline-offset-2 ${
+                    isDark ? "text-white/60 hover:text-white" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                />
+              </li>
             </ul>
           </div>
         </nav>

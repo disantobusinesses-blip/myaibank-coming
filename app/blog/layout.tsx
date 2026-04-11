@@ -1,31 +1,64 @@
-import { SiteFooter } from "@/components/site-footer"
-import Link from "next/link"
 import type { ReactNode } from "react"
+import Link from "next/link"
+import Image from "next/image"
 
 export default function BlogLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#fff', color: '#1a1a1a' }}>
-      <header className="px-6 py-4 border-b" style={{ borderColor: '#e5e5e5' }}>
-        <div className="max-w-3xl mx-auto flex items-center gap-3 flex-wrap">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-10 w-24 rounded opacity-20" role="img" aria-label="Logo placeholder" />
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#050508", color: "#fff" }}>
+      {/* Shared dark nav for all blog pages */}
+      <header
+        style={{
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          backgroundColor: "rgba(5,5,8,0.95)",
+          backdropFilter: "blur(12px)",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+        }}
+      >
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4 flex items-center justify-between">
+          <Link href="/" aria-label="Home">
+            <Image
+              src="/MABtransparent.png"
+              alt="MyAiBank"
+              width={80}
+              height={32}
+              className="object-contain w-16 h-auto sm:w-20"
+            />
           </Link>
-          <span style={{ color: '#ccc' }}>|</span>
-          <Link href="/blog" className="text-xs hover:underline" style={{ color: '#666' }}>Blog</Link>
-          <span style={{ color: '#ccc' }}>|</span>
-          <Link href="/features" className="text-xs hover:underline" style={{ color: '#666' }}>Features</Link>
-          <span style={{ color: '#ccc' }}>|</span>
-          <Link href="/pricing" className="text-xs hover:underline" style={{ color: '#666' }}>Pricing</Link>
-          <span style={{ color: '#ccc' }}>|</span>
-          <Link href="/what-we-do" className="text-xs hover:underline" style={{ color: '#666' }}>Learn More</Link>
-          <span style={{ color: '#ccc' }}>|</span>
-          <Link href="/signup" className="text-xs hover:underline" style={{ color: '#666' }}>Get Started</Link>
+          <nav className="hidden sm:flex items-center gap-5 lg:gap-8">
+            {([["Features", "/features"], ["Pricing", "/pricing"], ["Blog", "/blog"], ["Security", "/security"]] as const).map(([l, h]) => (
+              <Link
+                key={h}
+                href={h}
+                className="text-sm transition-colors hover:text-white"
+                style={{ color: "rgba(255,255,255,0.55)" }}
+              >
+                {l}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden sm:block text-sm transition-colors hover:text-white"
+              style={{ color: "rgba(255,255,255,0.55)" }}
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className="h-9 px-4 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+              style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff" }}
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </header>
-      <main className="flex-1 px-6 py-10 max-w-3xl mx-auto w-full">
-        {children}
-      </main>
-      <SiteFooter />
+
+      {/* Page content (blog list or individual post) */}
+      {children}
     </div>
   )
 }

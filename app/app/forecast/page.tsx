@@ -31,7 +31,8 @@ const confidenceConfig = {
 }
 
 export default function ForecastPage() {
-  const { connected, transactions, subscriptions, totalBalance } = useAppData()
+  const { connected, forecastTransactions, subscriptions, totalBalance } = useAppData()
+  const transactions = forecastTransactions
 
   const summary = buildSpendingSummary(transactions)
   const { projected: projectedMonthEnd, daysRemaining } = projectMonthEnd(transactions, totalBalance)

@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       demoMode: isDemoMode,
     })
     const dest = getNextRoute(state, pathname)
-    if (dest) router.push(dest)
+    if (dest) router.replace(dest)
   }, [user, profile, loading, router, isDemoMode, pathname])
 
   const handleSignOut = async () => {
