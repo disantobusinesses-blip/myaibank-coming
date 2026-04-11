@@ -1,47 +1,5 @@
+<!-- Replace this file with your actual CDR logo image (SVG or PNG).
+     See the PR / task notes for upload instructions. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 175">
-  <!-- Black badge background (CSS rounded-2xl clips the corners) -->
-  <rect width="500" height="175" fill="#000000"/>
-
-  <!-- Person icon, centered at (87, 87) -->
-  <!-- Head: filled circle -->
-  <circle cx="87" cy="73" r="11" fill="white"/>
-  <!-- Shoulders: lower semicircle dome (M left A r r 0 0 1 right sweeps clockwise → downward dome) -->
-  <path d="M 59 92 A 28 28 0 0 1 115 92 Z" fill="white"/>
-
-  <!--
-    Dashed rings: 4 concentric circles, each with ~5 pill-shaped (stroke-linecap=round) segments.
-    Rotated -90° so the pattern starts at 12 o'clock.
-    dashoffset = dash/2 centres the first dash on the 12 o'clock axis.
-
-    Ring circumferences:  r=27→169.6  r=40→251.3  r=53→333.0  r=66→414.7
-    5 dashes: C/5 = total per segment → split ~72% dash / 28% gap
-  -->
-  <!-- Ring 1: r=27, C≈170, dasharray="24 10" -->
-  <circle cx="87" cy="87" r="27"
-          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
-          stroke-dasharray="24 10" stroke-dashoffset="12"
-          transform="rotate(-90, 87, 87)"/>
-  <!-- Ring 2: r=40, C≈251, dasharray="36 14" -->
-  <circle cx="87" cy="87" r="40"
-          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
-          stroke-dasharray="36 14" stroke-dashoffset="18"
-          transform="rotate(-90, 87, 87)"/>
-  <!-- Ring 3: r=53, C≈333, dasharray="48 19" -->
-  <circle cx="87" cy="87" r="53"
-          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
-          stroke-dasharray="48 19" stroke-dashoffset="24"
-          transform="rotate(-90, 87, 87)"/>
-  <!-- Ring 4: r=66, C≈415, dasharray="60 23" -->
-  <circle cx="87" cy="87" r="66"
-          stroke="white" stroke-width="5" stroke-linecap="round" fill="none"
-          stroke-dasharray="60 23" stroke-dashoffset="30"
-          transform="rotate(-90, 87, 87)"/>
-
-  <!-- Text: bold rounded sans-serif, two lines -->
-  <text x="182" y="82"
-        font-family="system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
-        font-size="48" font-weight="800" fill="white">Consumer</text>
-  <text x="182" y="142"
-        font-family="system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
-        font-size="48" font-weight="800" fill="white">Data Right</text>
+  <rect width="500" height="175" fill="transparent"/>
 </svg>
