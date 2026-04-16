@@ -59,9 +59,19 @@ export default function DashboardPage() {
   const topCategoryName = sortedCategories[0]?.[0]
   const topCategoryAmount = sortedCategories[0]?.[1]
 
+  // Investment projection constants for AI insight
+  const ASSUMED_ANNUAL_RETURN = 0.10 // 10% avg S&P 500 return
+  const PROJECTION_YEARS = 10
+  const MONTHS_PER_YEAR = 12
+  const ASSUMED_DAYS_PER_MONTH = 30
+
   // Calculate investment projection for insight
-  const monthlySavings = income > 0 ? Math.round((income - expenses) / (transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / 30)) : 1)) : 0
-  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * 12 * ((Math.pow(1 + 0.10/12, 10*12) - 1) / (0.10/12))) : 0
+  // Estimate monthly savings from income - expenses divided by approximate months of transaction data
+  const approxMonths = transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / ASSUMED_DAYS_PER_MONTH)) : 1
+  const monthlySavings = income > 0 ? Math.round((income - expenses) / approxMonths) : 0
+  const monthlyRate = ASSUMED_ANNUAL_RETURN / MONTHS_PER_YEAR
+  const totalPeriods = PROJECTION_YEARS * MONTHS_PER_YEAR
+  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * MONTHS_PER_YEAR * ((Math.pow(1 + monthlyRate, totalPeriods) - 1) / monthlyRate)) : 0
 
   const aiInsight = topCategoryName && topCategoryAmount
     ? `Your highest spend is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${

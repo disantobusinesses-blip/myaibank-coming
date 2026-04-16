@@ -117,9 +117,9 @@ export default function LoginPage() {
           {error && (
             <div className="mb-6 text-center">
               <p className="text-sm text-destructive">{error}</p>
-              {error.toLowerCase().includes("not available") && (
+              {(error.toLowerCase().includes("not available") || error.toLowerCase().includes("provider")) && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  If this problem persists, please{" "}
+                  Google sign-in may be temporarily unavailable. Please try again later or{" "}
                   <a href="mailto:support@myaibank.ai" className="underline">
                     contact support
                   </a>
