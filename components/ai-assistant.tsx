@@ -273,7 +273,8 @@ export function AIAssistant() {
 
           {/* Disclaimer Gate — shown before any chat interaction */}
           {!disclaimerAccepted ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-msg-fade-in">
+            <div className="flex-1 overflow-y-auto p-6 text-center animate-msg-fade-in">
+              <div className="flex flex-col items-center min-h-full justify-center">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7c3aed]/20 to-[#6d28d9]/10 flex items-center justify-center mb-5 ring-1 ring-[#7c3aed]/20 animate-ai-disclaimer-pulse">
                 <ShieldCheck className="w-8 h-8 text-[#a78bfa]" />
               </div>
@@ -330,6 +331,7 @@ export function AIAssistant() {
                   Continue to Chat
                 </span>
               </button>
+              </div>
             </div>
           ) : (
             <>

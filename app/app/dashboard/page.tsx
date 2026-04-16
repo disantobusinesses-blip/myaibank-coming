@@ -60,18 +60,20 @@ export default function DashboardPage() {
   const topCategoryAmount = sortedCategories[0]?.[1]
 
   // Investment projection constants for AI insight
-  const ASSUMED_ANNUAL_RETURN = 0.10 // 10% avg S&P 500 return
+  const ASSUMED_ANNUAL_RETURN = 0.10 // Historical S&P 500 average (not guaranteed)
   const PROJECTION_YEARS = 10
   const MONTHS_PER_YEAR = 12
-  const ASSUMED_DAYS_PER_MONTH = 30
+  const APPROX_DAYS_PER_MONTH = 30
 
   // Calculate investment projection for insight
   // Estimate monthly savings from income - expenses divided by approximate months of transaction data
-  const approxMonths = transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / ASSUMED_DAYS_PER_MONTH)) : 1
+  const approxMonths = transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / APPROX_DAYS_PER_MONTH)) : 1
   const monthlySavings = income > 0 ? Math.round((income - expenses) / approxMonths) : 0
-  const monthlyRate = ASSUMED_ANNUAL_RETURN / MONTHS_PER_YEAR
+  // Effective monthly rate: (1 + annual_rate)^(1/12) - 1 — correct compound interest conversion
+  const monthlyRate = Math.pow(1 + ASSUMED_ANNUAL_RETURN, 1 / MONTHS_PER_YEAR) - 1
   const totalPeriods = PROJECTION_YEARS * MONTHS_PER_YEAR
-  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * MONTHS_PER_YEAR * ((Math.pow(1 + monthlyRate, totalPeriods) - 1) / monthlyRate)) : 0
+  // Standard ordinary-annuity future-value formula: FV = PMT × [((1+r)^n − 1) / r]
+  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * ((Math.pow(1 + monthlyRate, totalPeriods) - 1) / monthlyRate)) : 0
 
   const aiInsight = topCategoryName && topCategoryAmount
     ? `Your highest spend is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${
