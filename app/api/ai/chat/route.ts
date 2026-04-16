@@ -15,6 +15,7 @@ import type { Transaction, Subscription } from "@/contexts/app-data-context"
 import { createClient } from "@supabase/supabase-js"
 import { checkAndIncrementChatUsage } from "@/lib/ai-usage"
 
+// Claude Opus requires longer processing for complex financial modelling queries
 export const maxDuration = 60
 
 interface AssistantParams {
