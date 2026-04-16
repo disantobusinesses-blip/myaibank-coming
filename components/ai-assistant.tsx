@@ -273,8 +273,8 @@ export function AIAssistant() {
 
           {/* Disclaimer Gate — shown before any chat interaction */}
           {!disclaimerAccepted ? (
-            <div className="flex-1 overflow-y-auto p-6 text-center animate-msg-fade-in">
-              <div className="flex flex-col items-center min-h-full justify-center">
+            <div className="flex-1 overflow-y-auto p-6 animate-msg-fade-in">
+              <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7c3aed]/20 to-[#6d28d9]/10 flex items-center justify-center mb-5 ring-1 ring-[#7c3aed]/20 animate-ai-disclaimer-pulse">
                 <ShieldCheck className="w-8 h-8 text-[#a78bfa]" />
               </div>
@@ -286,7 +286,7 @@ export function AIAssistant() {
               </p>
 
               <div
-                className="rounded-xl p-4 mb-6 text-left max-w-sm"
+                className="rounded-xl p-4 mb-6 text-left max-w-sm w-full"
                 style={{
                   background: "rgba(245,158,11,0.06)",
                   border: "1px solid rgba(245,158,11,0.15)",
@@ -298,7 +298,7 @@ export function AIAssistant() {
               </div>
 
               <label
-                className="flex items-start gap-3 cursor-pointer mb-6 max-w-sm text-left group"
+                className="flex items-start gap-3 cursor-pointer mb-6 max-w-sm w-full text-left group"
                 htmlFor="ai-disclaimer-checkbox"
               >
                 <input
