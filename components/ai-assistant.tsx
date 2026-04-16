@@ -8,13 +8,13 @@ import type { UIMessage } from "ai"
 const WELCOME_MESSAGE: UIMessage = {
   id: "welcome",
   role: "assistant",
-  parts: [{ type: "text", text: "Hey! I can see your transactions. Ask me anything: spending totals, merchant breakdowns, category trends, or tips to save." }],
+  parts: [{ type: "text", text: "Hi! I'm your AI Financial Advisor. I can analyse your spending, forecast your finances, model investment scenarios, and help you understand your money better. Ask me anything!" }],
 }
 import { Button } from "@/components/ui/button"
 import ChatGPTInput from "@/components/ui/prompt-input-dynamic-grow"
 import {
   X,
-  Sparkles,
+  Bot,
   User,
   AlertCircle
 } from "lucide-react"
@@ -24,10 +24,10 @@ import { normalizeTransactions } from "@/lib/transactions-provider"
 import { createClient } from "@/lib/supabase/client"
 
 const suggestedQuestions = [
-  "What are my top spending categories?",
-  "How much did I spend on dining?",
+  "What's my financial health score?",
+  "If I invested my savings, what would it be worth in 10 years?",
   "Show my biggest expenses this month",
-  "Do I have any recurring subscriptions?",
+  "How can I improve my savings rate?",
 ]
 
 const DEMO_AI_LIMIT = 3
@@ -72,7 +72,8 @@ export function AIAssistant() {
   const [demoAiCount, setDemoAiCount] = useState(0)
   const [demoLimitReached, setDemoLimitReached] = useState(false)
   const [dailyRemaining, setDailyRemaining] = useState<number | null>(null)
-  const { transactions } = useAppData()
+  const [authToken, setAuthToken] = useState<string | null>(null)
+  const { transactions, accounts } = useAppData()
 
   // Check demo mode on mount
   useEffect(() => {
@@ -85,10 +86,14 @@ export function AIAssistant() {
     }
   }, [])
 
-  // Fetch daily usage for authenticated users
+  // Fetch auth token and daily usage for authenticated users
   useEffect(() => {
-    const fetchUsage = async () => {
+    const fetchAuthAndUsage = async () => {
       const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.access_token) {
+        setAuthToken(session.access_token)
+      }
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
@@ -105,19 +110,28 @@ export function AIAssistant() {
       const used = data?.usage_date === today ? (data?.daily_chat_count ?? 0) : 0
       setDailyRemaining(50 - used)
     }
-    fetchUsage()
+    fetchAuthAndUsage()
   }, [])
 
   const aiContext = useMemo(() => {
     const normalized = normalizeTransactions(transactions)
-    return { transactions: normalized }
-  }, [transactions])
+    const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0)
+    const accountSummary = accounts.map(acc => ({
+      name: acc.account_name || acc.institution_name || "Account",
+      type: acc.account_type || "unknown",
+      balance: acc.balance,
+      institution: acc.institution_name,
+    }))
+    return { transactions: normalized, accounts: accountSummary, totalBalance }
+  }, [transactions, accounts])
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/ai/chat",
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       body: {
         context: aiContext,
+        isDemoMode,
         assistantParams: {
           tone: "advisor",
           verbosity: "normal",
@@ -175,9 +189,9 @@ export function AIAssistant() {
         className={`fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#6d28d9] text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 ai-btn-glow ${
           isOpen ? "hidden" : "flex"
         }`}
-        aria-label="Open AI Financial Assistant"
+        aria-label="Open AI Financial Advisor"
       >
-        <Sparkles className="w-6 h-6" />
+        <Bot className="w-6 h-6" />
       </button>
 
       {/* Chat Panel */}
@@ -186,11 +200,11 @@ export function AIAssistant() {
           {/* Header */}
           <div className="flex items-center gap-3 p-4 border-b border-white/06">
             <div className="w-10 h-10 rounded-2xl bg-[#7c3aed]/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-[#a78bfa]" />
+              <Bot className="w-5 h-5 text-[#a78bfa]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground text-sm">MyAiBank AI</p>
-              <p className="text-[10px] text-muted-foreground">Powered by Claude Opus · Your personal finance assistant</p>
+              <p className="font-semibold text-foreground text-sm">MyAiBank AI Advisor</p>
+              <p className="text-[10px] text-muted-foreground">Powered by Claude Opus · Your personal finance advisor</p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {dailyRemaining !== null && !isDemoMode && (
@@ -223,7 +237,7 @@ export function AIAssistant() {
                 >
                   {message.role === "assistant" && (
                     <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Sparkles className="w-4 h-4 text-[#a78bfa]" />
+                      <Bot className="w-4 h-4 text-[#a78bfa]" />
                     </div>
                   )}
                   <div
@@ -254,7 +268,7 @@ export function AIAssistant() {
             {isLoading && (
               <div className="flex gap-2.5 justify-start animate-msg-fade-in">
                 <div className="w-8 h-8 rounded-xl bg-[#7c3aed]/15 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-[#a78bfa]" />
+                  <Bot className="w-4 h-4 text-[#a78bfa]" />
                 </div>
                 <div className="p-3 rounded-2xl rounded-bl-sm flex items-center gap-1.5" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}>
                   <span className="w-2 h-2 rounded-full bg-[#7c3aed] animate-bounce-dot" style={{ animationDelay: "0ms" }} />

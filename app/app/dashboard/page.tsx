@@ -46,7 +46,7 @@ export default function DashboardPage() {
     ? "Demo"
     : profile?.first_name || user?.email?.split("@")[0] || "there"
 
-  // Generate a simple AI insight from real data
+  // Generate a rich AI insight from real data
   const topCategory = transactions
     .filter((t) => t.amount < 0 && t.category)
     .reduce((acc: Record<string, number>, t) => {
@@ -59,9 +59,19 @@ export default function DashboardPage() {
   const topCategoryName = sortedCategories[0]?.[0]
   const topCategoryAmount = sortedCategories[0]?.[1]
 
+  // Calculate investment projection for insight
+  const monthlySavings = income > 0 ? Math.round((income - expenses) / (transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / 30)) : 1)) : 0
+  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * 12 * ((Math.pow(1 + 0.10/12, 10*12) - 1) / (0.10/12))) : 0
+
   const aiInsight = topCategoryName && topCategoryAmount
-    ? `Your highest spend this period is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${savingsRate > 20 ? "🎉 Great job, you're saving above the 20% target!" : savingsRate > 0 ? "💡 Try to push savings above 20% of income." : "⚠️ Your expenses are exceeding income this period."}`
-    : "Connect your bank to unlock personalised AI insights about your spending."
+    ? `Your highest spend is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${
+        savingsRate > 20
+          ? `🎉 Great savings rate of ${savingsRate}%!${futureValue10yr > 0 ? ` If you invest your monthly surplus at 10% p.a., it could grow to ~$${Math.round(futureValue10yr).toLocaleString()} in 10 years.` : ""}`
+          : savingsRate > 0
+          ? `💡 Your savings rate is ${savingsRate}%. Try to push above 20% — even small increases compound significantly over time.`
+          : "⚠️ Your expenses are exceeding income this period. Let's find areas to cut back."
+      }`
+    : "Connect your bank to unlock personalised AI insights, financial forecasts, and investment projections."
 
   const isPositiveBalance = totalBalance >= 0
 
@@ -141,7 +151,7 @@ export default function DashboardPage() {
       {/* Connected State */}
       {connected && (
         <>
-          {/* HERO BALANCE CARD */}
+          {/* NET WORTH HERO CARD */}
           <div
             className="relative rounded-2xl overflow-hidden p-6"
             style={{
@@ -157,7 +167,7 @@ export default function DashboardPage() {
 
             <div className="relative">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">
-                Total Balance
+                Total Net Worth
               </p>
               <p className={`text-5xl font-bold tabular-nums mb-1 ${isPositiveBalance ? "text-white number-glow-white" : "text-[#f87171]"}`}>
                 <CountUp
@@ -171,6 +181,27 @@ export default function DashboardPage() {
                   <TrendingUp className="w-4 h-4" />
                   +${Math.round(netSaved).toLocaleString()} saved this period
                 </p>
+              )}
+
+              {/* Account breakdown */}
+              {accounts.length > 1 && (
+                <div className="mt-4 pt-4 space-y-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Account Breakdown</p>
+                  {accounts.map((acc) => (
+                    <div key={acc.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs text-muted-foreground truncate">
+                          {acc.account_name || acc.institution_name || "Account"}
+                          {acc.account_type ? ` · ${acc.account_type}` : ""}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-semibold tabular-nums ml-2 ${acc.balance >= 0 ? "text-foreground" : "text-[#f87171]"}`}>
+                        {acc.balance < 0 ? "-" : ""}${Math.abs(Math.round(acc.balance)).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {/* Mini stats row */}
@@ -190,7 +221,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.06)" }} />
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Saved</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Savings Rate</p>
                   <p className={`text-sm font-bold tabular-nums ${savingsRate >= 20 ? "text-[#22c55e]" : "text-[#f59e0b]"}`}>
                     {savingsRate}%
                   </p>

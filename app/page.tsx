@@ -192,56 +192,7 @@ function BankCarousel() {
   )
 }
 
-// ── LaunchTimeline ────────────────────────────────────────────────────────────
-const US_LAUNCH = new Date("2026-05-04T00:00:00Z")
-
-function LaunchTimeline() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-
-  useEffect(() => {
-    function tick() {
-      const diff = Math.max(0, US_LAUNCH.getTime() - Date.now())
-      setTimeLeft({
-        days:    Math.floor(diff / 86_400_000),
-        hours:   Math.floor((diff % 86_400_000) / 3_600_000),
-        minutes: Math.floor((diff % 3_600_000)  / 60_000),
-        seconds: Math.floor((diff % 60_000)     / 1_000),
-      })
-    }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  const pad = (n: number) => String(n).padStart(2, "0")
-
-  return (
-    <section className="relative z-10 py-14 sm:py-20 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-
-        {/* ── Australia ── */}
-        <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8"
-          style={{ background: "linear-gradient(135deg, rgba(20,184,166,0.12) 0%, rgba(34,197,94,0.08) 100%)", border: "1px solid rgba(20,184,166,0.25)" }}>
-          {/* Subtle glow blob */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none"
-            style={{ background: "rgba(20,184,166,0.18)", filter: "blur(48px)" }} />
-
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🇦🇺</span>
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-widest" style={{ color: "#14b8a6" }}>Launching Soon</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">Coming to Australia…then the USA…</h2>
-            <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
-              myaibank.ai is officially launching. Be first in line.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-  )
-}
+// LaunchTimeline removed — no longer needed
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -470,7 +421,7 @@ export default function WelcomePage() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6 sm:mb-8 text-xs sm:text-sm"
             style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", color: "#a78bfa" }}>
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
-            AI-Powered Finance for Australians
+            AI-Powered Personal Finance
           </div>
 
           {/* Headline — fluid: 36px → 72px */}
@@ -526,9 +477,6 @@ export default function WelcomePage() {
 
       {/* ── BANK CAROUSEL ────────────────────────────────────────────────── */}
       <BankCarousel />
-
-      {/* ── LAUNCH TIMELINE ──────────────────────────────────────────────── */}
-      <LaunchTimeline />
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
       <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
