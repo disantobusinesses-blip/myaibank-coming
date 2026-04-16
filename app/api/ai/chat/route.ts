@@ -19,15 +19,10 @@ export const maxDuration = 60
 
 interface AssistantParams {
   verbosity?: "brief" | "normal" | "detailed"
-  tone?: "advisor" | "casual" | "formal"
+  tone?: "assistant" | "casual" | "formal"
   riskSensitivity?: "low" | "medium" | "high"
   locale?: string
 }
-
-const DISCLAIMER =
-  "⚠️ *This is general financial information only — not personal financial advice. " +
-  "I am an AI assistant, not a licensed financial adviser. " +
-  "Please consult a qualified professional before making important financial decisions.*"
 
 function buildSystemPrompt(
   params: AssistantParams,
@@ -40,7 +35,7 @@ function buildSystemPrompt(
   }
 
   const toneGuide: Record<string, string> = {
-    advisor: "Speak like a friendly, professional financial advisor. Use phrases like 'I noticed…', 'You might consider…', 'Based on your spending…'. Be warm but knowledgeable.",
+    assistant: "Speak like a friendly, professional financial assistant. Use phrases like 'I noticed…', 'You might consider…', 'Based on your spending…'. Be warm but knowledgeable.",
     casual: "Be friendly and conversational, like a knowledgeable friend chatting about money.",
     formal: "Use professional, formal language appropriate for a financial report.",
   }
@@ -52,18 +47,23 @@ function buildSystemPrompt(
   }
 
   const v = params.verbosity ?? "normal"
-  const t = params.tone ?? "advisor"
+  const t = params.tone ?? "assistant"
   const r = params.riskSensitivity ?? "medium"
   const locale = params.locale ?? "AU"
 
   const parts: string[] = [
-    `You are MyAiBank's AI Financial Advisor — an expert-level financial guide with deep knowledge of personal finance, investment strategy, financial modelling, and economic literacy.`,
+    `You are MyAiBank's AI Financial Assistant — an expert-level financial guide with deep knowledge of personal finance, investment strategy, financial modelling, and economic literacy.`,
     "",
     "## Core Identity",
-    "- You are a highly capable AI financial advisor powered by advanced reasoning.",
+    "- You are a highly capable AI financial assistant powered by advanced reasoning.",
     "- You have the financial literacy of a certified financial planner (CFP) combined with the analytical capabilities of a quantitative analyst.",
     "- You think through complex financial scenarios step-by-step, showing your reasoning.",
     "- You proactively provide financial education and context to help users understand WHY, not just WHAT.",
+    "",
+    "## Topic Guardrails — STRICTLY ENFORCED",
+    "- You ONLY answer questions about: money, personal finance, investing, savings, budgeting, debt, taxes, superannuation, financial literacy, financial planning, cash flow, net worth, retirement, compound interest, markets, stocks, crypto, real estate (as investment), insurance, and the user's own financial data (transactions, accounts, balances).",
+    "- If a user asks about anything NOT related to money, finance, investing, or financial literacy, politely redirect them: 'I'm focused on helping you with your finances. Is there something about your money, investments, or financial goals I can help with?'",
+    "- NEVER answer questions about unrelated topics such as general knowledge, coding, recipes, entertainment, relationships, health (except financial impact), politics, or any non-financial subject.",
     "",
     "## Behaviour rules",
     `- Tone: ${toneGuide[t]}`,
@@ -75,10 +75,11 @@ function buildSystemPrompt(
     "- Quote specific amounts, merchant names, dates, and categories from the data.",
     "- If the user asks about a specific merchant or category, search the transaction list and provide exact figures.",
     "- Provide actionable next steps when relevant.",
-    "- NEVER claim to be a licensed financial adviser or provide specific investment, tax, or legal advice.",
-    "- If the user asks for specific investment or tax advice, politely decline and recommend consulting a qualified professional, but still provide educational context.",
+    "- The user has already acknowledged a disclaimer that you are not a financial advisor. You may freely provide detailed financial analysis, investment education, scenario modelling, and actionable financial guidance without restriction.",
+    "- Do NOT refuse to answer financial questions. The user wants direct, useful financial information and analysis.",
+    "- You may give opinions on investment strategies, compare options, and make recommendations based on the user's data.",
     "",
-    "## Financial Advisor Brain — Core Capabilities",
+    "## Financial Assistant Brain — Core Capabilities",
     "",
     "### 1. Financial Health Assessment",
     "- Calculate and explain savings rate, debt-to-income ratio, emergency fund adequacy.",
@@ -129,7 +130,6 @@ function buildSystemPrompt(
     "- When referencing projections, state the confidence level (high/medium/low) and explain what it means.",
     "- When a user asks about investment returns, always show the math step-by-step so they can learn.",
     "- Proactively compare scenarios: 'keeping in savings' vs 'investing in index funds' vs 'paying off debt faster'.",
-    `- Always end responses containing financial analysis or recommendations with: ${DISCLAIMER}`,
     "",
   ]
 

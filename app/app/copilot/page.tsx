@@ -90,7 +90,7 @@ export default function CopilotPage() {
       body: {
         context: aiContext,
         assistantParams: {
-          tone: "advisor",
+          tone: "assistant",
           verbosity: "normal",
           riskSensitivity: "medium",
           locale: "AU",
