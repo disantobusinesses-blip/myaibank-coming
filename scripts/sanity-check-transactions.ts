@@ -9,7 +9,7 @@
  *   2. The normalized schema is consistent between demo and live shapes.
  *   3. The assistant summary builder produces expected aggregates.
  *
- * NOTE: This does NOT call Fiskil or Supabase — it uses local demo data only.
+ * NOTE: This does NOT call any banking provider or Supabase — it uses local demo data only.
  */
 
 import { demoTransactions, demoAccounts } from "../lib/demo-data"
@@ -44,7 +44,6 @@ console.log("\n=== Normalization Check ===")
 const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
   id: String(t.id),
   account_id: "demo-acc-1",
-  fiskil_transaction_id: null,
   amount: t.amount,
   currency: "AUD",
   description: t.description,
@@ -123,7 +122,6 @@ console.log("\n=== Live/Demo Schema Parity Check ===")
 const liveTx: Transaction = {
   id: "uuid-from-supabase",
   account_id: "acc-uuid",
-  fiskil_transaction_id: "fiskil-tx-123",
   amount: -42.5,
   currency: "AUD",
   description: "Woolworths Town Hall",

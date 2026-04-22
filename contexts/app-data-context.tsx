@@ -8,7 +8,6 @@ import { demoAccounts, demoTransactions, demoSubscriptions } from "@/lib/demo-da
 export interface Transaction {
   id: string
   account_id: string | null
-  fiskil_transaction_id: string | null
   amount: number
   currency: string
   description: string | null
@@ -30,7 +29,6 @@ export interface Transaction {
 
 export interface Account {
   id: string
-  fiskil_account_id: string | null
   institution_name: string | null
   account_name: string | null
   account_type: string | null
@@ -128,7 +126,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
       const mappedAccounts: Account[] = demoAccounts.map((a) => ({
         id: a.id,
-        fiskil_account_id: null,
         institution_name: a.institution_name,
         account_name: a.account_name,
         account_type: a.account_type,
@@ -146,7 +143,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       const mappedTransactions: Transaction[] = demoTransactions.map((t) => ({
         id: t.id,
         account_id: "demo-acc-1",
-        fiskil_transaction_id: null,
         amount: t.amount,
         currency: "AUD",
         description: t.description,

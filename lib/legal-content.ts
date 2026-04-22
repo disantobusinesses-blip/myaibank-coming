@@ -32,7 +32,7 @@ You are responsible for maintaining the security of your login information.
 
 5. Third-Party Services
 MyAiBank integrates with third-party providers, including:
-• Open banking providers such as Fiskil
+• Open banking providers (to be integrated)
 • Payment processors such as Stripe
 • Email and communication platforms
 We are not responsible for downtime, errors, or actions by these external services.
@@ -85,7 +85,7 @@ We may collect:
 • Subscription and billing information (via Stripe)
 
 1.2 Financial Information
-If you choose to link your bank accounts through a secure third-party open banking provider (such as Fiskil), we may receive:
+If you choose to link your bank accounts through a secure third-party open banking provider, we may receive:
 • Transaction histories
 • Account balances
 • Merchant details
@@ -132,7 +132,7 @@ We do NOT sell your personal information.
 
 4. Sharing Your Information
 We may share your information with trusted third parties essential to our operations, including:
-• Open banking provider (Fiskil)
+• Open banking provider (to be integrated)
 • Payment processor (Stripe)
 • Email service provider
 • Analytics tools (GA4)

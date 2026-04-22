@@ -13,7 +13,6 @@ export interface Profile {
   region: string
   is_onboarded: boolean
   has_bank_connection: boolean
-  fiskil_user_id: string | null
   subscription_status: string
   subscription_plan: string | null
   stripe_customer_id: string | null

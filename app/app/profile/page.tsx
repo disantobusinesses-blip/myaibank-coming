@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LegalFooter } from "@/components/legal-footer"
-import { User, Mail, MapPin, Building2, Shield, Loader2, AlertCircle } from "lucide-react"
+import { User, Mail, MapPin, Shield, Loader2 } from "lucide-react"
 
 export default function ProfilePage() {
   const { user, profile, updateProfile, signOut } = useAuth()
@@ -14,8 +14,6 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState(profile?.last_name || "")
   const [region, setRegion] = useState(profile?.region || "")
   const [isSaving, setIsSaving] = useState(false)
-  const [isConnectingBank, setIsConnectingBank] = useState(false)
-  const [bankConnectError, setBankConnectError] = useState("")
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -25,39 +23,6 @@ export default function ProfilePage() {
       region: region || null,
     })
     setIsSaving(false)
-  }
-
-  const handleConnectBank = async () => {
-    setIsConnectingBank(true)
-    setBankConnectError("")
-    
-    try {
-      // Call API to create Fiskil consent session
-      const response = await fetch("/api/create-consent-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || "Failed to create consent session")
-      }
-
-      const data = await response.json()
-      
-      // Redirect to Fiskil auth URL for bank consent
-      if (data.auth_url) {
-        window.location.href = data.auth_url
-      } else {
-        throw new Error("No auth URL returned")
-      }
-    } catch (err) {
-      console.error("Bank connection error:", err)
-      setBankConnectError(err instanceof Error ? err.message : "Failed to connect bank")
-      setIsConnectingBank(false)
-    }
   }
 
   return (
@@ -149,47 +114,6 @@ export default function ProfilePage() {
             )}
           </Button>
         </div>
-      </div>
-
-      {/* Bank Connection */}
-      <div className="rounded-2xl bg-card border border-border p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Building2 className="w-5 h-5 text-muted-foreground" />
-          <h2 className="font-semibold text-foreground">Bank Connection</h2>
-        </div>
-        
-        <div className="mb-4">
-          <p className="text-sm text-foreground mb-1">
-            {profile?.has_bank_connection ? "Connected" : "Not connected"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {profile?.has_bank_connection
-              ? "Your bank account is linked. You can connect another account anytime."
-              : "Link your bank account to see transactions and get AI insights."}
-          </p>
-        </div>
-
-        {bankConnectError && (
-          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-            <p className="text-sm text-destructive">{bankConnectError}</p>
-          </div>
-        )}
-
-        <Button
-          onClick={handleConnectBank}
-          disabled={isConnectingBank}
-          className="w-full h-12 rounded-xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold"
-        >
-          {isConnectingBank ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Connecting...
-            </>
-          ) : (
-            "Connect Bank Account"
-          )}
-        </Button>
       </div>
 
       {/* Security */}
