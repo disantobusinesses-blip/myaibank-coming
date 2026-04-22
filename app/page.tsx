@@ -457,7 +457,6 @@ export default function WelcomePage() {
       <ScrollExpandMedia
         mediaType="image"
         mediaSrc="/images/hero/CardTapAi (1).png"
-        bgImageSrc="/images/hero/MABcard.png"
         title="MyAiWallet Card"
         date="Coming 2026"
         scrollToExpand="Scroll to explore"
