@@ -15,19 +15,15 @@ import type { Transaction, Subscription } from "@/contexts/app-data-context"
 import { createClient } from "@supabase/supabase-js"
 import { checkAndIncrementChatUsage } from "@/lib/ai-usage"
 
-export const maxDuration = 30
+// Claude Opus requires longer processing for complex financial modelling queries
+export const maxDuration = 60
 
 interface AssistantParams {
   verbosity?: "brief" | "normal" | "detailed"
-  tone?: "advisor" | "casual" | "formal"
+  tone?: "assistant" | "casual" | "formal"
   riskSensitivity?: "low" | "medium" | "high"
   locale?: string
 }
-
-const DISCLAIMER =
-  "⚠️ *This is general financial information only — not personal financial advice. " +
-  "I am an AI assistant, not a licensed financial adviser. " +
-  "Please consult a qualified professional before making important financial decisions.*"
 
 function buildSystemPrompt(
   params: AssistantParams,
@@ -40,7 +36,7 @@ function buildSystemPrompt(
   }
 
   const toneGuide: Record<string, string> = {
-    advisor: "Speak like a friendly, professional financial advisor. Use phrases like 'I noticed…', 'You might consider…', 'Based on your spending…'. Be warm but knowledgeable.",
+    assistant: "Speak like a friendly, professional financial assistant. Use phrases like 'I noticed…', 'You might consider…', 'Based on your spending…'. Be warm but knowledgeable.",
     casual: "Be friendly and conversational, like a knowledgeable friend chatting about money.",
     formal: "Use professional, formal language appropriate for a financial report.",
   }
@@ -52,12 +48,23 @@ function buildSystemPrompt(
   }
 
   const v = params.verbosity ?? "normal"
-  const t = params.tone ?? "advisor"
+  const t = params.tone ?? "assistant"
   const r = params.riskSensitivity ?? "medium"
   const locale = params.locale ?? "AU"
 
   const parts: string[] = [
-    `You are MyAiBank's AI Financial Assistant — a knowledgeable, ${t === "advisor" ? "friendly professional" : t} guide who helps users understand their money.`,
+    `You are MyAiBank's AI Financial Assistant — an expert-level financial guide with deep knowledge of personal finance, investment strategy, financial modelling, and economic literacy.`,
+    "",
+    "## Core Identity",
+    "- You are a highly capable AI financial assistant powered by advanced reasoning.",
+    "- You have the financial literacy of a certified financial planner (CFP) combined with the analytical capabilities of a quantitative analyst.",
+    "- You think through complex financial scenarios step-by-step, showing your reasoning.",
+    "- You proactively provide financial education and context to help users understand WHY, not just WHAT.",
+    "",
+    "## Topic Guardrails — STRICTLY ENFORCED",
+    "- You ONLY answer questions about: money, personal finance, investing, savings, budgeting, debt, taxes, superannuation, financial literacy, financial planning, cash flow, net worth, retirement, compound interest, markets, stocks, crypto, real estate (as investment), insurance, and the user's own financial data (transactions, accounts, balances).",
+    "- If a user asks about anything NOT related to money, finance, investing, or financial literacy, politely redirect them: 'I'm focused on helping you with your finances. Is there something about your money, investments, or financial goals I can help with?'",
+    "- NEVER answer questions about unrelated topics such as general knowledge, coding, recipes, entertainment, relationships, health (except financial impact), politics, or any non-financial subject.",
     "",
     "## Behaviour rules",
     `- Tone: ${toneGuide[t]}`,
@@ -69,8 +76,56 @@ function buildSystemPrompt(
     "- Quote specific amounts, merchant names, dates, and categories from the data.",
     "- If the user asks about a specific merchant or category, search the transaction list and provide exact figures.",
     "- Provide actionable next steps when relevant.",
-    "- NEVER claim to be a licensed financial adviser or provide specific investment, tax, or legal advice.",
-    "- If the user asks for specific investment or tax advice, politely decline and recommend consulting a qualified professional.",
+    "- The user has already acknowledged a disclaimer that you are not a financial advisor. You may freely provide detailed financial analysis, investment education, scenario modelling, and actionable financial guidance without restriction.",
+    "- Do NOT refuse to answer financial questions. The user wants direct, useful financial information and analysis.",
+    "- You may give opinions on investment strategies, compare options, and make recommendations based on the user's data.",
+    "",
+    "## Financial Assistant Brain — Core Capabilities",
+    "",
+    "### 1. Financial Health Assessment",
+    "- Calculate and explain savings rate, debt-to-income ratio, emergency fund adequacy.",
+    "- Score financial health on multiple dimensions: liquidity, savings rate, spending efficiency, debt management.",
+    "- Identify financial strengths and areas for improvement.",
+    "",
+    "### 2. Investment Education & Modelling",
+    "- When a user asks 'what if I invested X', calculate compound growth scenarios:",
+    "  * Use the standard annuity future-value formula: FV = PV × (1 + r)^n + PMT × [((1 + r)^n - 1) / r]",
+    "    where PV = present value, PMT = periodic payment, n = number of periods.",
+    "  * IMPORTANT: r is the EFFECTIVE rate per period, not nominal. Convert annual rate to period rate using:",
+    "    r_period = Math.pow(1 + r_annual, 1 / periods_per_year) - 1",
+    "    e.g. monthly: r_monthly = Math.pow(1 + 0.10, 1/12) - 1 ≈ 0.7974%  (NOT 10%/12 = 0.8333%)",
+    "    e.g. weekly:  r_weekly  = Math.pow(1 + 0.10, 1/52) - 1 ≈ 0.1834%  (NOT 10%/52)",
+    "  * Always compound per annum — show annual growth breakdowns.",
+    "  * Show results for conservative (6-7%), moderate (8-10%), and aggressive (11-12%) annual returns.",
+    "  * Always show the comparison: 'If you kept $X in savings at 4.5% vs invested at 10% over Y years'",
+    "- Explain concepts like compound interest, dollar-cost averaging, diversification, and risk-adjusted returns.",
+    "- When relevant, mention real index benchmarks: S&P 500 historical ~10% avg, ASX 200 ~9.8%, global bonds ~4-5%.",
+    "",
+    "### 3. Cash Flow Forecasting & Prediction",
+    "- Use the user's actual income and expense patterns to project future balances.",
+    "- Identify seasonal spending patterns (holidays, back-to-school, tax time).",
+    "- Flag potential cash flow problems weeks before they occur.",
+    "- Suggest optimal timing for large purchases based on cash flow patterns.",
+    "",
+    "### 4. Financial Literacy & Facts",
+    "- When relevant, share powerful financial facts to motivate better behaviour:",
+    "  * 'The average Australian household spends $X on dining out annually — you're spending $Y'",
+    "  * 'If your $500/month coffee and dining spend was invested in an index fund at 10% for 30 years, it would grow to ~$1.1M'",
+    "  * 'The rule of 72: divide 72 by your return rate to estimate how long it takes to double your money'",
+    "- Explain financial concepts in simple terms when users seem confused.",
+    "- Use analogies and real-world examples to make abstract concepts concrete.",
+    "",
+    "### 5. Spending Optimisation",
+    "- Identify the top 3 areas where spending is highest relative to income.",
+    "- Flag subscription creep and forgotten recurring charges.",
+    "- Compare spending patterns against Australian averages when relevant.",
+    "- Calculate the 'future value' of wasteful spending: 'Your $200/month on unused subscriptions = $72,000 invested over 20 years at 10%'.",
+    "",
+    "### 6. Net Worth & Portfolio Analysis",
+    "- When account data is available, calculate and explain the user's total net worth.",
+    "- Break down net worth by account type (savings, everyday, investment).",
+    "- Track net worth trends over time based on income minus expenses.",
+    "- Suggest strategies to accelerate net worth growth.",
     "",
     "## Financial analysis instructions",
     "- When analysing transactions, identify patterns across at least 30 days of data before making recommendations.",
@@ -79,13 +134,14 @@ function buildSystemPrompt(
     "- Always surface the single most actionable insight first before elaborating.",
     "- When income and expense patterns suggest a savings opportunity, quantify it in exact dollar amounts.",
     "- When referencing projections, state the confidence level (high/medium/low) and explain what it means.",
-    `- Always end responses containing financial analysis or recommendations with: ${DISCLAIMER}`,
+    "- When a user asks about investment returns, always show the math step-by-step so they can learn.",
+    "- Proactively compare scenarios: 'keeping in savings' vs 'investing in index funds' vs 'paying off debt faster'.",
     "",
   ]
 
   if (contextJson) {
     parts.push(
-      "## User financial context (live transaction data, aggregates, and projections)",
+      "## User financial context (live data: accounts, transactions, balances, and projections)",
       contextJson,
       ""
     )
@@ -101,10 +157,14 @@ export async function POST(req: Request) {
       messages,
       filters,
       assistantParams,
+      context: clientContext,
+      isDemoMode: clientDemoMode,
     }: {
       messages: UIMessage[]
       filters?: TransactionFilters
       assistantParams?: AssistantParams
+      context?: { transactions?: unknown[]; accounts?: unknown[]; totalBalance?: number }
+      isDemoMode?: boolean
     } = body
 
     if (!process.env.ANTHROPIC_API_KEY) {
@@ -138,18 +198,11 @@ export async function POST(req: Request) {
       }
     }
 
-    // Fetch transactions, accounts, and subscriptions server-side
+    // Build context — either from server-side DB (authenticated) or client-provided (demo)
     let contextJson: string | null = null
 
-    // Enforce subscription and usage limits
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized — please sign in." }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      )
-    }
-
-    if (supabaseUrl && supabaseServiceKey) {
+    if (userId && supabaseUrl && supabaseServiceKey) {
+      // Authenticated user — enforce subscription and usage limits
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
       const { data: profile } = await supabaseAdmin
@@ -186,7 +239,7 @@ export async function POST(req: Request) {
         )
       }
 
-      // Reuse the same supabaseAdmin for fetching financial context
+      // Fetch financial context server-side
       try {
         const ninetyDaysAgo = new Date()
         ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
@@ -201,7 +254,7 @@ export async function POST(req: Request) {
             .limit(500),
           supabaseAdmin
             .from("bank_accounts")
-            .select("balance")
+            .select("*")
             .eq("user_id", userId),
           supabaseAdmin
             .from("subscriptions")
@@ -226,6 +279,13 @@ export async function POST(req: Request) {
             0
           )
 
+          const accountDetails = rawAccounts.map((acc: any) => ({
+            name: acc.account_name || acc.institution_name || "Account",
+            type: acc.account_type || "unknown",
+            balance: Number(acc.balance) || 0,
+            institution: acc.institution_name,
+          }))
+
           const projections = generateProjections(
             rawTransactions as Transaction[],
             rawSubscriptions as Subscription[],
@@ -236,8 +296,16 @@ export async function POST(req: Request) {
             {
               ...summary,
               currentBalance,
+              accounts: accountDetails,
+              netWorth: currentBalance,
               projections,
               recentTransactions: txs.slice(0, 200),
+              subscriptions: rawSubscriptions.map((s: any) => ({
+                name: s.name,
+                amount: s.amount,
+                frequency: s.frequency,
+                category: s.category,
+              })),
             },
             null,
             2
@@ -246,6 +314,24 @@ export async function POST(req: Request) {
       } catch (dbError) {
         console.error("Error fetching data for AI context:", dbError)
       }
+    } else if (clientDemoMode && clientContext) {
+      // Demo mode — use client-provided context (limited data, no server verification)
+      contextJson = JSON.stringify(
+        {
+          isDemoMode: true,
+          transactions: Array.isArray(clientContext.transactions) ? clientContext.transactions.slice(0, 100) : [],
+          accounts: clientContext.accounts || [],
+          totalBalance: clientContext.totalBalance || 0,
+          note: "This is demo data — not real financial information.",
+        },
+        null,
+        2
+      )
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized — please sign in or use demo mode." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      )
     }
 
     const systemPrompt = buildSystemPrompt(
@@ -254,7 +340,7 @@ export async function POST(req: Request) {
     )
 
     const result = streamText({
-      model: anthropic("claude-sonnet-4-6"),
+      model: anthropic("claude-opus-4-6"),
       system: systemPrompt,
       messages: await convertToModelMessages(messages),
       abortSignal: req.signal,

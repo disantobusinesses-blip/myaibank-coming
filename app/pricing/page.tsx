@@ -2,32 +2,29 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
-import { DemoStartButton } from "@/components/demo-start-button"
 import { CheckCircle, ArrowRight, Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Pricing | MyAiBank — Free AI Money Management",
-  description: "MyAiBank is free for early adopters. Sign up today and get full access to AI budgeting, cashflow forecasting, subscription detection, and more.",
+  title: "Pricing | MyAiBank — MyAiWallet Card",
+  description: "Join the MyAiWallet waitlist for free or upgrade to MyAiBank Premium for $14.99 AUD/month — Visa card, AI assistant, PayID transfers, and smart savings.",
   alternates: { canonical: "/pricing" },
 }
 
-const FREE_FEATURES = [
-  "AI-powered transaction categorisation",
-  "Cash flow dashboard and spending analytics",
-  "Subscription and bill detection",
-  "AI financial assistant — ask anything",
-  "Cashflow forecasting (30/60/90 day)",
-  "Financial health score",
-  "Mortgage rate alerts",
+const PREMIUM_FEATURES = [
+  "Visa debit card (virtual + physical)",
+  "AI financial assistant",
+  "PayID transfers — send money instantly",
+  "Smart savings — AI-powered auto-savings",
+  "Cash flow forecasting",
+  "Investment strategies",
   "Bank-grade encryption and security",
-  "Connect your Australian bank accounts",
 ]
 
 const FAQ = [
-  { q:"Is MyAiBank really free?",         a:"Yes. MyAiBank is free for the first 500 early adopters in Australia. We are growing our user base before introducing paid plans." },
-  { q:"Will pricing change in future?",   a:"We plan to introduce a paid plan for new users once we scale. Early adopters will receive preferential pricing and grandfathered rates." },
-  { q:"Do I need a credit card to sign up?", a:"No. Sign up with your email or Google account — no payment details required during the early adopter period." },
-  { q:"What features are included?",      a:"All features listed above are included in the free plan. Our premium tier ($14.99/mo) unlocks real bank connections and live AI insights." },
+  { q: "Is the waitlist really free?",       a: "Yes. Joining the waitlist is completely free and reserves your early access to the MyAiWallet card when it launches in Australia." },
+  { q: "What is MyAiBank Premium?",          a: "MyAiBank Premium gives you access to the MyAiWallet Visa card, AI financial assistant, PayID transfers, smart savings automation, and more — all for $14.99 AUD/month." },
+  { q: "Do I need a credit card to join?",   a: "No. Join the waitlist with just your email. No payment details required until you activate your Premium account." },
+  { q: "When does it launch?",               a: "We are targeting an Australian launch in 2026. Waitlist members will be the first to get access." },
 ]
 
 export default function PricingPage() {
@@ -41,19 +38,19 @@ export default function PricingPage() {
               <Link key={h} href={h} className="text-sm hover:text-white transition-colors" style={{color:"rgba(255,255,255,0.55)"}}>{l}</Link>
             ))}
           </nav>
-          <Link href="/signup" className="h-9 px-4 rounded-full text-xs sm:text-sm font-semibold hover:scale-105 transition-all" style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff"}}>Get Started</Link>
+          <Link href="/signup" className="h-9 px-4 rounded-full text-xs sm:text-sm font-semibold hover:scale-105 transition-all" style={{background:"linear-gradient(135deg,#3b82f6,#1d4ed8)",color:"#fff"}}>Get Started</Link>
         </div>
       </header>
 
       {/* Hero */}
       <section className="relative px-4 sm:px-6 lg:px-10 pt-16 sm:pt-24 pb-10 sm:pb-16 text-center overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full pointer-events-none"
-          style={{background:"radial-gradient(ellipse,rgba(139,92,246,0.15),transparent 70%)"}} />
+          style={{background:"radial-gradient(ellipse,rgba(59,130,246,0.12),transparent 70%)"}} />
         <div className="relative max-w-3xl mx-auto">
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3" style={{color:"#8b5cf6"}}>Pricing</p>
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3" style={{color:"#3b82f6"}}>Pricing</p>
           <h1 className="font-bold text-white mb-4" style={{fontSize:"clamp(2rem,5vw,3.5rem)"}}>Simple, honest pricing.</h1>
           <p className="text-sm sm:text-lg max-w-2xl mx-auto" style={{color:"rgba(255,255,255,0.55)"}}>
-            Free for early adopters. Premium at $14.99/month when you&#39;re ready to connect real accounts.
+            Join the waitlist for free, or unlock everything with MyAiBank Premium at $14.99 AUD/month.
           </p>
         </div>
       </section>
@@ -62,35 +59,35 @@ export default function PricingPage() {
       <section className="px-4 sm:px-6 lg:px-10 pb-16 sm:pb-24">
         <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
 
-          {/* Free / Demo plan */}
+          {/* Waitlist plan */}
           <div className="p-6 sm:p-8 rounded-3xl flex flex-col" style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.1)"}}>
-            <p className="text-xs uppercase tracking-widest mb-3 font-semibold" style={{color:"rgba(255,255,255,0.4)"}}>Demo</p>
+            <p className="text-xs uppercase tracking-widest mb-3 font-semibold" style={{color:"rgba(255,255,255,0.4)"}}>Waitlist</p>
             <div className="text-4xl sm:text-5xl font-bold text-white mb-2">Free</div>
-            <p className="text-sm mb-6" style={{color:"rgba(255,255,255,0.5)"}}>No signup required</p>
-            {["Full AI dashboard preview","Sample transaction data","All features unlocked","No time limit"].map(f=>(
+            <p className="text-sm mb-6" style={{color:"rgba(255,255,255,0.5)"}}>Join now, get early access to the MyAiWallet card</p>
+            {["Priority access to the MyAiWallet card","Early adopter benefits","Launch notifications"].map(f=>(
               <div key={f} className="flex items-center gap-3 mb-3">
                 <CheckCircle className="w-4 h-4 flex-shrink-0" style={{color:"#22c55e"}}/>
                 <span className="text-sm" style={{color:"rgba(255,255,255,0.7)"}}>{f}</span>
               </div>
             ))}
             <div className="mt-auto pt-6">
-              <DemoStartButton className="block w-full text-center h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105 cursor-pointer"
-                style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",color:"#fff"}}>
-                Try Demo Now
-              </DemoStartButton>
+              <Link href="/#waitlist" className="block w-full text-center h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105"
+                style={{background:"rgba(59,130,246,0.15)",border:"1px solid rgba(59,130,246,0.35)",color:"#93c5fd"}}>
+                Join the Waitlist
+              </Link>
             </div>
           </div>
 
           {/* Premium plan */}
           <div className="p-6 sm:p-8 rounded-3xl flex flex-col relative overflow-hidden"
-            style={{background:"linear-gradient(135deg,rgba(139,92,246,0.18),rgba(109,40,217,0.08))",border:"1px solid rgba(139,92,246,0.4)"}}>
-            <div className="absolute top-5 right-5 px-3 py-1 rounded-full text-xs font-bold" style={{background:"#8b5cf6",color:"#fff"}}>
+            style={{background:"linear-gradient(135deg,rgba(59,130,246,0.18),rgba(29,78,216,0.08))",border:"1px solid rgba(59,130,246,0.4)"}}>
+            <div className="absolute top-5 right-5 px-3 py-1 rounded-full text-xs font-bold" style={{background:"#3b82f6",color:"#fff"}}>
               <Sparkles className="w-3 h-3 inline mr-1"/>Early Adopter
             </div>
-            <p className="text-xs uppercase tracking-widest mb-3 font-semibold" style={{color:"rgba(255,255,255,0.4)"}}>Premium</p>
+            <p className="text-xs uppercase tracking-widest mb-3 font-semibold" style={{color:"rgba(255,255,255,0.4)"}}>MyAiBank Premium</p>
             <div className="text-4xl sm:text-5xl font-bold text-white mb-1">$14.99</div>
             <p className="text-sm mb-6" style={{color:"rgba(255,255,255,0.5)"}}>per month · AUD · cancel anytime</p>
-            {FREE_FEATURES.map(f=>(
+            {PREMIUM_FEATURES.map(f=>(
               <div key={f} className="flex items-center gap-3 mb-3">
                 <CheckCircle className="w-4 h-4 flex-shrink-0" style={{color:"#22c55e"}}/>
                 <span className="text-sm" style={{color:"rgba(255,255,255,0.8)"}}>{f}</span>
@@ -98,8 +95,8 @@ export default function PricingPage() {
             ))}
             <div className="mt-auto pt-6">
               <Link href="/signup" className="block w-full text-center h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:scale-105"
-                style={{background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",color:"#fff",boxShadow:"0 4px 24px rgba(139,92,246,0.3)"}}>
-                Get Started Free <ArrowRight className="w-4 h-4"/>
+                style={{background:"linear-gradient(135deg,#3b82f6,#1d4ed8)",color:"#fff",boxShadow:"0 4px 24px rgba(59,130,246,0.3)"}}>
+                Get Started <ArrowRight className="w-4 h-4"/>
               </Link>
             </div>
           </div>

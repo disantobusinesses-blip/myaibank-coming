@@ -25,7 +25,9 @@ function formatDollar(value: number): string {
 function buildChartData(years: number) {
   const data = []
   let balance = 0
-  const weeklyRate = ANNUAL_RATE / WEEKS_PER_YEAR
+  // Effective weekly rate derived from the annual rate using compound interest:
+  // (1 + annual_rate)^(1/52) - 1  — more accurate than dividing annual rate by 52
+  const weeklyRate = Math.pow(1 + ANNUAL_RATE, 1 / WEEKS_PER_YEAR) - 1
 
   for (let year = 1; year <= years; year++) {
     for (let w = 0; w < WEEKS_PER_YEAR; w++) {

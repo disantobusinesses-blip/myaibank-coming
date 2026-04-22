@@ -46,7 +46,7 @@ export default function DashboardPage() {
     ? "Demo"
     : profile?.first_name || user?.email?.split("@")[0] || "there"
 
-  // Generate a simple AI insight from real data
+  // Generate a rich AI insight from real data
   const topCategory = transactions
     .filter((t) => t.amount < 0 && t.category)
     .reduce((acc: Record<string, number>, t) => {
@@ -59,9 +59,31 @@ export default function DashboardPage() {
   const topCategoryName = sortedCategories[0]?.[0]
   const topCategoryAmount = sortedCategories[0]?.[1]
 
+  // Investment projection constants for AI insight
+  const ASSUMED_ANNUAL_RETURN = 0.10 // Historical S&P 500 average (not guaranteed)
+  const PROJECTION_YEARS = 10
+  const MONTHS_PER_YEAR = 12
+  const APPROX_DAYS_PER_MONTH = 30
+
+  // Calculate investment projection for insight
+  // Estimate monthly savings from income - expenses divided by approximate months of transaction data
+  const approxMonths = transactions.length > 0 ? Math.max(1, Math.ceil(transactions.length / APPROX_DAYS_PER_MONTH)) : 1
+  const monthlySavings = income > 0 ? Math.round((income - expenses) / approxMonths) : 0
+  // Effective monthly rate: (1 + annual_rate)^(1/12) - 1 — correct compound interest conversion
+  const monthlyRate = Math.pow(1 + ASSUMED_ANNUAL_RETURN, 1 / MONTHS_PER_YEAR) - 1
+  const totalPeriods = PROJECTION_YEARS * MONTHS_PER_YEAR
+  // Standard ordinary-annuity future-value formula: FV = PMT × [((1+r)^n − 1) / r]
+  const futureValue10yr = monthlySavings > 0 ? Math.round(monthlySavings * ((Math.pow(1 + monthlyRate, totalPeriods) - 1) / monthlyRate)) : 0
+
   const aiInsight = topCategoryName && topCategoryAmount
-    ? `Your highest spend this period is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${savingsRate > 20 ? "🎉 Great job — you're saving above the 20% target!" : savingsRate > 0 ? "💡 Try to push savings above 20% of income." : "⚠️ Your expenses are exceeding income this period."}`
-    : "Connect your bank to unlock personalised AI insights about your spending."
+    ? `Your highest spend is ${topCategoryName} at $${Math.round(topCategoryAmount).toLocaleString()}. ${
+        savingsRate > 20
+          ? `🎉 Great savings rate of ${savingsRate}%!${futureValue10yr > 0 ? ` If you invest your monthly surplus at 10% p.a., it could grow to ~$${Math.round(futureValue10yr).toLocaleString()} in 10 years.` : ""}`
+          : savingsRate > 0
+          ? `💡 Your savings rate is ${savingsRate}%. Try to push above 20% — even small increases compound significantly over time.`
+          : "⚠️ Your expenses are exceeding income this period. Let's find areas to cut back."
+      }`
+    : "Connect your bank to unlock personalised AI insights, financial forecasts, and investment projections."
 
   const isPositiveBalance = totalBalance >= 0
 
@@ -75,7 +97,7 @@ export default function DashboardPage() {
             <Info className="w-5 h-5 text-amber-500 shrink-0" />
             <div>
               <p className="font-medium text-amber-400 text-sm">Demo Mode Active</p>
-              <p className="text-xs text-amber-500/80">Viewing sample data — connect your real bank to get started.</p>
+              <p className="text-xs text-amber-500/80">Viewing sample data. Connect your real bank to get started.</p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -141,7 +163,7 @@ export default function DashboardPage() {
       {/* Connected State */}
       {connected && (
         <>
-          {/* HERO BALANCE CARD */}
+          {/* NET WORTH HERO CARD */}
           <div
             className="relative rounded-2xl overflow-hidden p-6"
             style={{
@@ -157,7 +179,7 @@ export default function DashboardPage() {
 
             <div className="relative">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">
-                Total Balance
+                Total Net Worth
               </p>
               <p className={`text-5xl font-bold tabular-nums mb-1 ${isPositiveBalance ? "text-white number-glow-white" : "text-[#f87171]"}`}>
                 <CountUp
@@ -171,6 +193,27 @@ export default function DashboardPage() {
                   <TrendingUp className="w-4 h-4" />
                   +${Math.round(netSaved).toLocaleString()} saved this period
                 </p>
+              )}
+
+              {/* Account breakdown */}
+              {accounts.length > 1 && (
+                <div className="mt-4 pt-4 space-y-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Account Breakdown</p>
+                  {accounts.map((acc) => (
+                    <div key={acc.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs text-muted-foreground truncate">
+                          {acc.account_name || acc.institution_name || "Account"}
+                          {acc.account_type ? ` · ${acc.account_type}` : ""}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-semibold tabular-nums ml-2 ${acc.balance >= 0 ? "text-foreground" : "text-[#f87171]"}`}>
+                        {acc.balance < 0 ? "-" : ""}${Math.abs(Math.round(acc.balance)).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {/* Mini stats row */}
@@ -190,7 +233,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{ width: 1, height: 32, background: "rgba(255,255,255,0.06)" }} />
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Saved</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Savings Rate</p>
                   <p className={`text-sm font-bold tabular-nums ${savingsRate >= 20 ? "text-[#22c55e]" : "text-[#f59e0b]"}`}>
                     {savingsRate}%
                   </p>

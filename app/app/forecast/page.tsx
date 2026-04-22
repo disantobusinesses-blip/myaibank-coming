@@ -23,7 +23,7 @@ const confidenceConfig = {
     bg: "bg-[#f59e0b]/10 border-[#f59e0b]/20",
   },
   low: {
-    label: "Low confidence — connect more data",
+    label: "Low confidence. Connect more data.",
     icon: AlertTriangle,
     color: "text-destructive",
     bg: "bg-destructive/10 border-destructive/20",
@@ -163,7 +163,7 @@ export default function ForecastPage() {
             <div className="flex items-start gap-3 p-3 rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/20">
               <div className="w-2 h-2 rounded-full bg-[#f59e0b] mt-2 shrink-0" />
               <p className="text-sm text-foreground">
-                Your discretionary spending is ${Math.round(summary.discretionaryExpenses).toLocaleString()} — that&apos;s {Math.round((summary.discretionaryExpenses / summary.totalExpenses) * 100)}% of total expenses. Consider setting a budget cap.
+                Your discretionary spending is ${Math.round(summary.discretionaryExpenses).toLocaleString()}, that&apos;s {Math.round((summary.discretionaryExpenses / summary.totalExpenses) * 100)}% of total expenses. Consider setting a budget cap.
               </p>
             </div>
           )}
