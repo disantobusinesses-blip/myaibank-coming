@@ -22,6 +22,12 @@ const nextConfig = {
         destination: "https://myaibank.ai/:path*",
         permanent: true,
       },
+      // Demo route retired — redirect to homepage
+      {
+        source: "/demo",
+        destination: "/",
+        permanent: false,
+      },
     ]
   },
 }
