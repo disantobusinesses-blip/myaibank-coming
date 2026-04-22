@@ -11,6 +11,20 @@ import {
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
+// Safely detect whether a media source points at YouTube by parsing the URL
+// and checking the hostname, rather than doing a substring match that could
+// match arbitrary query strings or paths.
+const isYouTubeUrl = (src: string): boolean => {
+  try {
+    const base =
+      typeof window !== 'undefined' ? window.location.href : 'http://localhost';
+    const url = new URL(src, base);
+    return /(^|\.)youtube\.com$/.test(url.hostname);
+  } catch {
+    return false;
+  }
+};
+
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
   mediaSrc: string;
@@ -209,7 +223,7 @@ const ScrollExpandMedia = ({
                 }}
               >
                 {mediaType === 'video' ? (
-                  mediaSrc.includes('youtube.com') ? (
+                  isYouTubeUrl(mediaSrc) ? (
                     <div className='relative w-full h-full pointer-events-none'>
                       <iframe
                         width='100%'
