@@ -13,9 +13,9 @@ import { CountUp } from "@/components/count-up"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
-  ArrowRight, Sparkles, Shield, TrendingUp, Play,
-  Brain, CreditCard, Bell, PieChart, Lock, Zap,
-  ChevronRight, CheckCircle, Menu, X,
+  ArrowRight, Sparkles, Shield, TrendingUp,
+  Brain, CreditCard, Lock, Zap, Send,
+  ChevronRight, CheckCircle, Menu, X, PiggyBank,
 } from "lucide-react"
 
 // ── Blog helpers ──────────────────────────────────────────────────────────────
@@ -35,8 +35,6 @@ type BlogPost = {
   excerpt: string
   readTime: string
 }
-
-// ── Data ─────────────────────────────────────────────────────────────────────
 
 const FEATURED_BLOGS = [
   {
@@ -93,106 +91,45 @@ function getBlogClient() {
   return _blogClient
 }
 
+// ── Newsletter Supabase client (lazy singleton) ────────────────────────────────
+let _newsletterClient: ReturnType<typeof createClient> | null = null
+function getNewsletterClient() {
+  if (!_newsletterClient) {
+    _newsletterClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  }
+  return _newsletterClient
+}
+
+// ── Section data ──────────────────────────────────────────────────────────────
+
 const FEATURES = [
-  { icon: Brain,      color: "#8b5cf6", title: "AI Financial Copilot",     desc: "Ask anything about your finances in plain English and get instant, personalised answers." },
-  { icon: TrendingUp, color: "#22c55e", title: "Cash Flow Forecasting",    desc: "30, 60, and 90-day projections built from 12 months of your real transaction history." },
-  { icon: PieChart,   color: "#14b8a6", title: "Auto Categorisation",      desc: "Every transaction is sorted instantly: groceries, bills, dining, investments. No tagging needed." },
-  { icon: Bell,       color: "#f59e0b", title: "Subscription Detection",   desc: "Recurring charges are automatically surfaced so you never pay for forgotten subscriptions." },
-  { icon: CreditCard, color: "#ec4899", title: "Multi-Account View",       desc: "Link all your Australian bank accounts and see your complete picture in one dashboard." },
-  { icon: Shield,     color: "#6366f1", title: "Bank-Grade Security",      desc: "CDR-compliant open banking. Read-only. Your credentials never touch our servers." },
+  { icon: Send,       color: "#3b82f6", title: "Send and Receive Money",    desc: "Instant transfers via PayID. Send to any Australian bank in seconds." },
+  { icon: CreditCard, color: "#3b82f6", title: "MyAiWallet Visa Card",      desc: "A Visa debit card that lives in your phone. Physical card coming soon." },
+  { icon: Brain,      color: "#3b82f6", title: "AI Financial Assistant",    desc: "Ask anything about your money. Get real answers, not generic tips." },
+  { icon: PiggyBank,  color: "#3b82f6", title: "Smart Savings",             desc: "AI analyses your pay cycle and automatically moves money to savings at the right time." },
 ]
 
 const STEPS = [
-  { n: "01", color: "#8b5cf6", title: "Connect Your Bank",        desc: "Securely link Australian bank accounts in under 60 seconds via CDR open banking. No credentials stored." },
-  { n: "02", color: "#22c55e", title: "AI Analyses Your Data",    desc: "Our engine processes your history, categorises spending, detects subscriptions, and builds your forecast." },
-  { n: "03", color: "#14b8a6", title: "Get Personalised Insights", desc: "See your health score, cash flow forecast, spending breakdown, and AI recommendations, all in one place." },
+  { n: "01", color: "#3b82f6", title: "Create your account",           desc: "Sign up in under 60 seconds. No paperwork." },
+  { n: "02", color: "#3b82f6", title: "Get your virtual card",         desc: "Instant Visa virtual card issued to your phone." },
+  { n: "03", color: "#3b82f6", title: "Add money and start spending",  desc: "Deposit via PayID, send to anyone, spend anywhere Visa is accepted." },
 ]
 
-const TRUST = [
-  { icon: Lock,         label: "CDR Compliant",         desc: "Australian Consumer Data Right" },
-  { icon: Shield,       label: "Read-Only Access",      desc: "We can never move your money" },
-  { icon: Zap,          label: "256-bit Encryption",    desc: "Bank-grade data protection" },
-  { icon: CheckCircle,  label: "No Credentials Stored", desc: "Your login never touches us" },
+const TRUST_BADGES = [
+  { label: "Visa",                subtext: "Card issuing" },
+  { label: "Shaype",              subtext: "Licensed BaaS partner" },
+  { label: "PayID and NPP",       subtext: "Real-time payments" },
+  { label: "256-bit Encryption",  subtext: "Bank-grade security" },
 ]
 
-// ── BankCarousel ──────────────────────────────────────────────────────────────
-const AU_BANKS = [
-  "Commonwealth Bank", "Westpac", "ANZ", "NAB",
-  "ING Australia", "Bendigo Bank", "Bank of Queensland",
+const CARD_IMAGES = [
+  { src: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80", alt: "MyAiWallet Visa card" },
+  { src: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80", alt: "MyAiBank app on phone" },
+  { src: "https://images.unsplash.com/photo-1604156788856-2ed8c2f007bc?w=800&q=80", alt: "Contactless payment" },
 ]
-
-const BANK_LOGOS: Record<string, string> = {
-  "Commonwealth Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/e8fd4372-97f9-456e-8a89-5f706e9b2df0.jpeg",
-  "Westpac": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3191f7f3-c8bc-49df-9c6b-5f47c2a2e136.jpeg",
-  "ANZ": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/5c8457b6-deee-4641-a244-c79fd8feaaef.jpeg",
-  "NAB": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/67df0813-90b3-45bc-9a1e-b0b83a12ea2c.jpeg",
-  "ING Australia": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f78e453d-ebe2-4765-8edb-5132da8a67dc.jpeg",
-  "Bendigo Bank": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ca6d6b72-329d-41c3-af1b-820f980f225e.jpeg",
-  "Bank of Queensland": "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/f21160e0-f6d1-4311-9d65-857bbf7a846c.jpeg",
-}
-
-function BankCarousel() {
-  // Duplicate for seamless loop
-  const items = [...AU_BANKS, ...AU_BANKS]
-  return (
-    <section className="relative z-10 py-16 sm:py-24 px-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-      {/* CDR accreditation block: image left, checklist right */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-10 sm:mb-14 flex flex-col sm:flex-row items-center gap-8 sm:gap-12">
-        {/* CDR logo */}
-        <div className="flex-shrink-0">
-          <img
-            src="/images/1736A2F5-7FA6-48D1-B9F2-72C2067631CA.png"
-            alt="Consumer Data Right logo"
-            className="w-48 sm:w-56 rounded-2xl object-contain"
-          />
-        </div>
-        {/* Checklist */}
-        <ul className="space-y-3 text-sm sm:text-base text-white">
-          {[
-            "CDR sponsored access",
-            "Compatible with supported Australian banks",
-            "No passwords shared",
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-3">
-              <svg className="flex-shrink-0 w-5 h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="10" cy="10" r="9" fill="#22c55e" />
-                <path d="M6 10.5l2.8 2.8 5.2-5.6" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ color: "rgba(255,255,255,0.85)" }}>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Carousel track — full bleed, edge fades */}
-      <div className="relative overflow-hidden"
-        style={{
-          maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
-        }}
-      >
-        <div className="bank-ticker-track py-2">
-          {items.map((bank, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 mx-4"
-              style={{ width: 100 }}
-            >
-              <img
-                src={BANK_LOGOS[bank]}
-                alt={bank}
-                className="w-full rounded-xl object-contain"
-                style={{ height: 56 }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// LaunchTimeline removed — no longer needed
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -207,12 +144,20 @@ export default function WelcomePage() {
   const [loadingTimedOut,  setLoadingTimedOut]  = useState(false)
   const [featuredBlogs,    setFeaturedBlogs]    = useState<BlogPost[]>(FEATURED_BLOGS)
 
+  // Newsletter state
+  const [waitlistCount,  setWaitlistCount]  = useState<number | null>(null)
+  const [waitlistName,   setWaitlistName]   = useState("")
+  const [waitlistEmail,  setWaitlistEmail]  = useState("")
+  const [submitting,     setSubmitting]     = useState(false)
+  const [submitted,      setSubmitted]      = useState(false)
+  const [alreadyOnList,  setAlreadyOnList]  = useState(false)
+  const [submitError,    setSubmitError]    = useState("")
+
   const effectiveLoading = useMemo(() => loading && !loadingTimedOut, [loading, loadingTimedOut])
 
-  // Fetch live blog posts from Supabase so homepage links match the actual slugs
-  // used by the blog index page — prevents landing on broken static folder pages.
+  // Fetch live blog posts from Supabase
   useEffect(() => {
-    getBlogClient()
+    void getBlogClient()
       .from("myaibank_posts")
       .select("slug, title, description")
       .eq("published", true)
@@ -221,7 +166,8 @@ export default function WelcomePage() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setFeaturedBlogs(
-            data.map((post, i) => ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (data as any[]).map((post, i) => ({
               slug:     post.slug as string,
               category: BLOG_CATEGORIES[i % BLOG_CATEGORIES.length],
               color:    BLOG_COLORS[i % BLOG_COLORS.length],
@@ -232,7 +178,16 @@ export default function WelcomePage() {
           )
         }
       })
-      .catch(() => { /* keep FEATURED_BLOGS fallback */ })
+  }, [])
+
+  // Fetch waitlist count on load
+  useEffect(() => {
+    void getNewsletterClient()
+      .from("myaibank_newsletter_signups")
+      .select("*", { count: "exact", head: true })
+      .then(({ count }) => {
+        if (typeof count === "number") setWaitlistCount(count)
+      })
   }, [])
 
   useEffect(() => { setMounted(true) }, [])
@@ -255,12 +210,10 @@ export default function WelcomePage() {
   }, [user, profile, effectiveLoading, router, mounted, pathname])
 
   useEffect(() => {
-    // Close mobile menu on route change
     setMobileMenuOpen(false)
   }, [pathname])
 
   useEffect(() => {
-    // Prevent body scroll when mobile menu open
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden"
     } else {
@@ -283,17 +236,40 @@ export default function WelcomePage() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const handleDemoMode = useCallback(() => {
-    try {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("myaibank_demo_mode", "true")
-        document.cookie = "myaibank_demo_mode=true; path=/; max-age=86400; SameSite=Lax"
-      }
-      router.push("/app/dashboard")
-    } catch {
-      if (typeof window !== "undefined") window.location.href = "/app/dashboard"
+  const scrollTo = useCallback((id: string) => {
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: "smooth" })
+    setMobileMenuOpen(false)
+  }, [])
+
+  const handleWaitlistSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!waitlistEmail) return
+    setSubmitting(true)
+    setSubmitError("")
+    setAlreadyOnList(false)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (getNewsletterClient() as any)
+      .from("myaibank_newsletter_signups")
+      .insert({
+        email:  waitlistEmail.trim().toLowerCase(),
+        name:   waitlistName.trim() || null,
+        source: "homepage_waitlist",
+      })
+
+    setSubmitting(false)
+
+    if (!error) {
+      setSubmitted(true)
+      setWaitlistCount(prev => (prev !== null ? prev + 1 : prev))
+    } else if (error.code === "23505") {
+      // unique constraint violation
+      setAlreadyOnList(true)
+    } else {
+      setSubmitError("Something went wrong. Please try again.")
     }
-  }, [router])
+  }, [waitlistEmail, waitlistName])
 
   const navLinks = [
     ["Features", "/features"],
@@ -303,11 +279,11 @@ export default function WelcomePage() {
   ]
 
   return (
-    <main className="min-h-screen flex flex-col" style={{ backgroundColor: "#050508", color: "#fff" }}>
+    <main className="min-h-screen flex flex-col" style={{ backgroundColor: "#0a0f1e", color: "#fff" }}>
 
       {/* Loading overlay */}
       {effectiveLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "#050508" }} aria-hidden="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "#0a0f1e" }} aria-hidden="true">
           <div className="animate-pulse">
             <Image src="/MABtransparent.png" alt="" width={72} height={28} className="object-contain opacity-40" />
           </div>
@@ -322,7 +298,7 @@ export default function WelcomePage() {
         style={{
           borderBottom:    navScrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
           backdropFilter:  navScrolled ? "blur(20px)"                       : "none",
-          backgroundColor: navScrolled ? "rgba(5,5,8,0.88)"                 : "transparent",
+          backgroundColor: navScrolled ? "rgba(10,15,30,0.88)"              : "transparent",
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-4">
@@ -347,24 +323,24 @@ export default function WelcomePage() {
               Log in
             </Link>
             <ShimmerButton
-              onClick={handleDemoMode}
-              shimmerColor="rgba(139,92,246,0.4)"
+              onClick={() => scrollTo("waitlist")}
+              shimmerColor="rgba(59,130,246,0.4)"
               className="h-9 px-5 rounded-full text-sm font-medium"
-              style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff" }}
+              style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)", color: "#fff" }}
             >
-              Try Demo
+              Join the Waitlist
             </ShimmerButton>
           </div>
 
-          {/* Mobile: Try Demo + hamburger */}
+          {/* Mobile: Join Waitlist + hamburger */}
           <div className="flex md:hidden items-center gap-2">
             <ShimmerButton
-              onClick={handleDemoMode}
-              shimmerColor="rgba(139,92,246,0.4)"
+              onClick={() => scrollTo("waitlist")}
+              shimmerColor="rgba(59,130,246,0.4)"
               className="h-9 px-4 rounded-full text-xs font-medium"
-              style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff" }}
+              style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)", color: "#fff" }}
             >
-              Try Demo
+              Join Waitlist
             </ShimmerButton>
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
@@ -381,7 +357,7 @@ export default function WelcomePage() {
         {mobileMenuOpen && (
           <div
             className="md:hidden fixed inset-0 top-[57px] z-40 flex flex-col px-4 pt-6 pb-10 gap-2"
-            style={{ backgroundColor: "rgba(5,5,8,0.97)", backdropFilter: "blur(16px)" }}
+            style={{ backgroundColor: "rgba(10,15,30,0.97)", backdropFilter: "blur(16px)" }}
           >
             {navLinks.map(([label, href]) => (
               <Link
@@ -403,90 +379,224 @@ export default function WelcomePage() {
               Log in
             </Link>
             <div className="mt-4">
-              <Button asChild className="w-full h-14 rounded-2xl text-base font-semibold" style={{ background: "rgba(139,92,246,0.25)", border: "1px solid rgba(139,92,246,0.4)", color: "#fff" }}>
-                <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                  Create Free Account <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
+              <Button
+                onClick={() => scrollTo("waitlist")}
+                className="w-full h-14 rounded-2xl text-base font-semibold"
+                style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)", color: "#fff" }}
+              >
+                Join the Waitlist <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </div>
           </div>
         )}
       </nav>
 
-      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      {/* ── SECTION 1: HERO ──────────────────────────────────────────────── */}
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16">
         <div className="w-full max-w-4xl mx-auto">
 
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6 sm:mb-8 text-xs sm:text-sm"
-            style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", color: "#a78bfa" }}>
+            style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
-            AI-Powered Personal Finance
+            Australia&apos;s AI-Powered Payments Platform
           </div>
 
-          {/* Headline — fluid: 36px → 72px */}
+          {/* Headline */}
           <h1 className="font-heading font-bold leading-tight mb-4 sm:mb-6 text-white"
             style={{ fontSize: "clamp(2.25rem, 7vw, 4.5rem)" }}>
-            Your money,{" "}
-            <span style={{ background: "linear-gradient(135deg,#8b5cf6,#22c55e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              understood.
+            Your money.{" "}
+            <span style={{ background: "linear-gradient(135deg,#3b82f6,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Smarter. Faster.
             </span>
           </h1>
 
           <p className="text-base sm:text-lg lg:text-xl leading-relaxed mb-8 sm:mb-10 max-w-xl sm:max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Connect your Australian bank accounts and let AI analyse your finances, forecast cash flow, and surface insights that actually help you save more.
+            Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
           </p>
 
-          {/* CTAs — stacked on mobile, side-by-side on sm+ */}
+          {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 w-full">
             <ShimmerButton
-              onClick={handleDemoMode}
-              shimmerColor="rgba(139,92,246,0.3)"
+              onClick={() => scrollTo("waitlist")}
+              shimmerColor="rgba(59,130,246,0.3)"
               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
-              style={{ background: "linear-gradient(135deg,#ffffff,#f0edf5)", color: "#0a0a0f", boxShadow: "0 4px 32px rgba(139,92,246,0.25)" }}
+              style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)", color: "#fff", boxShadow: "0 4px 32px rgba(59,130,246,0.35)" }}
             >
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-              Try the Live Demo
+              Join the Waitlist
             </ShimmerButton>
-            <Button asChild className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
-              style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#fff" }}>
-              <Link href="/signup">
-                Get Started Free
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
-              </Link>
+            <Button
+              onClick={() => scrollTo("features")}
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff" }}
+            >
+              See How It Works
+              <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
 
-          {/* Stats — scrolls horizontally on very small screens */}
-          <div className="flex items-center justify-center gap-6 sm:gap-10 lg:gap-16 overflow-x-auto pb-2">
-            {[
-              { val: 98,  suf: "%",  label: "Categorisation accuracy" },
-              { val: 60,  suf: "s",  label: "Bank connection time" },
-              { val: 24,  suf: "/7", label: "AI insights" },
-            ].map(({ val, suf, label }) => (
-              <div key={label} className="text-center flex-shrink-0">
-                <div className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 2.5rem)" }}>
-                  <CountUp to={val} suffix={suf} duration={2800} />
+          {/*
+            ── PRODUCT CARD IMAGE PLACEHOLDER ──────────────────────────────
+            INSERT YOUR CARD PRODUCT IMAGE HERE.
+            Replace the comment block below with your <Image> or <img> tag.
+            Suggested: <Image src="/images/myaiwallet-card.png" alt="MyAiWallet Visa card" width={600} height={380} className="mx-auto rounded-2xl" />
+            ────────────────────────────────────────────────────────────────
+          */}
+
+        </div>
+      </section>
+
+      {/* ── SECTION 2: LAUNCH COUNTDOWN ──────────────────────────────────── */}
+      <section className="relative z-10 py-16 sm:py-20 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-2xl mx-auto text-center">
+          <div
+            className="p-8 sm:p-12 rounded-3xl"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.25)" }}
+          >
+            <p className="text-xs sm:text-sm font-semibold mb-3 uppercase tracking-widest" style={{ color: "#3b82f6" }}>
+              Coming Soon
+            </p>
+            <h2 className="font-bold text-white mb-4" style={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}>
+              Australian Launch — Coming Soon
+            </h2>
+            <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Be one of the first Australians to get the MyAiWallet card.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: FEATURES ──────────────────────────────────────────── */}
+      <section id="features" className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
+              One app. Everything your money needs.
+            </h2>
+          </div>
+
+          {/* 2×2 grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+            {FEATURES.map(({ icon: Icon, color, title, desc }) => (
+              <div key={title}
+                className="group p-6 sm:p-8 rounded-3xl transition-all duration-300 hover:scale-[1.02]"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-4 sm:mb-5" style={{ background: `${color}22` }}>
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
                 </div>
-                <div className="text-xs sm:text-sm mt-1 whitespace-nowrap" style={{ color: "rgba(255,255,255,0.45)" }}>{label}</div>
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2">{title}</h3>
+                <p className="text-xs sm:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── BANK CAROUSEL ────────────────────────────────────────────────── */}
-      <BankCarousel />
+      {/* ── SECTION 4: CARD RELEASE ───────────────────────────────────────── */}
+      <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6"
+        style={{ background: "rgba(10,15,30,0.8)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
+            Introducing the MyAiWallet Card
+          </h2>
+          <p className="text-sm sm:text-base mb-10 sm:mb-14" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Australia&apos;s first AI-powered Visa debit card. Powered by Shaype.
+          </p>
 
-      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            {CARD_IMAGES.map(({ src, alt }) => (
+              <div key={alt} className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={alt}
+                  className="w-full h-48 sm:h-56 object-cover"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Visa debit. PayID. PayTo. NPP. All in one card. Launching 2026.
+          </p>
+        </div>
+      </section>
+
+      {/* ── SECTION 5: NEWSLETTER WAITLIST ───────────────────────────────── */}
+      <section id="waitlist" className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="max-w-xl mx-auto text-center">
+          <h2 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}>
+            Get early access to the MyAiWallet card
+          </h2>
+
+          {waitlistCount !== null && (
+            <p className="text-sm sm:text-base mb-8" style={{ color: "rgba(255,255,255,0.55)" }}>
+              Join <span className="text-white font-semibold">{waitlistCount.toLocaleString()}</span> Australians already on the waitlist.
+            </p>
+          )}
+          {waitlistCount === null && (
+            <p className="text-sm sm:text-base mb-8" style={{ color: "rgba(255,255,255,0.55)" }}>
+              Join Australians already on the waitlist.
+            </p>
+          )}
+
+          <div
+            className="p-6 sm:p-8 rounded-3xl"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.25)" }}
+          >
+            {submitted ? (
+              <p className="text-base sm:text-lg font-semibold text-white py-4">
+                You&apos;re on the list. We&apos;ll be in touch.
+              </p>
+            ) : alreadyOnList ? (
+              <p className="text-base sm:text-lg font-semibold text-white py-4">
+                You&apos;re already on the list.
+              </p>
+            ) : (
+              <form onSubmit={handleWaitlistSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={waitlistName}
+                  onChange={e => setWaitlistName(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl text-sm bg-white text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-blue-500"
+                  autoComplete="name"
+                />
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  value={waitlistEmail}
+                  onChange={e => setWaitlistEmail(e.target.value)}
+                  required
+                  className="w-full h-12 px-4 rounded-xl text-sm bg-white text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-blue-500"
+                  autoComplete="email"
+                />
+                {submitError && (
+                  <p className="text-xs" style={{ color: "#f87171" }}>{submitError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full h-12 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)", color: "#fff" }}
+                >
+                  {submitting ? "Joining…" : "Join the Waitlist"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 6: HOW IT WORKS ──────────────────────────────────────── */}
       <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#8b5cf6" }}>Simple Setup</p>
-            <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>Up and running in 3 steps</h2>
+            <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#3b82f6" }}>Simple Setup</p>
+            <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>Up and running in minutes</h2>
           </div>
 
-          {/* 1 col → 3 col */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {STEPS.map(({ n, color, title, desc }) => (
               <div key={n} className="relative p-6 sm:p-8 rounded-3xl"
@@ -501,119 +611,36 @@ export default function WelcomePage() {
         </div>
       </section>
 
-      {/* ── FEATURES ─────────────────────────────────────────────────────── */}
-      <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#22c55e" }}>Everything Included</p>
-            <h2 className="font-bold text-white mb-3 sm:mb-4" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
-              One platform for your whole financial life
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.5)" }}>
-              From categorisation to 90-day cash flow forecasting, all powered by AI, updated every time your bank syncs.
-            </p>
-          </div>
-
-          {/* 1 col → 2 col → 3 col */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-            {FEATURES.map(({ icon: Icon, color, title, desc }) => (
-              <div key={title}
-                className="group p-5 sm:p-7 rounded-3xl transition-all duration-300 hover:scale-[1.02]"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-4 sm:mb-5" style={{ background: `${color}22` }}>
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mb-2">{title}</h3>
-                <p className="text-xs sm:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TRUST / SECURITY STRIP ───────────────────────────────────────── */}
+      {/* ── SECTION 7: TRUST ─────────────────────────────────────────────── */}
       <section className="relative z-10 py-14 sm:py-20 px-4 sm:px-6"
-        style={{ background: "rgba(139,92,246,0.07)", borderTop: "1px solid rgba(139,92,246,0.15)", borderBottom: "1px solid rgba(139,92,246,0.15)" }}>
+        style={{ background: "rgba(59,130,246,0.05)", borderTop: "1px solid rgba(59,130,246,0.15)", borderBottom: "1px solid rgba(59,130,246,0.15)" }}>
         <div className="max-w-6xl mx-auto">
-          {/* 2 col on mobile, 4 col on md+ */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center">
-            {TRUST.map(({ icon: Icon, label, desc }) => (
+          <h2 className="font-bold text-white text-center mb-8 sm:mb-12" style={{ fontSize: "clamp(1.25rem, 4vw, 2rem)" }}>
+            Built on regulated Australian infrastructure
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center mb-8 sm:mb-12">
+            {TRUST_BADGES.map(({ label, subtext }) => (
               <div key={label} className="flex flex-col items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(139,92,246,0.2)" }}>
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#a78bfa" }} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center"
+                  style={{ background: "rgba(59,130,246,0.18)", border: "1px solid rgba(59,130,246,0.3)" }}>
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#3b82f6" }} />
                 </div>
                 <div>
                   <p className="font-semibold text-white text-xs sm:text-sm">{label}</p>
-                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: "rgba(255,255,255,0.45)" }}>{desc}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{subtext}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── PRICING TEASER ───────────────────────────────────────────────── */}
-      <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 uppercase tracking-widest" style={{ color: "#14b8a6" }}>Pricing</p>
-          <h2 className="font-bold text-white mb-4 sm:mb-6" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
-            Start free. Upgrade when ready.
-          </h2>
-          <p className="text-sm sm:text-base lg:text-lg mb-8 sm:mb-12 max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.5)" }}>
-            A full-featured demo needs no account. When you&apos;re ready to connect real accounts, plans start at{" "}
-            <span className="text-white font-semibold">$14.99 AUD/month</span>.
+          <p className="text-center text-xs max-w-2xl mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+            MyAiBank is a financial technology platform operated by AI Capital Holdings Pty Ltd (ACN 693 023 371). Accounts and payment services are provided by … (…). MyAiBank is not an Authorised Deposit-taking Institution.
           </p>
-
-          {/* Stack on mobile, side-by-side on sm+ */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-8 sm:mb-10 text-left">
-            {/* Free */}
-            <div className="p-6 sm:p-8 rounded-3xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              <p className="text-xs uppercase tracking-widest mb-3 sm:mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Demo</p>
-              <div className="text-3xl sm:text-4xl font-bold text-white mb-1">Free</div>
-              <p className="text-sm mb-5 sm:mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>No signup required</p>
-              {["Full AI dashboard preview", "Sample transaction data", "All features unlocked"].map(f => (
-                <div key={f} className="flex items-center gap-3 mb-2 sm:mb-3">
-                  <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#22c55e" }} />
-                  <span className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{f}</span>
-                </div>
-              ))}
-              <ShimmerButton
-                onClick={handleDemoMode}
-                shimmerColor="rgba(255,255,255,0.2)"
-                className="w-full h-12 rounded-2xl text-sm font-semibold mt-4 sm:mt-6"
-                style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#fff" }}
-              >
-                Try Demo Now
-              </ShimmerButton>
-            </div>
-
-            {/* Premium */}
-            <div className="p-6 sm:p-8 rounded-3xl relative overflow-hidden"
-              style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.2),rgba(109,40,217,0.1))", border: "1px solid rgba(139,92,246,0.4)" }}>
-              <div className="absolute top-4 right-4 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "#8b5cf6", color: "#fff" }}>Popular</div>
-              <p className="text-xs uppercase tracking-widest mb-3 sm:mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>Premium</p>
-              <div className="text-3xl sm:text-4xl font-bold text-white mb-1">$14.99</div>
-              <p className="text-sm mb-5 sm:mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>per month · billed monthly</p>
-              {["Connect real bank accounts", "Live AI insights & forecasting", "Subscription detection", "90-day cash flow forecast"].map(f => (
-                <div key={f} className="flex items-center gap-3 mb-2 sm:mb-3">
-                  <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#22c55e" }} />
-                  <span className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{f}</span>
-                </div>
-              ))}
-              <Button asChild className="w-full h-12 rounded-2xl text-sm font-semibold mt-4 sm:mt-6"
-                style={{ background: "linear-gradient(135deg,#8b5cf6,#6d28d9)", color: "#fff", border: "none" }}>
-                <Link href="/signup">Get Started <ArrowRight className="ml-2 w-4 h-4" /></Link>
-              </Button>
-            </div>
-          </div>
-
-          <Link href="/pricing" className="inline-flex items-center gap-1.5 text-xs sm:text-sm hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.5)" }}>
-            See full pricing <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
       </section>
 
-      {/* ── BLOG ─────────────────────────────────────────────────────────── */}
+      {/* ── SECTION 8: BLOG ──────────────────────────────────────────────── */}
       <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="max-w-7xl mx-auto">
 
@@ -685,37 +712,6 @@ export default function WelcomePage() {
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}>
               All posts <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
-      <section className="relative z-10 py-24 sm:py-32 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8"
-            style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.3)" }}>
-            <Sparkles className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: "#a78bfa" }} />
-          </div>
-          <h2 className="font-bold text-white mb-4 sm:mb-6" style={{ fontSize: "clamp(2rem, 6vw, 3.75rem)" }}>
-            Take control of your finances today.
-          </h2>
-          <p className="text-sm sm:text-base lg:text-lg mb-8 sm:mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
-            No credit card required. See your AI financial dashboard in 60 seconds.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-            <ShimmerButton
-              onClick={handleDemoMode}
-              shimmerColor="rgba(139,92,246,0.3)"
-              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 rounded-2xl text-sm sm:text-base font-semibold"
-              style={{ background: "linear-gradient(135deg,#ffffff,#f0edf5)", color: "#0a0a0f", boxShadow: "0 4px 32px rgba(139,92,246,0.3)" }}
-            >
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
-              Try the Live Demo
-            </ShimmerButton>
-            <Button asChild className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold"
-              style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.4)", color: "#fff" }}>
-              <Link href="/signup">Create Free Account <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" /></Link>
-            </Button>
           </div>
         </div>
       </section>
