@@ -13,7 +13,7 @@ import { CountUp } from "@/components/count-up"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
-  ArrowRight, Sparkles, Shield, TrendingUp,
+  ArrowRight, Shield, TrendingUp,
   Brain, CreditCard, Lock, Zap, Send,
   ChevronRight, CheckCircle, Menu, X, PiggyBank,
 } from "lucide-react"
@@ -125,11 +125,6 @@ const TRUST_BADGES = [
   { label: "256-bit Encryption",  subtext: "Bank-grade security" },
 ]
 
-const CARD_IMAGES = [
-  { src: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80", alt: "MyAiWallet Visa card" },
-  { src: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80", alt: "MyAiBank app on phone" },
-  { src: "https://images.unsplash.com/photo-1604156788856-2ed8c2f007bc?w=800&q=80", alt: "Contactless payment" },
-]
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -395,13 +390,6 @@ export default function WelcomePage() {
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16">
         <div className="w-full max-w-4xl mx-auto">
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6 sm:mb-8 text-xs sm:text-sm"
-            style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
-            Australia&apos;s AI-Powered Payments Platform
-          </div>
-
           {/* Headline */}
           <h1 className="font-heading font-bold leading-tight mb-4 sm:mb-6 text-white"
             style={{ fontSize: "clamp(2.25rem, 7vw, 4.5rem)" }}>
@@ -435,13 +423,15 @@ export default function WelcomePage() {
             </Button>
           </div>
 
-          {/*
-            ── PRODUCT CARD IMAGE PLACEHOLDER ──────────────────────────────
-            INSERT YOUR CARD PRODUCT IMAGE HERE.
-            Replace the comment block below with your <Image> or <img> tag.
-            Suggested: <Image src="/images/myaiwallet-card.png" alt="MyAiWallet Visa card" width={600} height={380} className="mx-auto rounded-2xl" />
-            ────────────────────────────────────────────────────────────────
-          */}
+          {/* ── HERO IMAGE PLACEHOLDER ── insert your MyAiWallet image(s) here ── */}
+          <div
+            className="w-full max-w-2xl mx-auto rounded-2xl"
+            style={{ background: "#000", minHeight: "320px", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {/* Replace this div with your <Image> or <img> tag, e.g.:
+                <Image src="/images/myaiwallet-hero.png" alt="MyAiWallet" width={800} height={400} className="mx-auto rounded-2xl w-full" />
+            */}
+          </div>
 
         </div>
       </section>
@@ -503,18 +493,14 @@ export default function WelcomePage() {
             Australia&apos;s first AI-powered Visa debit card. Powered by Shaype.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-            {CARD_IMAGES.map(({ src, alt }) => (
-              <div key={alt} className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={alt}
-                  className="w-full h-48 sm:h-56 object-cover"
-                  loading="lazy"
-                />
-              </div>
-            ))}
+          {/* ── CARD IMAGE PLACEHOLDER ── insert your MyAiWallet images here ── */}
+          <div
+            className="w-full rounded-2xl mb-8"
+            style={{ background: "#000", minHeight: "320px", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            {/* Replace this div with your own image(s), e.g.:
+                <Image src="/images/myaiwallet-card.png" alt="MyAiWallet Card" width={1200} height={400} className="w-full rounded-2xl" />
+            */}
           </div>
 
           <p className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
