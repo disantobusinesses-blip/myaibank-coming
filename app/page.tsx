@@ -12,6 +12,7 @@ import { ShimmerButton } from "@/components/shimmer-button"
 import { AuroraBackground } from "@/components/aurora-background"
 import { CountUp } from "@/components/count-up"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
+import ScrollExpandMedia from "@/components/ui/scroll-expansion-hero"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
@@ -452,6 +453,17 @@ export default function WelcomePage() {
         )}
       </nav>
 
+      {/* ── SCROLL EXPANSION HERO (sits above all sections; expands on scroll) ── */}
+      <ScrollExpandMedia
+        mediaType="image"
+        mediaSrc="/images/hero/CardTapAi (1).png"
+        bgImageSrc="/images/hero/MABcard.png"
+        title="MyAiWallet Card"
+        date="Coming 2026"
+        scrollToExpand="Scroll to explore"
+        textBlend
+      />
+
       {/* ── SECTION 1: HERO ──────────────────────────────────────────────── */}
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16 overflow-hidden">
         <Image
@@ -460,13 +472,13 @@ export default function WelcomePage() {
           fill
           priority
           sizes="100vw"
-          style={{ objectFit: "cover" }}
-          className="absolute inset-0 w-full h-full object-cover -z-10 opacity-30"
+          style={{ objectFit: "contain", objectPosition: "center" }}
+          className="absolute inset-0 w-full h-full -z-10 opacity-30 pointer-events-none"
         />
         <div className="w-full max-w-4xl mx-auto">
 
           {/* Headline */}
-          <h1 className="font-heading font-bold leading-tight mb-4 sm:mb-6 text-white"
+          <h1 className="font-heading font-bold leading-tight mb-6 sm:mb-8 text-white"
             style={{ fontSize: "clamp(2.25rem, 7vw, 4.5rem)" }}>
             Your money.{" "}
             <span style={{ background: "linear-gradient(135deg,#3b82f6,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -474,9 +486,16 @@ export default function WelcomePage() {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg lg:text-xl leading-relaxed mb-8 sm:mb-10 max-w-xl sm:max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
-          </p>
+          {/* Subheadline — left-aligned box, below headline */}
+          <div className="w-full max-w-md sm:max-w-lg mx-auto sm:mx-0 mb-8 sm:mb-10 text-left">
+            <div
+              className="p-5 sm:p-6 rounded-2xl bg-[#111827]/80 border border-[#1e293b] backdrop-blur-sm"
+            >
+              <p className="text-base sm:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
+                Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
+              </p>
+            </div>
+          </div>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 w-full">
