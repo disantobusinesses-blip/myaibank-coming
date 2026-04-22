@@ -1,21 +1,25 @@
 "use client"
 
-import React, { useEffect, useState, useCallback, useMemo } from "react"
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { motion } from "framer-motion"
 import { createClient } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { SiteFooter } from "@/components/site-footer"
 import { ShimmerButton } from "@/components/shimmer-button"
 import { AuroraBackground } from "@/components/aurora-background"
 import { CountUp } from "@/components/count-up"
+import { CountdownTimer } from "@/components/ui/countdown-timer"
+import ScrollExpandMedia from "@/components/ui/scroll-expansion-hero"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
   ArrowRight, Shield, TrendingUp,
   Brain, CreditCard, Lock, Zap, Send,
   ChevronRight, CheckCircle, Menu, X, PiggyBank,
+  Globe, Clock,
 } from "lucide-react"
 
 // ── Blog helpers ──────────────────────────────────────────────────────────────
@@ -124,6 +128,67 @@ const TRUST_BADGES = [
   { label: "PayID and NPP",       subtext: "Real-time payments" },
   { label: "256-bit Encryption",  subtext: "Bank-grade security" },
 ]
+
+const AI_FEATURE_CARDS = [
+  { src: "/videos/feature-1.mp4" },
+  { src: "/videos/feature-2.mp4" },
+]
+
+// ── Stats bar animated count (self-contained, uses IntersectionObserver) ─────
+function AnimatedCount({
+  target,
+  suffix = "",
+  formatThousands = false,
+  duration = 2000,
+}: {
+  target: number
+  suffix?: string
+  formatThousands?: boolean
+  duration?: number
+}) {
+  const ref = useRef<HTMLSpanElement | null>(null)
+  const [value, setValue] = useState(0)
+  const startedRef = useRef(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const start = () => {
+      if (startedRef.current) return
+      startedRef.current = true
+      const startTime = performance.now()
+      const step = (now: number) => {
+        const elapsed = now - startTime
+        const t = Math.min(1, elapsed / duration)
+        // easeOutCubic
+        const eased = 1 - Math.pow(1 - t, 3)
+        setValue(Math.round(eased * target))
+        if (t < 1) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            start()
+            observer.disconnect()
+            break
+          }
+        }
+      },
+      { threshold: 0.2 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [target, duration])
+
+  const formatted = formatThousands ? value.toLocaleString() : value.toString()
+
+  return <span ref={ref}>{formatted}{suffix}</span>
+}
 
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -386,12 +451,31 @@ export default function WelcomePage() {
         )}
       </nav>
 
+      {/* ── SCROLL EXPANSION HERO (sits above all sections; expands on scroll) ── */}
+      <ScrollExpandMedia
+        mediaType="image"
+        mediaSrc="/images/hero/CardTapAi (1).png"
+        title="MyAiWallet Card"
+        date="Coming 2026"
+        scrollToExpand="Scroll to explore"
+        textBlend
+      />
+
       {/* ── SECTION 1: HERO ──────────────────────────────────────────────── */}
-      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16">
+      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16 overflow-hidden">
+        <Image
+          src="/images/hero/MABcard.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          style={{ objectFit: "contain", objectPosition: "center" }}
+          className="absolute inset-0 w-full h-full -z-10 opacity-30 pointer-events-none"
+        />
         <div className="w-full max-w-4xl mx-auto">
 
           {/* Headline */}
-          <h1 className="font-heading font-bold leading-tight mb-4 sm:mb-6 text-white"
+          <h1 className="font-heading font-bold leading-tight mb-6 sm:mb-8 text-white"
             style={{ fontSize: "clamp(2.25rem, 7vw, 4.5rem)" }}>
             Your money.{" "}
             <span style={{ background: "linear-gradient(135deg,#3b82f6,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -399,9 +483,16 @@ export default function WelcomePage() {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg lg:text-xl leading-relaxed mb-8 sm:mb-10 max-w-xl sm:max-w-2xl mx-auto" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
-          </p>
+          {/* Subheadline — left-aligned box, below headline */}
+          <div className="w-full max-w-md sm:max-w-lg mx-auto sm:mx-0 mb-8 sm:mb-10 text-left">
+            <div
+              className="p-5 sm:p-6 rounded-2xl bg-[#111827]/80 border border-[#1e293b] backdrop-blur-sm"
+            >
+              <p className="text-base sm:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
+                Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
+              </p>
+            </div>
+          </div>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 w-full">
@@ -423,18 +514,49 @@ export default function WelcomePage() {
             </Button>
           </div>
 
-          {/* ── HERO IMAGE PLACEHOLDER ── insert your MyAiWallet image(s) here ── */}
-          <div
-            className="w-full max-w-2xl mx-auto rounded-2xl"
-            style={{ background: "#000", minHeight: "320px", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            {/* Replace this div with your <Image> or <img> tag, e.g.:
-                <Image src="/images/myaiwallet-hero.png" alt="MyAiWallet" width={800} height={400} className="mx-auto rounded-2xl w-full" />
-            */}
-          </div>
-
         </div>
       </section>
+
+      {/* ── STATS BAR ───────────────────────────────────────────────────── */}
+      <motion.section
+        className="relative z-10 bg-[#111827] py-14 px-4"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-0">
+          <div className="flex flex-col items-center px-10 md:px-16">
+            <div className="text-4xl md:text-5xl font-black text-blue-400 tabular-nums">
+              {waitlistCount !== null
+                ? <AnimatedCount target={waitlistCount} suffix="+" formatThousands />
+                : <span>—</span>
+              }
+            </div>
+            <div className="text-sm text-[#94a3b8] mt-2 text-center">
+              Australians on the waitlist
+            </div>
+          </div>
+          <div className="hidden sm:block w-px h-12 bg-[#1e293b] self-center" />
+          <div className="flex flex-col items-center px-10 md:px-16">
+            <div className="text-4xl md:text-5xl font-black text-blue-400 tabular-nums">
+              $0
+            </div>
+            <div className="text-sm text-[#94a3b8] mt-2 text-center">
+              monthly fees at launch
+            </div>
+          </div>
+          <div className="hidden sm:block w-px h-12 bg-[#1e293b] self-center" />
+          <div className="flex flex-col items-center px-10 md:px-16">
+            <div className="text-4xl md:text-5xl font-black text-blue-400 tabular-nums">
+              <AnimatedCount target={60} suffix="s" />
+            </div>
+            <div className="text-sm text-[#94a3b8] mt-2 text-center">
+              to get your virtual card
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* ── SECTION 2: LAUNCH COUNTDOWN ──────────────────────────────────── */}
       <section className="relative z-10 py-16 sm:py-20 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
@@ -446,12 +568,10 @@ export default function WelcomePage() {
             <p className="text-xs sm:text-sm font-semibold mb-3 uppercase tracking-widest" style={{ color: "#3b82f6" }}>
               Coming Soon
             </p>
-            <h2 className="font-bold text-white mb-4" style={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}>
+            <h2 className="font-bold text-white mb-6" style={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}>
               Australian Launch — Coming Soon
             </h2>
-            <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
-              Be one of the first Australians to get the MyAiWallet card.
-            </p>
+            <CountdownTimer targetDate="2026-09-01T00:00:00+10:00" />
           </div>
         </div>
       </section>
@@ -466,52 +586,183 @@ export default function WelcomePage() {
           </div>
 
           {/* 2×2 grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
-            {FEATURES.map(({ icon: Icon, color, title, desc }) => (
-              <div key={title}
-                className="group p-6 sm:p-8 rounded-3xl transition-all duration-300 hover:scale-[1.02]"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            {FEATURES.map(({ icon: Icon, color, title, desc }, index) => (
+              <motion.div
+                key={title}
+                className="group p-6 sm:p-8 rounded-3xl bg-[#111827] border border-[#1e293b] hover:border-blue-500/30 transition-colors duration-300"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="h-px bg-gradient-to-r from-blue-500/50 to-transparent mb-6" />
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-4 sm:mb-5" style={{ background: `${color}22` }}>
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color }} />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-white mb-2">{title}</h3>
                 <p className="text-xs sm:text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>{desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── SECTION 4: CARD RELEASE ───────────────────────────────────────── */}
       <section className="relative z-10 py-20 sm:py-28 px-4 sm:px-6"
         style={{ background: "rgba(10,15,30,0.8)", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center mb-10 sm:mb-14">
           <h2 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>
             Introducing the MyAiWallet Card
           </h2>
-          <p className="text-sm sm:text-base mb-10 sm:mb-14" style={{ color: "rgba(255,255,255,0.55)" }}>
+          <p className="text-sm sm:text-base" style={{ color: "rgba(255,255,255,0.55)" }}>
             Australia&apos;s first AI-powered Visa debit card. Powered by Shaype.
           </p>
+        </div>
 
-          {/* ── CARD IMAGE PLACEHOLDER ── insert your MyAiWallet images here ── */}
-          <div
-            className="w-full rounded-2xl mb-8"
-            style={{ background: "#000", minHeight: "320px", border: "1px solid rgba(255,255,255,0.08)" }}
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left column: image with radial glow */}
+          <motion.div
+            className="relative flex justify-center"
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
           >
-            {/* Replace this div with your own image(s), e.g.:
-                <Image src="/images/myaiwallet-card.png" alt="MyAiWallet Card" width={1200} height={400} className="w-full rounded-2xl" />
-            */}
-          </div>
+            <div
+              aria-hidden="true"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500/15 blur-3xl rounded-full -z-10"
+            />
+            <Image
+              src="/images/hero/CardTapAi (1).png"
+              alt="MyAiWallet card being tapped"
+              width={900}
+              height={900}
+              className="rounded-2xl w-full object-cover shadow-2xl shadow-blue-500/20"
+            />
+          </motion.div>
 
-          <p className="text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-            Visa debit. PayID. PayTo. NPP. All in one card. Launching 2026.
-          </p>
+          {/* Right column: benefits */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+          >
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Instant virtual card</h3>
+                  <p className="text-[#94a3b8] text-sm mt-1">Live in 60 seconds. No paperwork, no waiting.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Spend anywhere globally</h3>
+                  <p className="text-[#94a3b8] text-sm mt-1">Tap anywhere Visa is accepted in 150+ countries.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                  <Brain className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">AI tracks every dollar</h3>
+                  <p className="text-[#94a3b8] text-sm mt-1">Real insights, not generic tips. Powered by Claude.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400">
+                <Clock className="w-4 h-4" />
+                Physical card shipping Q3 2026
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4b: LIFESTYLE (cinematic) ─────────────────────────────── */}
+      <section className="relative z-10 overflow-hidden min-h-[500px] md:min-h-[600px] flex">
+        <Image
+          src="/images/hero/AppleWalletCard (1).png"
+          alt=""
+          fill
+          sizes="100vw"
+          style={{ objectFit: "cover" }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f1e] via-[#0a0f1e]/75 to-[#0a0f1e]/20" />
+        <div className="relative flex flex-col justify-center h-full w-full py-20 pl-6 md:pl-16 lg:pl-24 pr-6">
+          <motion.div
+            initial={{ opacity: 0, x: -32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl md:text-5xl font-black text-white max-w-lg leading-tight">
+              Built for how Australians actually live.
+            </h2>
+            <div className="mt-8 space-y-3 text-[#94a3b8] text-lg">
+              <p>Morning coffee — tap and go.</p>
+              <p>Rent day — send in seconds.</p>
+              <p>Pay day — AI moves your savings automatically.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollTo("waitlist")}
+              className="mt-8 inline-flex items-center gap-2 text-blue-400 font-semibold text-lg hover:text-blue-300 transition-colors"
+            >
+              Join the waitlist →
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── SECTION 4c: AI FEATURES VIDEO PANEL ───────────────────────────── */}
+      <section className="relative z-10 bg-[#0a0f1e] py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="mx-auto" style={{ maxWidth: "90vw" }}>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-16 text-center">
+            Everything your money needs.
+          </h2>
+          <motion.div
+            className="flex flex-col gap-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            {AI_FEATURE_CARDS.map((card, index) => (
+              <motion.div
+                key={card.src}
+                className="w-full rounded-2xl bg-[#111827] border border-[#1e293b] overflow-hidden aspect-video"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              />
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* ── SECTION 5: NEWSLETTER WAITLIST ───────────────────────────────── */}
-      <section id="waitlist" className="relative z-10 py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-xl mx-auto text-center">
+      <section id="waitlist" className="relative z-10 py-20 sm:py-28 px-4 sm:px-6 overflow-hidden" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.08)_0%,transparent_70%)]" />
+        <div className="relative max-w-xl mx-auto text-center">
           <h2 className="font-bold text-white mb-3" style={{ fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}>
             Get early access to the MyAiWallet card
           </h2>
@@ -527,10 +778,7 @@ export default function WelcomePage() {
             </p>
           )}
 
-          <div
-            className="p-6 sm:p-8 rounded-3xl"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(59,130,246,0.25)" }}
-          >
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#111827] border border-blue-500/25">
             {submitted ? (
               <p className="text-base sm:text-lg font-semibold text-white py-4">
                 You&apos;re on the list. We&apos;ll be in touch.
@@ -571,6 +819,21 @@ export default function WelcomePage() {
                 </button>
               </form>
             )}
+
+            <div className="flex justify-center gap-3 flex-wrap mt-5 pt-5 border-t border-[#1e293b]">
+              <span className="text-[#94a3b8] text-xs flex items-center gap-1.5">
+                <CheckCircle className="w-3 h-3 text-blue-400" />
+                No credit card required
+              </span>
+              <span className="text-[#94a3b8] text-xs flex items-center gap-1.5">
+                <CheckCircle className="w-3 h-3 text-blue-400" />
+                Cancel anytime
+              </span>
+              <span className="text-[#94a3b8] text-xs flex items-center gap-1.5">
+                <CheckCircle className="w-3 h-3 text-blue-400" />
+                Launching Q3 2026
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -583,17 +846,28 @@ export default function WelcomePage() {
             <h2 className="font-bold text-white" style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}>Up and running in minutes</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
-            {STEPS.map(({ n, color, title, desc }) => (
-              <div key={n} className="relative p-6 sm:p-8 rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 lg:gap-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            {STEPS.map(({ n, color, title, desc }, index) => (
+              <motion.div
+                key={n}
+                className="relative p-6 sm:p-8 rounded-3xl bg-[#111827] border border-[#1e293b]"
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, delay: index * 0.15 }}
+              >
                 <div className="text-5xl sm:text-6xl font-bold mb-4 sm:mb-6 leading-none" style={{ color, opacity: 0.22 }}>{n}</div>
                 <h3 className="text-base sm:text-lg font-bold text-white mb-2">{title}</h3>
                 <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>{desc}</p>
                 <div className="absolute top-6 right-6 w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -605,7 +879,13 @@ export default function WelcomePage() {
             Built on regulated Australian infrastructure
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center mb-8 sm:mb-12">
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center mb-8 sm:mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+          >
             {TRUST_BADGES.map(({ label, subtext }) => (
               <div key={label} className="flex flex-col items-center gap-2 sm:gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center"
@@ -618,7 +898,7 @@ export default function WelcomePage() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           <p className="text-center text-xs max-w-2xl mx-auto leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
             MyAiBank is a financial technology platform operated by AI Capital Holdings Pty Ltd (ACN 693 023 371). Accounts and payment services are provided by … (…). MyAiBank is not an Authorised Deposit-taking Institution.

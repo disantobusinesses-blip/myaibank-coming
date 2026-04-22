@@ -15,7 +15,6 @@ export const ROUTES = {
   DASHBOARD: "/app/dashboard",
   AUTH_CALLBACK: "/auth/callback",
   AUTH_ERROR: "/auth/error",
-  FISKIL_CALLBACK: "/fiskil/callback",
   WHAT_WE_DO: "/what-we-do",
 } as const
 
@@ -39,10 +38,7 @@ const PUBLIC_ROUTES: Set<string> = new Set([
 
 // Routes that handle their own transition logic and should not be
 // redirected away from while they are active (e.g. processing callbacks)
-const TRANSITION_ROUTES: Set<string> = new Set([
-  ROUTES.SUBSCRIPTION_SUCCESS,
-  ROUTES.FISKIL_CALLBACK,
-])
+const TRANSITION_ROUTES: Set<string> = new Set([])
 
 // ── State the guard needs ────────────────────────────────────────────
 export interface RoutingState {

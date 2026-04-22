@@ -1,17 +1,19 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { SiteFooter } from "@/components/site-footer"
-import { Shield, Lock, Eye, Database, UserCheck, FileText, CreditCard, Brain } from "lucide-react"
+import { MotionFadeIn } from "@/components/motion-fade-in"
+import { ShieldCheck, Eye, Lock, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Security | MyAiBank — Bank-Grade Protection",
+  title: "Security | MyAiBank — Regulated, read-only AI, bank-grade encryption",
   description:
-    "MyAiBank is built on bank-grade infrastructure. Learn how we protect your financial data, your accounts, and your privacy.",
+    "MyAiBank operates under Australian financial services law. Our AI is read-only, our encryption is bank-grade, and your funds are held by Shaype — not MyAiBank.",
   alternates: { canonical: "/security" },
   openGraph: {
-    title: "Security | MyAiBank — Bank-Grade Protection",
+    title: "Security | MyAiBank",
     description:
-      "MyAiBank is built on bank-grade infrastructure. Learn how we protect your financial data, your accounts, and your privacy.",
+      "Your money is safe. Here is exactly why. Regulated infrastructure, read-only AI, bank-grade encryption.",
     url: "/security",
     type: "website",
     siteName: "MyAiBank",
@@ -19,163 +21,223 @@ export const metadata: Metadata = {
   },
 }
 
-const principles = [
+const PILLARS = [
   {
-    icon: Lock,
-    color: "#3b82f6",
-    title: "Encryption in transit and at rest",
-    description:
-      "All data is encrypted using TLS 1.3 in transit and AES-256 at rest. Your financial data is protected whether it is being transmitted or stored.",
+    icon: ShieldCheck,
+    heading: "Regulated Australian Infrastructure",
+    body:
+      "MyAiBank is a Corporate Authorised Representative of Hay Limited (AFSL 515459). Card and payment services are issued by Shaype, a licensed Australian financial services provider. Every dollar you load is held under Australian financial services law — not stored in an app.",
   },
   {
     icon: Eye,
-    color: "#8b5cf6",
-    title: "We never sell your data",
-    description:
-      "Your personal and financial data is used only to power your account and your AI financial advisor. We do not sell, rent, or share your data with advertisers or third parties.",
+    heading: "Read-Only AI. Always.",
+    body:
+      "Our AI assistant analyses your transaction data but can never initiate payments without your explicit approval. Every money movement requires a separate confirmation in the app. The AI advises. You decide. Always.",
   },
   {
-    icon: Database,
-    color: "#3b82f6",
-    title: "Minimal data collection",
-    description:
-      "We collect only what is required to operate your account and deliver AI-powered insights: transactions, balances, and account metadata. Nothing more.",
-  },
-  {
-    icon: UserCheck,
-    color: "#8b5cf6",
-    title: "Secure authentication",
-    description:
-      "MyAiBank uses industry-standard authentication including Google OAuth and secure session tokens. Multi-factor authentication is supported for all accounts.",
-  },
-  {
-    icon: CreditCard,
-    color: "#3b82f6",
-    title: "Regulated banking infrastructure",
-    description:
-      "Account and card services are provided through Shaype, a licensed Banking-as-a-Service partner operating under Australian financial services regulations. Your funds and card are held and issued under a regulated framework.",
-  },
-  {
-    icon: Brain,
-    color: "#8b5cf6",
-    title: "AI advisor — finance only",
-    description:
-      "Our AI financial advisor is trained and constrained to financial topics only. It cannot initiate transactions or access data beyond your own account. All AI responses are generated without storing your conversation history.",
-  },
-  {
-    icon: FileText,
-    color: "#3b82f6",
-    title: "Privacy Act compliance",
-    description:
-      "We comply with the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs). You have the right to access, correct, or request deletion of your personal information at any time.",
-  },
-  {
-    icon: Shield,
-    color: "#8b5cf6",
-    title: "Fraud monitoring and alerts",
-    description:
-      "Real-time transaction monitoring flags unusual activity on your account. You are notified immediately and can freeze your card instantly from within the app.",
+    icon: Lock,
+    heading: "Bank-Grade Encryption",
+    body:
+      "All data transmitted between the MyAiBank app and our servers uses 256-bit TLS encryption — the same standard used by Australia's major banks. Your card details are tokenised and never stored on our servers in readable form.",
   },
 ]
 
+const LEGAL_DISCLOSURE =
+  "MyAiBank is a financial technology platform operated by AI Capital Holdings Pty Ltd (ACN 693 023 371). MyAiBank is a Corporate Authorised Representative of Hay Limited (AFSL 515459). MyAiBank is not an Authorised Deposit-taking Institution under the Banking Act 1959. Card and payment services are issued by Shaype (Hay Limited). Your funds are held by Shaype, not MyAiBank. MyAiBank does not hold, invest, or lend your money."
+
 export default function SecurityPage() {
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#0a0f1e", color: "#fff" }}>
-      <header className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="max-w-4xl mx-auto flex items-center gap-3 flex-wrap">
-          <Link href="/" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.5)" }}>
-            ← Home
+    <main className="min-h-screen flex flex-col bg-[#0a0f1e] text-white">
+      <header
+        className="sticky top-0 z-50"
+        style={{
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          backgroundColor: "rgba(10,15,30,0.92)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4 flex items-center justify-between">
+          <Link href="/">
+            <Image
+              src="/MABtransparent.png"
+              alt="MyAiBank"
+              width={80}
+              height={32}
+              className="object-contain w-16 h-auto sm:w-20"
+            />
           </Link>
-          <span style={{ color: "rgba(255,255,255,0.2)" }}>|</span>
-          <Link href="/features" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Features
-          </Link>
-          <span style={{ color: "rgba(255,255,255,0.2)" }}>|</span>
-          <Link href="/privacy" className="text-sm transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Privacy Policy
+          <nav className="hidden sm:flex items-center gap-5 lg:gap-8">
+            {[
+              ["What We Do", "/what-we-do"],
+              ["Features", "/features"],
+              ["Pricing", "/pricing"],
+              ["Privacy", "/privacy"],
+            ].map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-sm hover:text-white transition-colors"
+                style={{ color: "rgba(255,255,255,0.6)" }}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            href="/#waitlist"
+            className="h-9 px-4 rounded-full text-xs sm:text-sm font-semibold hover:scale-105 transition-all inline-flex items-center"
+            style={{
+              background: "linear-gradient(135deg,#3b82f6,#1d4ed8)",
+              color: "#fff",
+            }}
+          >
+            Join Waitlist
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 px-6 py-14 max-w-4xl mx-auto w-full">
-
-        {/* Hero */}
-        <div className="mb-14">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}
+      {/* Hero */}
+      <section className="relative px-4 sm:px-6 lg:px-10 pt-20 sm:pt-28 pb-14 sm:pb-20 text-center overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] rounded-full pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse, rgba(59,130,246,0.16), transparent 70%)",
+          }}
+        />
+        <MotionFadeIn className="relative max-w-3xl mx-auto">
+          <p
+            className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3"
+            style={{ color: "#3b82f6" }}
           >
-            <Shield className="w-3 h-3 flex-shrink-0" />
             Security
-          </div>
-          <h1 className="font-bold text-white mb-4" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", lineHeight: 1.15 }}>
-            Built for banking.{" "}
-            <span style={{ background: "linear-gradient(135deg,#3b82f6,#60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Secured like a bank.
-            </span>
-          </h1>
-          <p className="text-base sm:text-lg leading-relaxed max-w-2xl" style={{ color: "rgba(255,255,255,0.6)" }}>
-            MyAiBank is a full banking software platform with an AI financial advisor layer built on top. That means your money, your account, and your data are all held to the same standards as a traditional bank — plus the transparency of a modern fintech.
           </p>
-        </div>
+          <h1
+            className="font-bold text-white mb-5"
+            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1.1 }}
+          >
+            Your money is safe. Here is exactly why.
+          </h1>
+          <p
+            className="text-base sm:text-lg max-w-2xl mx-auto"
+            style={{ color: "rgba(255,255,255,0.65)" }}
+          >
+            We are not a bank. We are something more careful.
+          </p>
+        </MotionFadeIn>
+      </section>
 
-        {/* Principle cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-14">
-          {principles.map(({ icon: Icon, color, title, description }) => (
-            <div
-              key={title}
-              className="p-6 rounded-3xl"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+      {/* Pillars */}
+      <section
+        className="px-4 sm:px-6 lg:px-10 py-10 sm:py-16"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+          {PILLARS.map(({ icon: Icon, heading, body }, i) => (
+            <MotionFadeIn
+              key={heading}
+              delay={i * 0.1}
+              className="p-7 sm:p-10 rounded-3xl bg-[#111827] border border-[#1e293b]"
             >
-              <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center mb-4"
-                style={{ background: `${color}22` }}
-              >
-                <Icon className="w-5 h-5" style={{ color }} />
+              <div className="flex items-start gap-5 sm:gap-7 flex-col sm:flex-row">
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: "rgba(59,130,246,0.15)",
+                    border: "1px solid rgba(59,130,246,0.3)",
+                  }}
+                >
+                  <Icon className="w-7 h-7" style={{ color: "#3b82f6" }} />
+                </div>
+                <div className="flex-1">
+                  <h2
+                    className="font-bold text-white mb-3"
+                    style={{ fontSize: "clamp(1.25rem, 3vw, 1.75rem)" }}
+                  >
+                    {heading}
+                  </h2>
+                  <p
+                    className="text-sm sm:text-base leading-relaxed"
+                    style={{ color: "rgba(255,255,255,0.65)" }}
+                  >
+                    {body}
+                  </p>
+                </div>
               </div>
-              <h2 className="text-base font-semibold text-white mb-2">{title}</h2>
-              <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-                {description}
-              </p>
-            </div>
+            </MotionFadeIn>
           ))}
         </div>
+      </section>
 
-        {/* CTA */}
-        <div
-          className="p-8 rounded-3xl text-center"
-          style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)" }}
-        >
-          <h2 className="text-lg font-semibold text-white mb-2">
-            Questions about security or privacy?
+      {/* Legal disclosure */}
+      <section
+        className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <MotionFadeIn className="max-w-4xl mx-auto">
+          <p
+            className="text-xs sm:text-sm font-semibold uppercase tracking-widest mb-4"
+            style={{ color: "#3b82f6" }}
+          >
+            Legal disclosure
+          </p>
+          <h2
+            className="font-bold text-white mb-6"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+          >
+            The fine print, plainly stated.
           </h2>
-          <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Contact us at{" "}
-            <a
-              href="mailto:privacy@myaibank.ai"
-              className="hover:underline"
-              style={{ color: "#60a5fa" }}
+          <div
+            className="p-6 sm:p-8 rounded-3xl"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <p
+              className="text-sm sm:text-base leading-relaxed"
+              style={{ color: "rgba(255,255,255,0.7)" }}
             >
-              privacy@myaibank.ai
-            </a>{" "}
-            or read our full{" "}
-            <Link href="/privacy" className="hover:underline" style={{ color: "#60a5fa" }}>
-              Privacy Policy
-            </Link>
-            .
+              {LEGAL_DISCLOSURE}
+            </p>
+          </div>
+        </MotionFadeIn>
+      </section>
+
+      {/* CTA */}
+      <section
+        className="px-4 sm:px-6 lg:px-10 py-20 sm:py-28"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+      >
+        <MotionFadeIn className="max-w-2xl mx-auto text-center">
+          <h2
+            className="font-bold text-white mb-4"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+          >
+            Join the waitlist. No credit card. No commitment.
+          </h2>
+          <p
+            className="text-sm sm:text-base mb-8"
+            style={{ color: "rgba(255,255,255,0.55)" }}
+          >
+            Be first to the MyAiWallet card when it launches in Australia.
           </p>
           <Link
-            href="/signup"
-            className="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
+            href="/#waitlist"
+            className="inline-flex items-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-2xl text-sm sm:text-base font-semibold transition-all hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg,#3b82f6,#1d4ed8)",
+              color: "#fff",
+              boxShadow: "0 4px 32px rgba(59,130,246,0.35)",
+            }}
           >
-            Get Started Free
+            Join the Waitlist <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
-        </div>
-      </main>
+        </MotionFadeIn>
+      </section>
 
       <SiteFooter variant="dark" />
-    </div>
+    </main>
   )
 }
-

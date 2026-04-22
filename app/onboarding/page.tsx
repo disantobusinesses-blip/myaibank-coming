@@ -1,61 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { LegalFooter } from "@/components/legal-footer"
 import { useAuth } from "@/contexts/auth-context"
-import { getNextRoute, buildRoutingState } from "@/lib/routing"
-import { Building2, Shield, Loader2, ArrowRight, CheckCircle, AlertCircle } from "lucide-react"
-
-// ENV VARS needed:
-// - FISKIL_BASE_URL
-// - FISKIL_CLIENT_ID
-// - FISKIL_CLIENT_SECRET
+import { Sparkles, Shield, Loader2, ArrowRight } from "lucide-react"
 
 export default function OnboardingPage() {
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [isConnected, setIsConnected] = useState(false)
-  const [error, setError] = useState("")
+  const [isFinishing, setIsFinishing] = useState(false)
   const { user, profile, updateProfile } = useAuth()
   const router = useRouter()
-  const pathname = usePathname()
 
-  const handleConnectBank = async () => {
-    setIsConnecting(true)
-    setError("")
-    
-    try {
-      // Call API to create Fiskil consent session
-      const response = await fetch("/api/create-consent-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || "Failed to create consent session")
-      }
-
-      const data = await response.json()
-      
-      // Redirect to Fiskil auth URL for bank consent
-      if (data.auth_url) {
-        window.location.href = data.auth_url
-      } else {
-        throw new Error("No auth URL returned")
-      }
-    } catch (err) {
-      console.error("Bank connection error:", err)
-      setError(err instanceof Error ? err.message : "Failed to connect bank")
-      setIsConnecting(false)
-    }
-  }
-
-  const handleSkip = async () => {
-    // User already marked as onboarded by auth callback, but ensure consistency
+  const handleContinue = async () => {
+    setIsFinishing(true)
     if (!profile?.is_onboarded) {
       await updateProfile({
         is_onboarded: true,
@@ -64,32 +22,9 @@ export default function OnboardingPage() {
     router.push("/app/dashboard")
   }
 
-  const handleConnectLater = () => {
-    // Skip bank connection and go directly to dashboard
-    router.push("/app/dashboard")
-  }
-
   if (!user) {
     router.push("/login")
     return null
-  }
-
-  if (isConnected) {
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center bg-background px-6 safe-area-inset">
-        <div className="max-w-md w-full text-center">
-          <div className="w-24 h-24 rounded-full bg-[#22c55e]/20 flex items-center justify-center mx-auto mb-6 glow-success">
-            <CheckCircle className="w-12 h-12 text-[#22c55e]" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Bank Connected!
-          </h1>
-          <p className="text-muted-foreground">
-            Taking you to your dashboard...
-          </p>
-        </div>
-      </main>
-    )
   }
 
   return (
@@ -102,22 +37,22 @@ export default function OnboardingPage() {
 
         {/* Header */}
         <h1 className="text-2xl font-bold text-foreground text-center mb-2">
-          Connect your bank
+          Welcome to MyAiBank
         </h1>
         <p className="text-muted-foreground text-center mb-8">
-          Securely link your accounts to get personalized insights
+          You&apos;re all set. Bank connections will be available soon.
         </p>
 
         {/* Benefits */}
         <div className="space-y-4 mb-8">
           <div className="flex items-start gap-4 p-4 rounded-2xl bg-card border border-border">
             <div className="w-10 h-10 rounded-xl bg-[#14b8a6]/20 flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-5 h-5 text-[#14b8a6]" />
+              <Sparkles className="w-5 h-5 text-[#14b8a6]" />
             </div>
             <div>
-              <h3 className="font-medium text-foreground">Automatic tracking</h3>
+              <h3 className="font-medium text-foreground">AI insights, ready to go</h3>
               <p className="text-sm text-muted-foreground">
-                We&apos;ll automatically categorize your transactions and detect subscriptions
+                Explore your dashboard and try the AI assistant right away with demo data.
               </p>
             </div>
           </div>
@@ -129,53 +64,30 @@ export default function OnboardingPage() {
             <div>
               <h3 className="font-medium text-foreground">Bank-grade security</h3>
               <p className="text-sm text-muted-foreground">
-                We use Fiskil&apos;s secure open banking connection. We never see your login credentials.
+                Secure open banking integration is coming soon. We will never see your login credentials.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Supported Banks Note */}
-        <div className="text-center mb-8">
-          <p className="text-sm text-muted-foreground">
-            Supports all major Australian banks including CBA, ANZ, Westpac, NAB, and more.
-          </p>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-        )}
-
-        {/* Connect Button */}
+        {/* Continue Button */}
         <Button
-          onClick={handleConnectBank}
-          disabled={isConnecting}
+          onClick={handleContinue}
+          disabled={isFinishing}
           className="w-full h-14 rounded-2xl bg-[#1F0051] hover:bg-[#2d0075] text-white font-semibold text-base"
         >
-          {isConnecting ? (
+          {isFinishing ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Connecting...
+              Loading...
             </>
           ) : (
             <>
-              Connect Bank Account
+              Continue to Dashboard
               <ArrowRight className="w-5 h-5 ml-2" />
             </>
           )}
         </Button>
-
-        {/* Skip Button */}
-        <button
-          onClick={handleConnectLater}
-          className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
-        >
-          Connect bank later
-        </button>
       </div>
 
       <LegalFooter />
