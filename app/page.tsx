@@ -129,11 +129,6 @@ const TRUST_BADGES = [
   { label: "256-bit Encryption",  subtext: "Bank-grade security" },
 ]
 
-const AI_FEATURE_CARDS = [
-  { src: "/videos/feature-1.mp4" },
-  { src: "/videos/feature-2.mp4" },
-]
-
 // ── Stats bar animated count (self-contained, uses IntersectionObserver) ─────
 function AnimatedCount({
   target,
@@ -453,8 +448,8 @@ export default function WelcomePage() {
 
       {/* ── SCROLL EXPANSION HERO (sits above all sections; expands on scroll) ── */}
       <ScrollExpandMedia
-        mediaType="image"
-        mediaSrc="/images/hero/CardTapAi (1).png"
+        mediaType="video"
+        mediaSrc="/videos/heroSectionVideo.mp4"
         title="MyAiWallet Card"
         date="Coming 2026"
         scrollToExpand="Scroll to explore"
@@ -729,32 +724,6 @@ export default function WelcomePage() {
             >
               Join the waitlist →
             </button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── SECTION 4c: AI FEATURES VIDEO PANEL ───────────────────────────── */}
-      <section className="relative z-10 bg-[#0a0f1e] py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="mx-auto" style={{ maxWidth: "90vw" }}>
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-16 text-center">
-            Everything your money needs.
-          </h2>
-          <motion.div
-            className="flex flex-col gap-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            {AI_FEATURE_CARDS.map((card, index) => (
-              <motion.div
-                key={card.src}
-                className="w-full rounded-2xl bg-[#111827] border border-[#1e293b] overflow-hidden aspect-video"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              />
-            ))}
           </motion.div>
         </div>
       </section>

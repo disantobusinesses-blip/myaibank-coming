@@ -55,6 +55,43 @@ const ScrollExpandMedia = ({
   const [isMobileState, setIsMobileState] = useState<boolean>(false);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Drive local video playback position from scroll progress so the video
+  // plays forward as the user scrolls down and rewinds as they scroll back.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (mediaType !== 'video') return;
+    if (isYouTubeUrl(mediaSrc)) return;
+
+    const applyTime = () => {
+      const duration = video.duration;
+      if (!duration || Number.isNaN(duration) || !Number.isFinite(duration)) {
+        return;
+      }
+      const target = Math.min(
+        Math.max(scrollProgress * duration, 0),
+        Math.max(duration - 0.05, 0)
+      );
+      // Only seek if noticeably different to avoid jitter.
+      if (Math.abs(video.currentTime - target) > 0.03) {
+        try {
+          video.currentTime = target;
+        } catch {
+          // Ignore if the media isn't seekable yet.
+        }
+      }
+    };
+
+    if (video.readyState >= 1) {
+      applyTime();
+    } else {
+      const onLoaded = () => applyTime();
+      video.addEventListener('loadedmetadata', onLoaded, { once: true });
+      return () => video.removeEventListener('loadedmetadata', onLoaded);
+    }
+  }, [scrollProgress, mediaType, mediaSrc]);
 
   useEffect(() => {
     setScrollProgress(0);
@@ -211,7 +248,7 @@ const ScrollExpandMedia = ({
               <div className='absolute inset-0 bg-black/10' />
             </motion.div>
           ) : (
-            <div className='absolute inset-0 z-0 h-full bg-[#0a0f1e]' />
+            <div className='absolute inset-0 z-0 h-full bg-black' />
           )}
 
           <div className='container mx-auto flex flex-col items-center justify-start relative z-10'>
@@ -261,11 +298,10 @@ const ScrollExpandMedia = ({
                   ) : (
                     <div className='relative w-full h-full pointer-events-none'>
                       <video
+                        ref={videoRef}
                         src={mediaSrc}
                         poster={posterSrc}
-                        autoPlay
                         muted
-                        loop
                         playsInline
                         preload='auto'
                         className='w-full h-full object-cover rounded-xl'
