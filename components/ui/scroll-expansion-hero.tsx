@@ -30,10 +30,7 @@ interface ScrollExpandMediaProps {
   mediaSrc: string;
   posterSrc?: string;
   bgImageSrc?: string;
-  title?: string;
-  date?: string;
   scrollToExpand?: string;
-  textBlend?: boolean;
   children?: ReactNode;
 }
 
@@ -42,10 +39,7 @@ const ScrollExpandMedia = ({
   mediaSrc,
   posterSrc,
   bgImageSrc,
-  title,
-  date,
   scrollToExpand,
-  textBlend,
   children,
 }: ScrollExpandMediaProps) => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
@@ -53,6 +47,8 @@ const ScrollExpandMedia = ({
   const [mediaFullyExpanded, setMediaFullyExpanded] = useState<boolean>(false);
   const [touchStartY, setTouchStartY] = useState<number>(0);
   const [isMobileState, setIsMobileState] = useState<boolean>(false);
+  const [viewportWidth, setViewportWidth] = useState<number>(0);
+  const [viewportHeight, setViewportHeight] = useState<number>(0);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -87,7 +83,16 @@ const ScrollExpandMedia = ({
     if (video.readyState >= 1) {
       applyTime();
     } else {
-      const onLoaded = () => applyTime();
+      const onLoaded = () => {
+        // Prime the video on iOS so it becomes seekable: briefly play then pause.
+        video.play().then(() => {
+          video.pause();
+          applyTime();
+        }).catch(() => {
+          // Autoplay was blocked — still attempt to apply time directly.
+          applyTime();
+        });
+      };
       video.addEventListener('loadedmetadata', onLoaded, { once: true });
       return () => video.removeEventListener('loadedmetadata', onLoaded);
     }
@@ -106,7 +111,7 @@ const ScrollExpandMedia = ({
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         e.preventDefault();
-        const scrollDelta = e.deltaY * 0.0009;
+        const scrollDelta = e.deltaY * 0.0015;
         const newProgress = Math.min(
           Math.max(scrollProgress + scrollDelta, 0),
           1
@@ -137,8 +142,8 @@ const ScrollExpandMedia = ({
         e.preventDefault();
       } else if (!mediaFullyExpanded) {
         e.preventDefault();
-        // Increase sensitivity for mobile, especially when scrolling back
-        const scrollFactor = deltaY < 0 ? 0.008 : 0.005; // Higher sensitivity for scrolling back
+        // Consistent sensitivity for forward and backward touch scrubbing.
+        const scrollFactor = 0.006;
         const scrollDelta = deltaY * scrollFactor;
         const newProgress = Math.min(
           Math.max(scrollProgress + scrollDelta, 0),
@@ -204,6 +209,8 @@ const ScrollExpandMedia = ({
   useEffect(() => {
     const checkIfMobile = (): void => {
       setIsMobileState(window.innerWidth < 768);
+      setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
     };
 
     checkIfMobile();
@@ -212,12 +219,19 @@ const ScrollExpandMedia = ({
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
-  const mediaWidth = 300 + scrollProgress * (isMobileState ? 650 : 1250);
-  const mediaHeight = 400 + scrollProgress * (isMobileState ? 200 : 400);
-  const textTranslateX = scrollProgress * (isMobileState ? 180 : 150);
-
-  const firstWord = title ? title.split(' ')[0] : '';
-  const restOfTitle = title ? title.split(' ').slice(1).join(' ') : '';
+  // Base size is viewport-relative so the card looks good on all screen sizes.
+  // On mobile the card starts at ~85% of viewport width / ~48% of viewport height.
+  // On desktop it starts as a centred card (~24vw wide / ~52vh tall) and expands
+  // to fill the viewport. Fall back to fixed values before the viewport dimensions
+  // are known (pre-hydration / initial SSR render).
+  const vw = viewportWidth || 1280;
+  const vh = viewportHeight || 800;
+  const baseWidth = isMobileState ? Math.round(vw * 0.85) : Math.round(vw * 0.24);
+  const baseHeight = isMobileState ? Math.round(vh * 0.48) : Math.round(vh * 0.52);
+  const expandWidth = isMobileState ? Math.round(vw * 0.13) : Math.round(vw * 0.74);
+  const expandHeight = isMobileState ? Math.round(vh * 0.40) : Math.round(vh * 0.36);
+  const mediaWidth = baseWidth + scrollProgress * expandWidth;
+  const mediaHeight = baseHeight + scrollProgress * expandHeight;
 
   return (
     <div
@@ -304,7 +318,7 @@ const ScrollExpandMedia = ({
                         muted
                         playsInline
                         preload='auto'
-                        aria-label={title ? `${title} hero video` : 'Hero video'}
+                        aria-label='Hero video'
                         className='w-full h-full object-cover rounded-xl'
                         controls={false}
                         disablePictureInPicture
@@ -327,7 +341,7 @@ const ScrollExpandMedia = ({
                   <div className='relative w-full h-full'>
                     <Image
                       src={mediaSrc}
-                      alt={title || 'Media content'}
+                      alt='Media content'
                       width={1280}
                       height={720}
                       className='w-full h-full object-cover rounded-xl'
@@ -341,45 +355,18 @@ const ScrollExpandMedia = ({
                     />
                   </div>
                 )}
-
-                <div className='flex flex-col items-center text-center relative z-10 mt-4 transition-none'>
-                  {date && (
-                    <p
-                      className='text-2xl text-blue-200'
-                      style={{ transform: `translateX(-${textTranslateX}vw)` }}
-                    >
-                      {date}
-                    </p>
-                  )}
-                  {scrollToExpand && (
-                    <p
-                      className='text-blue-200 font-medium text-center'
-                      style={{ transform: `translateX(${textTranslateX}vw)` }}
-                    >
-                      {scrollToExpand}
-                    </p>
-                  )}
-                </div>
               </div>
 
-              <div
-                className={`flex items-center justify-center text-center gap-4 w-full relative z-10 transition-none flex-col ${
-                  textBlend ? 'mix-blend-difference' : 'mix-blend-normal'
-                }`}
-              >
-                <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-blue-200 transition-none'
-                  style={{ transform: `translateX(-${textTranslateX}vw)` }}
+              {/* "Scroll to explore" hint — fades out as the user starts scrolling */}
+              {scrollToExpand && (
+                <motion.p
+                  className='absolute bottom-8 left-1/2 -translate-x-1/2 text-sm font-medium text-blue-200 pointer-events-none select-none whitespace-nowrap'
+                  animate={{ opacity: 1 - scrollProgress * 3 }}
+                  transition={{ duration: 0.1 }}
                 >
-                  {firstWord}
-                </motion.h2>
-                <motion.h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-bold text-center text-blue-200 transition-none'
-                  style={{ transform: `translateX(${textTranslateX}vw)` }}
-                >
-                  {restOfTitle}
-                </motion.h2>
-              </div>
+                  ↕ {scrollToExpand}
+                </motion.p>
+              )}
             </div>
 
             <motion.section

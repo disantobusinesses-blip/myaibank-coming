@@ -450,10 +450,7 @@ export default function WelcomePage() {
       <ScrollExpandMedia
         mediaType="video"
         mediaSrc="/videos/heroSectionVideo.mp4"
-        title="MyAiWallet Card"
-        date="Coming 2026"
         scrollToExpand="Scroll to explore"
-        textBlend
       />
 
       {/* ── SECTION 1: HERO ──────────────────────────────────────────────── */}
