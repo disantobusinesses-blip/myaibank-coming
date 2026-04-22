@@ -19,7 +19,7 @@ import {
   ArrowRight, Shield, TrendingUp,
   Brain, CreditCard, Lock, Zap, Send,
   ChevronRight, CheckCircle, Menu, X, PiggyBank,
-  Globe, Clock, Play,
+  Globe, Clock,
 } from "lucide-react"
 
 // ── Blog helpers ──────────────────────────────────────────────────────────────
@@ -130,10 +130,8 @@ const TRUST_BADGES = [
 ]
 
 const AI_FEATURE_CARDS = [
-  { label: "Ad video drops here — 16:9", heading: "AI Financial Assistant", subtext: "Ask anything about your money. Get real answers in seconds." },
-  { label: "Ad video drops here — 16:9", heading: "Smart Savings",          subtext: "AI moves money to savings on payday before you can spend it." },
-  { label: "Ad video drops here — 16:9", heading: "Cash Flow Forecast",     subtext: "See your balance in 30, 60, and 90 days." },
-  { label: "Ad video drops here — 16:9", heading: "Subscription Detective", subtext: "Find and cancel forgotten subscriptions automatically." },
+  { src: "/videos/feature-1.mp4" },
+  { src: "/videos/feature-2.mp4" },
 ]
 
 // ── Stats bar animated count (self-contained, uses IntersectionObserver) ─────
@@ -530,7 +528,10 @@ export default function WelcomePage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-8 sm:gap-0">
           <div className="flex flex-col items-center px-10 md:px-16">
             <div className="text-4xl md:text-5xl font-black text-blue-400 tabular-nums">
-              <AnimatedCount target={45000} suffix="+" formatThousands />
+              {waitlistCount !== null
+                ? <AnimatedCount target={waitlistCount} suffix="+" formatThousands />
+                : <span>—</span>
+              }
             </div>
             <div className="text-sm text-[#94a3b8] mt-2 text-center">
               Australians on the waitlist
@@ -734,36 +735,25 @@ export default function WelcomePage() {
 
       {/* ── SECTION 4c: AI FEATURES VIDEO PANEL ───────────────────────────── */}
       <section className="relative z-10 bg-[#0a0f1e] py-20 sm:py-28 px-4 sm:px-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="max-w-5xl mx-auto">
+        <div className="mx-auto" style={{ maxWidth: "90vw" }}>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-16 text-center">
             Everything your money needs.
           </h2>
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+            className="flex flex-col gap-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
             {AI_FEATURE_CARDS.map((card, index) => (
               <motion.div
-                key={card.heading}
-                className="bg-[#111827] rounded-2xl border border-[#1e293b] overflow-hidden"
+                key={card.src}
+                className="w-full rounded-2xl bg-[#111827] border border-[#1e293b] overflow-hidden aspect-video"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="h-52 bg-[#0a0f1e] border-b border-[#1e293b] flex flex-col items-center justify-center gap-3">
-                  <div className="w-14 h-14 rounded-full border-2 border-white/20 flex items-center justify-center">
-                    <Play className="w-5 h-5 text-white/60 ml-1" />
-                  </div>
-                  <div className="text-[#94a3b8] text-xs tracking-wide">{card.label}</div>
-                </div>
-                <div className="px-6 py-5">
-                  <h3 className="text-base font-bold text-white">{card.heading}</h3>
-                  <p className="text-[#94a3b8] text-sm mt-1.5">{card.subtext}</p>
-                </div>
-              </motion.div>
+              />
             ))}
           </motion.div>
         </div>
