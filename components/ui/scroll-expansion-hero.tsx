@@ -304,6 +304,7 @@ const ScrollExpandMedia = ({
                         muted
                         playsInline
                         preload='auto'
+                        aria-label={title ? `${title} hero video` : 'Hero video'}
                         className='w-full h-full object-cover rounded-xl'
                         controls={false}
                         disablePictureInPicture
