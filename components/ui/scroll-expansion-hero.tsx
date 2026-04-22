@@ -318,7 +318,7 @@ const ScrollExpandMedia = ({
                         muted
                         playsInline
                         preload='auto'
-                        aria-label='Hero video'
+                        aria-label='Scroll-controlled hero video'
                         className='w-full h-full object-cover rounded-xl'
                         controls={false}
                         disablePictureInPicture
@@ -364,7 +364,8 @@ const ScrollExpandMedia = ({
                   animate={{ opacity: 1 - scrollProgress * 3 }}
                   transition={{ duration: 0.1 }}
                 >
-                  ↕ {scrollToExpand}
+                  <span aria-hidden='true'>↕ </span>
+                  {scrollToExpand}
                 </motion.p>
               )}
             </div>
