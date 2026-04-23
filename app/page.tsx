@@ -458,6 +458,7 @@ export default function WelcomePage() {
           muted
           loop
           playsInline
+          aria-label="Hero background video showing MyAiWallet Card"
           className="absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none"
         />
         <div className="w-full max-w-4xl mx-auto">
