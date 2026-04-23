@@ -472,17 +472,6 @@ export default function WelcomePage() {
             </span>
           </h1>
 
-          {/* Subheadline — left-aligned box, below headline */}
-          <div className="w-full max-w-md sm:max-w-lg mx-auto sm:mx-0 mb-8 sm:mb-10 text-left">
-            <div
-              className="p-5 sm:p-6 rounded-2xl bg-[#111827]/80 border border-[#1e293b] backdrop-blur-sm"
-            >
-              <p className="text-base sm:text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
-                Send money, hold a balance, spend with your MyAiWallet Visa card — with an AI trained by financial advisors to understand your needs.
-              </p>
-            </div>
-          </div>
-
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 w-full">
             <ShimmerButton
