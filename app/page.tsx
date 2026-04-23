@@ -12,7 +12,6 @@ import { ShimmerButton } from "@/components/shimmer-button"
 import { AuroraBackground } from "@/components/aurora-background"
 import { CountUp } from "@/components/count-up"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
-import ScrollExpandMedia from "@/components/ui/scroll-expansion-hero"
 import { useAuth } from "@/contexts/auth-context"
 import { getNextRoute, buildRoutingState } from "@/lib/routing"
 import {
@@ -451,26 +450,15 @@ export default function WelcomePage() {
         )}
       </nav>
 
-      {/* ── SCROLL EXPANSION HERO (sits above all sections; expands on scroll) ── */}
-      <ScrollExpandMedia
-        mediaType="image"
-        mediaSrc="/images/hero/CardTapAi (1).png"
-        title="MyAiWallet Card"
-        date="Coming 2026"
-        scrollToExpand="Scroll to explore"
-        textBlend
-      />
-
       {/* ── SECTION 1: HERO ──────────────────────────────────────────────── */}
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-20 pb-16 overflow-hidden">
-        <Image
-          src="/images/hero/MABcard.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          style={{ objectFit: "contain", objectPosition: "center" }}
-          className="absolute inset-0 w-full h-full -z-10 opacity-30 pointer-events-none"
+        <video
+          src="/videos/heroSectionVideo.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover -z-10 pointer-events-none"
         />
         <div className="w-full max-w-4xl mx-auto">
 
