@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { Instagram } from "lucide-react"
 import { CookieSettingsTrigger } from "@/components/cookie-settings-trigger"
 
 interface SiteFooterProps {
@@ -81,6 +82,19 @@ export function SiteFooter({ variant = "light" }: SiteFooterProps) {
             </ul>
           </div>
         </nav>
+
+        {/* Social links */}
+        <div className="flex justify-center mb-8">
+          <a
+            href="https://www.instagram.com/myaibank?igsh=Y21icTE2cHY5Z3M1&utm_source=qr"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="MyAiBank on Instagram"
+            className={`transition-opacity hover:opacity-70 ${isDark ? "text-white/60" : "text-foreground/50"}`}
+          >
+            <Instagram size={28} strokeWidth={1.5} />
+          </a>
+        </div>
 
         {/* Bottom bar */}
         <div
